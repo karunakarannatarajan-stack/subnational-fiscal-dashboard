@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
       option.textContent = yr;
       compareYearSelect.appendChild(option);
     });
-    compareYearSelect.value = 4; // Default to latest (2024-25 BE)
+    compareYearSelect.value = fiscalData.years.length - 1; // Default to latest
 
     // Populate 3D Year Selector
     const threedYearSelect = document.getElementById("3d-year-select");
@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
       option.textContent = yr;
       threedYearSelect.appendChild(option);
     });
-    threedYearSelect.value = 4; // Default to latest (2024-25 BE)
+    threedYearSelect.value = fiscalData.years.length - 1; // Default to latest
 
     // 3. Initialize Sidebar profile
     updateSidebarProfile(activeStateId);
@@ -190,15 +190,16 @@ document.addEventListener("DOMContentLoaded", () => {
     profileRegion.textContent = `${state.region} India`;
     profileCapital.textContent = state.capital;
     
+    const latestIdx = fiscalData.years.length - 1;
+
     // Borrow cost info
     const yieldCost = fiscalData.sdl_yields[stateId];
-    const spreadBps = fiscalData.metrics.borrowing_spread[stateId][4]; // Latest year spread
+    const spreadBps = fiscalData.metrics.borrowing_spread[stateId][latestIdx]; // Latest year spread
     
     profileBorrowCost.textContent = `${yieldCost.toFixed(2)}%`;
     profileSpread.textContent = `+${spreadBps} bps vs G-Sec`;
 
     // Debt to own tax revenue ratio (latest year FY25 BE)
-    const latestIdx = fiscalData.years.length - 1;
     const latestDebt = fiscalData.metrics.debt_gsdp[stateId][latestIdx];
     const latestOwnTax = fiscalData.metrics.own_tax_gsdp[stateId][latestIdx];
     const debtOwnTaxRatio = latestDebt / latestOwnTax;
@@ -743,7 +744,8 @@ document.addEventListener("DOMContentLoaded", () => {
         value: val,
         color: s.color
       };
-    }).sort((a, b) => b.value - a.value);
+    }).filter(s => s.value !== null && s.value !== undefined)
+      .sort((a, b) => b.value - a.value);
 
     compareChartTitle.textContent = `${metricMeta.name} - ${yearStr} Rankings`;
 
@@ -822,7 +824,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const tableData = fiscalData.states.map(s => {
       const pc_gsdp_val = fiscalData.metrics.pc_gsdp[s.id][yearIdx];
       const debt_pct = fiscalData.metrics.debt_gsdp[s.id][yearIdx];
-      const pc_debt_val = (debt_pct / 100.0) * pc_gsdp_val;
+      const pc_debt_val = (pc_gsdp_val === null || debt_pct === null) ? null : (debt_pct / 100.0) * pc_gsdp_val;
       return {
         id: s.id,
         name: s.name,
@@ -830,7 +832,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fiscal_deficit: fiscalData.metrics.fiscal_deficit[s.id][yearIdx],
         revenue_deficit: fiscalData.metrics.revenue_deficit[s.id][yearIdx],
         capital_outlay: fiscalData.metrics.capital_outlay[s.id][yearIdx],
-        debt_gsdp: fiscalData.metrics.debt_gsdp[s.id][yearIdx],
+        debt_gsdp: debt_pct,
         pc_gsdp: pc_gsdp_val,
         pc_debt: pc_debt_val,
         central_transfers: fiscalData.metrics.central_transfers[s.id][yearIdx],
@@ -843,6 +845,9 @@ document.addEventListener("DOMContentLoaded", () => {
       let valA = currentSortColumn === "state" ? a.name : a[currentSortColumn];
       let valB = currentSortColumn === "state" ? b.name : b[currentSortColumn];
 
+      if (valA === null || valA === undefined) return currentSortAsc ? 1 : -1;
+      if (valB === null || valB === undefined) return currentSortAsc ? -1 : 1;
+
       if (typeof valA === "string") {
         return currentSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
       } else {
@@ -852,6 +857,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Helper for scorecard heatmap coloring
     function getCellFormatting(value, metricType) {
+      if (value === null || value === undefined) {
+        return `style="background-color: transparent; font-weight: 500; color: var(--text-secondary);"`;
+      }
       let bgColor = "";
       if (metricType === "fiscal_deficit") {
         bgColor = value < 3.0 ? "rgba(16, 185, 129, 0.08)" : (value <= 4.0 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
@@ -873,6 +881,23 @@ document.addEventListener("DOMContentLoaded", () => {
       return `style="background-color: ${bgColor}; font-weight: 500;"`;
     }
 
+    function formatCellText(val, metricType) {
+      if (val === null || val === undefined) {
+        return "N/A";
+      }
+      if (metricType === "fiscal_deficit" || metricType === "revenue_deficit" || metricType === "capital_outlay" || metricType === "debt_gsdp" || metricType === "central_transfers") {
+        const prefix = (metricType === "revenue_deficit" && val >= 0) ? "+" : "";
+        return `${prefix}${val.toFixed(2)}%`;
+      }
+      if (metricType === "pc_gsdp" || metricType === "pc_debt") {
+        return `₹${Math.round(val).toLocaleString('en-IN')}`;
+      }
+      if (metricType === "borrowing_spread") {
+        return `+${val} bps`;
+      }
+      return val;
+    }
+
     // Render table data rows
     tableData.forEach(rowItem => {
       const row = document.createElement("tr");
@@ -887,14 +912,14 @@ document.addEventListener("DOMContentLoaded", () => {
           <span class="state-bullet" style="background: ${rowItem.color}"></span>
           ${rowItem.name}
         </td>
-        <td ${getCellFormatting(rowItem.fiscal_deficit, 'fiscal_deficit')}>${rowItem.fiscal_deficit.toFixed(2)}%</td>
-        <td ${getCellFormatting(rowItem.revenue_deficit, 'revenue_deficit')}>${rowItem.revenue_deficit >= 0 ? '+' : ''}${rowItem.revenue_deficit.toFixed(2)}%</td>
-        <td ${getCellFormatting(rowItem.capital_outlay, 'capital_outlay')}>${rowItem.capital_outlay.toFixed(2)}%</td>
-        <td ${getCellFormatting(rowItem.debt_gsdp, 'debt_gsdp')}>${rowItem.debt_gsdp.toFixed(2)}%</td>
-        <td ${getCellFormatting(rowItem.pc_gsdp, 'pc_gsdp')}>₹${rowItem.pc_gsdp.toLocaleString('en-IN')}</td>
-        <td ${getCellFormatting(rowItem.pc_debt, 'pc_debt')}>₹${Math.round(rowItem.pc_debt).toLocaleString('en-IN')}</td>
-        <td ${getCellFormatting(rowItem.central_transfers, 'central_transfers')}>${rowItem.central_transfers.toFixed(1)}%</td>
-        <td ${getCellFormatting(rowItem.borrowing_spread, 'borrowing_spread')}>+${rowItem.borrowing_spread} bps</td>
+        <td ${getCellFormatting(rowItem.fiscal_deficit, 'fiscal_deficit')}>${formatCellText(rowItem.fiscal_deficit, 'fiscal_deficit')}</td>
+        <td ${getCellFormatting(rowItem.revenue_deficit, 'revenue_deficit')}>${formatCellText(rowItem.revenue_deficit, 'revenue_deficit')}</td>
+        <td ${getCellFormatting(rowItem.capital_outlay, 'capital_outlay')}>${formatCellText(rowItem.capital_outlay, 'capital_outlay')}</td>
+        <td ${getCellFormatting(rowItem.debt_gsdp, 'debt_gsdp')}>${formatCellText(rowItem.debt_gsdp, 'debt_gsdp')}</td>
+        <td ${getCellFormatting(rowItem.pc_gsdp, 'pc_gsdp')}>${formatCellText(rowItem.pc_gsdp, 'pc_gsdp')}</td>
+        <td ${getCellFormatting(rowItem.pc_debt, 'pc_debt')}>${formatCellText(rowItem.pc_debt, 'pc_debt')}</td>
+        <td ${getCellFormatting(rowItem.central_transfers, 'central_transfers')}>${formatCellText(rowItem.central_transfers, 'central_transfers')}</td>
+        <td ${getCellFormatting(rowItem.borrowing_spread, 'borrowing_spread')}>${formatCellText(rowItem.borrowing_spread, 'borrowing_spread')}</td>
       `;
       tableBody.appendChild(row);
     });
@@ -919,17 +944,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const zData = [];
     const textLabels = [];
     const colors = [];
+    const stateNames = [];
 
     fiscalData.states.forEach(s => {
       const xVal = getMetricValue(s.id, xKey, yearIdx);
       const yVal = getMetricValue(s.id, yKey, yearIdx);
       const zVal = getMetricValue(s.id, zKey, yearIdx);
 
+      if (xVal === null || yVal === null || zVal === null || xVal === undefined || yVal === undefined || zVal === undefined) {
+        return;
+      }
+
       xData.push(xVal);
       yData.push(yVal);
       zData.push(zVal);
       textLabels.push(`<b>${s.name}</b><br>${xMeta.name}: ${formatMetricValue(xVal, xKey)}<br>${yMeta.name}: ${formatMetricValue(yVal, yKey)}<br>${zMeta.name}: ${formatMetricValue(zVal, zKey)}`);
       colors.push(s.color);
+      stateNames.push(s.name);
     });
 
     const trace = {
@@ -937,7 +968,7 @@ document.addEventListener("DOMContentLoaded", () => {
       y: yData,
       z: zData,
       mode: 'markers+text',
-      text: fiscalData.states.map(s => s.name),
+      text: stateNames,
       textposition: 'top center',
       type: 'scatter3d',
       marker: {
