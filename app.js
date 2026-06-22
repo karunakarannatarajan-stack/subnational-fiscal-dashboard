@@ -204,6 +204,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const debtOwnTaxRatio = latestDebt / latestOwnTax;
     
     document.getElementById("profile-debt-own-revenue").textContent = `${debtOwnTaxRatio.toFixed(2)}x`;
+
+    // Per Capita GSDP and Per Capita Debt (latest year FY25 BE)
+    const latestPcGsdp = fiscalData.metrics.pc_gsdp[stateId][latestIdx];
+    const latestPcDebt = (latestDebt / 100.0) * latestPcGsdp;
+
+    document.getElementById("profile-pc-gsdp").textContent = `₹${latestPcGsdp.toLocaleString('en-IN')}`;
+    document.getElementById("profile-pc-debt").textContent = `₹${Math.round(latestPcDebt).toLocaleString('en-IN')}`;
   }
 
   // Update Summary Metrics Card Highlights
@@ -727,39 +734,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const yearStr = fiscalData.years[yearIdx];
     const t = getThemeColors();
 
-    let metricMeta;
-    let sortedStates;
-
-    if (metricKey === "debt_own_tax") {
-      metricMeta = {
-        name: "Debt to Own Tax Revenue (Ratio)",
-        description: "Outstanding Debt as a multiple of State's Own Tax Revenue."
+    let metricMeta = getMetricMetadata(metricKey);
+    let sortedStates = fiscalData.states.map(s => {
+      const val = getMetricValue(s.id, metricKey, yearIdx);
+      return {
+        id: s.id,
+        name: s.name,
+        value: val,
+        color: s.color
       };
-      
-      sortedStates = fiscalData.states.map(s => {
-        const debt = fiscalData.metrics.debt_gsdp[s.id][yearIdx];
-        const ownTax = fiscalData.metrics.own_tax_gsdp[s.id][yearIdx];
-        const val = debt / ownTax;
-        return {
-          id: s.id,
-          name: s.name,
-          value: val,
-          color: s.color
-        };
-      }).sort((a, b) => b.value - a.value);
-    } else {
-      metricMeta = fiscalData.metrics[metricKey];
-      
-      sortedStates = fiscalData.states.map(s => {
-        const val = fiscalData.metrics[metricKey][s.id][yearIdx];
-        return {
-          id: s.id,
-          name: s.name,
-          value: val,
-          color: s.color
-        };
-      }).sort((a, b) => b.value - a.value);
-    }
+    }).sort((a, b) => b.value - a.value);
 
     compareChartTitle.textContent = `${metricMeta.name} - ${yearStr} Rankings`;
 
@@ -789,7 +773,22 @@ document.addEventListener("DOMContentLoaded", () => {
         scales: {
           x: {
             grid: { color: t.gridColor },
-            title: { display: true, text: "Value", font: { weight: 600 } }
+            title: {
+              display: true,
+              text: metricKey === "debt_own_tax" ? "Ratio (x)" : (metricKey === "pc_gsdp" || metricKey === "pc_debt" ? "Rupees (₹)" : "Percentage (%)"),
+              font: { weight: 600 }
+            },
+            ticks: {
+              callback: function(value) {
+                if (metricKey === "pc_gsdp" || metricKey === "pc_debt") {
+                  return '₹' + value.toLocaleString('en-IN');
+                }
+                if (metricKey === "debt_own_tax") {
+                  return value.toFixed(1) + 'x';
+                }
+                return value + '%';
+              }
+            }
           },
           y: {
             grid: { color: t.gridColor },
@@ -803,7 +802,13 @@ document.addEventListener("DOMContentLoaded", () => {
             titleColor: t.tooltipText,
             bodyColor: t.textColor,
             borderColor: t.tooltipBorder,
-            borderWidth: 1
+            borderWidth: 1,
+            callbacks: {
+              label: function(context) {
+                const val = context.raw;
+                return ` ${metricMeta.name}: ${formatMetricValue(val, metricKey)}`;
+              }
+            }
           }
         }
       }
@@ -815,6 +820,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Prepare table data dynamically
     const tableData = fiscalData.states.map(s => {
+      const pc_gsdp_val = fiscalData.metrics.pc_gsdp[s.id][yearIdx];
+      const debt_pct = fiscalData.metrics.debt_gsdp[s.id][yearIdx];
+      const pc_debt_val = (debt_pct / 100.0) * pc_gsdp_val;
       return {
         id: s.id,
         name: s.name,
@@ -823,6 +831,8 @@ document.addEventListener("DOMContentLoaded", () => {
         revenue_deficit: fiscalData.metrics.revenue_deficit[s.id][yearIdx],
         capital_outlay: fiscalData.metrics.capital_outlay[s.id][yearIdx],
         debt_gsdp: fiscalData.metrics.debt_gsdp[s.id][yearIdx],
+        pc_gsdp: pc_gsdp_val,
+        pc_debt: pc_debt_val,
         central_transfers: fiscalData.metrics.central_transfers[s.id][yearIdx],
         borrowing_spread: fiscalData.metrics.borrowing_spread[s.id][yearIdx]
       };
@@ -855,6 +865,10 @@ document.addEventListener("DOMContentLoaded", () => {
         bgColor = value < 25.0 ? "rgba(16, 185, 129, 0.08)" : (value <= 45.0 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
       } else if (metricType === "borrowing_spread") {
         bgColor = value < 20 ? "rgba(16, 185, 129, 0.08)" : (value <= 35 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
+      } else if (metricType === "pc_gsdp") {
+        bgColor = value >= 300000 ? "rgba(16, 185, 129, 0.08)" : (value >= 200000 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
+      } else if (metricType === "pc_debt") {
+        bgColor = value < 60000 ? "rgba(16, 185, 129, 0.08)" : (value <= 90000 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
       }
       return `style="background-color: ${bgColor}; font-weight: 500;"`;
     }
@@ -877,6 +891,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <td ${getCellFormatting(rowItem.revenue_deficit, 'revenue_deficit')}>${rowItem.revenue_deficit >= 0 ? '+' : ''}${rowItem.revenue_deficit.toFixed(2)}%</td>
         <td ${getCellFormatting(rowItem.capital_outlay, 'capital_outlay')}>${rowItem.capital_outlay.toFixed(2)}%</td>
         <td ${getCellFormatting(rowItem.debt_gsdp, 'debt_gsdp')}>${rowItem.debt_gsdp.toFixed(2)}%</td>
+        <td ${getCellFormatting(rowItem.pc_gsdp, 'pc_gsdp')}>₹${rowItem.pc_gsdp.toLocaleString('en-IN')}</td>
+        <td ${getCellFormatting(rowItem.pc_debt, 'pc_debt')}>₹${Math.round(rowItem.pc_debt).toLocaleString('en-IN')}</td>
         <td ${getCellFormatting(rowItem.central_transfers, 'central_transfers')}>${rowItem.central_transfers.toFixed(1)}%</td>
         <td ${getCellFormatting(rowItem.borrowing_spread, 'borrowing_spread')}>+${rowItem.borrowing_spread} bps</td>
       `;
@@ -912,7 +928,7 @@ document.addEventListener("DOMContentLoaded", () => {
       xData.push(xVal);
       yData.push(yVal);
       zData.push(zVal);
-      textLabels.push(`<b>${s.name}</b><br>${xMeta.name}: ${xVal.toFixed(2)}%<br>${yMeta.name}: ${yVal.toFixed(2)}%<br>${zMeta.name}: ${zVal.toFixed(2)}%`);
+      textLabels.push(`<b>${s.name}</b><br>${xMeta.name}: ${formatMetricValue(xVal, xKey)}<br>${yMeta.name}: ${formatMetricValue(yVal, yKey)}<br>${zMeta.name}: ${formatMetricValue(zVal, zKey)}`);
       colors.push(s.color);
     });
 
@@ -990,12 +1006,20 @@ document.addEventListener("DOMContentLoaded", () => {
       const ownTax = fiscalData.metrics.own_tax_gsdp[stateId][yearIdx];
       return debt / ownTax;
     }
+    if (key === "pc_debt") {
+      const debt = fiscalData.metrics.debt_gsdp[stateId][yearIdx];
+      const pc_gsdp = fiscalData.metrics.pc_gsdp[stateId][yearIdx];
+      return (debt / 100.0) * pc_gsdp;
+    }
     return fiscalData.metrics[key][stateId][yearIdx];
   }
 
   function getMetricMetadata(key) {
     if (key === "debt_own_tax") {
-      return { name: "Debt to Own Tax Revenue", shortName: "Debt/Own Tax" };
+      return { name: "Debt to Own Tax Revenue (Ratio)", shortName: "Debt/Own Tax" };
+    }
+    if (key === "pc_debt") {
+      return { name: "Per Capita Debt (Rupees)", shortName: "Per Capita Debt" };
     }
     const names = {
       fiscal_deficit: "Gross Fiscal Deficit",
@@ -1004,12 +1028,27 @@ document.addEventListener("DOMContentLoaded", () => {
       debt_gsdp: "Outstanding Debt",
       own_tax_gsdp: "Own Tax Revenue",
       central_transfers: "Federal Transfers",
-      committed_exp: "Committed Expenditure"
+      committed_exp: "Committed Expenditure",
+      pc_gsdp: "Per Capita GSDP",
+      pc_debt: "Per Capita Debt"
     };
     return {
-      name: fiscalData.metrics[key] ? fiscalData.metrics[key].name : "Debt to Own Tax Revenue (Ratio)",
+      name: fiscalData.metrics[key] ? fiscalData.metrics[key].name : (key === "pc_debt" ? "Per Capita Debt (Rupees)" : "Debt to Own Tax Revenue (Ratio)"),
       shortName: names[key] || (fiscalData.metrics[key] ? fiscalData.metrics[key].name : "Debt/Own Tax")
     };
+  }
+
+  function formatMetricValue(value, key) {
+    if (key === "debt_own_tax") {
+      return `${value.toFixed(2)}x`;
+    }
+    if (key === "pc_gsdp" || key === "pc_debt") {
+      return `₹${Math.round(value).toLocaleString('en-IN')}`;
+    }
+    if (key === "borrowing_spread") {
+      return `+${value} bps`;
+    }
+    return `${value.toFixed(2)}%`;
   }
 
   // Run initialization

@@ -108,6 +108,19 @@ const fiscalData = {
       HR: [7.4, 7.5, 7.5, 7.6, 7.6],
       WB: [7.6, 7.7, 7.7, 7.8, 7.9]
     },
+    pc_gsdp: {
+      name: "Per Capita GSDP (Rupees)",
+      description: "State Domestic Product per capita at current prices. Measures average economic output per resident.",
+      MH: [193000, 215000, 242000, 280000, 310000],
+      TN: [220000, 245000, 280000, 325000, 360000],
+      GJ: [212000, 236000, 270000, 310000, 345000],
+      KA: [226000, 256000, 290000, 335000, 375000],
+      UP: [65000, 72000, 83000, 95000, 105000],
+      AP: [170000, 192000, 215000, 245000, 270000],
+      TS: [232000, 266000, 306000, 351000, 390000],
+      HR: [235000, 262000, 292000, 331000, 365000],
+      WB: [115000, 126000, 141000, 160000, 175000]
+    },
     // 3. Revenue Quality
     own_tax_gsdp: {
       name: "Own Tax Revenue (% of GSDP)",
