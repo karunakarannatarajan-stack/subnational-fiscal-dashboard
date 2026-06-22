@@ -119,17 +119,29 @@
               <span class="lbl">Per Capita Debt</span>
               <span class="val" id="profile-pc-debt">-</span>
             </div>
-            <div class="detail-row" title="Nominal GSDP in Crore Rupees (FY25 BE)">
+            <div class="detail-row" title="Nominal GSDP in Billion Rupees (FY25 BE)">
               <span class="lbl">GSDP (Absolute)</span>
               <span class="val" id="profile-gsdp-abs">-</span>
             </div>
-            <div class="detail-row" title="Total Budget Expenditure size in Crore Rupees (FY25 BE)">
+            <div class="detail-row" title="Total Budget Expenditure size in Billion Rupees (FY25 BE)">
               <span class="lbl">Total Budget Size</span>
               <span class="val" id="profile-budget-abs">-</span>
             </div>
             <div class="detail-row" title="Nominal GSDP Growth Rate (FY25 BE)">
               <span class="lbl">GSDP Growth Rate</span>
               <span class="val" id="profile-gsdp-growth">-</span>
+            </div>
+            <div class="detail-row" title="Gross Fiscal Deficit in Billion Rupees (FY25 BE)">
+              <span class="lbl">Fiscal Deficit (Abs)</span>
+              <span class="val" id="profile-fiscal-deficit-abs">-</span>
+            </div>
+            <div class="detail-row" title="Revenue Deficit/Surplus Balance in Billion Rupees (FY25 BE)">
+              <span class="lbl">Revenue Balance (Abs)</span>
+              <span class="val" id="profile-revenue-deficit-abs">-</span>
+            </div>
+            <div class="detail-row" title="Capital Outlay in Billion Rupees (FY25 BE)">
+              <span class="lbl">Capital Outlay (Abs)</span>
+              <span class="val" id="profile-capital-outlay-abs">-</span>
             </div>
           </div>
         </div>
@@ -298,14 +310,17 @@
                 <label for="compare-metric-select">Select Metric to Rank:</label>
                 <select id="compare-metric-select" class="custom-select compare-select">
                   <option value="fiscal_deficit">Fiscal Deficit (% of GSDP)</option>
+                  <option value="fiscal_deficit_abs">Fiscal Deficit (Absolute) (Rupees Billion)</option>
                   <option value="revenue_deficit">Revenue Deficit/Surplus (% of GSDP)</option>
+                  <option value="revenue_deficit_abs">Revenue Balance (Absolute) (Rupees Billion)</option>
                   <option value="capital_outlay">Capital Outlay (% of GSDP)</option>
+                  <option value="capital_outlay_abs">Capital Outlay (Absolute) (Rupees Billion)</option>
                   <option value="debt_gsdp">Outstanding Debt (% of GSDP)</option>
                   <option value="debt_own_tax">Debt to Own Tax Revenue (Ratio)</option>
                   <option value="pc_gsdp">Per Capita GSDP (Rupees)</option>
                   <option value="pc_debt">Per Capita Debt (Rupees)</option>
-                  <option value="gsdp_absolute">GSDP (Rupees Crore)</option>
-                  <option value="total_budget">Total Budget Size (Rupees Crore)</option>
+                  <option value="gsdp_absolute">GSDP (Rupees Billion)</option>
+                  <option value="total_budget">Total Budget Size (Rupees Billion)</option>
                   <option value="gsdp_growth">Nominal GSDP Growth Rate (%)</option>
                   <option value="own_tax_gsdp">Own Tax Revenue (% of GSDP)</option>
                   <option value="central_transfers">Federal Transfers (% of Revenue Receipts)</option>
@@ -349,12 +364,15 @@
                 <thead>
                   <tr>
                     <th class="sortable-header" data-sort-key="state">State <i class="fa-solid fa-sort"></i></th>
-                    <th class="sortable-header" data-sort-key="gsdp_absolute">GSDP (₹ Cr) <i class="fa-solid fa-sort"></i></th>
-                    <th class="sortable-header" data-sort-key="total_budget">Total Budget (₹ Cr) <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable-header" data-sort-key="gsdp_absolute">GSDP (₹ Bn) <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable-header" data-sort-key="total_budget">Total Budget (₹ Bn) <i class="fa-solid fa-sort"></i></th>
                     <th class="sortable-header" data-sort-key="gsdp_growth">GSDP Growth (%) <i class="fa-solid fa-sort"></i></th>
                     <th class="sortable-header" data-sort-key="fiscal_deficit">Fiscal Deficit (% GSDP) <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable-header" data-sort-key="fiscal_deficit_abs">Fiscal Deficit (₹ Bn) <i class="fa-solid fa-sort"></i></th>
                     <th class="sortable-header" data-sort-key="revenue_deficit">Revenue Balance (% GSDP) <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable-header" data-sort-key="revenue_deficit_abs">Revenue Balance (₹ Bn) <i class="fa-solid fa-sort"></i></th>
                     <th class="sortable-header" data-sort-key="capital_outlay">Capital Outlay (% GSDP) <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable-header" data-sort-key="capital_outlay_abs">Capital Outlay (₹ Bn) <i class="fa-solid fa-sort"></i></th>
                     <th class="sortable-header" data-sort-key="debt_gsdp">Outstanding Debt (% GSDP) <i class="fa-solid fa-sort"></i></th>
                     <th class="sortable-header" data-sort-key="pc_gsdp">Per Capita GSDP <i class="fa-solid fa-sort"></i></th>
                     <th class="sortable-header" data-sort-key="pc_debt">Per Capita Debt <i class="fa-solid fa-sort"></i></th>
@@ -394,42 +412,57 @@
                   <label for="3d-x-select" style="font-size: 0.8rem;">X-Axis (Fiscal Capacity):</label>
                   <select id="3d-x-select" class="custom-select" style="width: 100%; max-width: 100%;">
                     <option value="fiscal_deficit">Gross Fiscal Deficit (% of GSDP)</option>
+                    <option value="fiscal_deficit_abs">Fiscal Deficit (Absolute) (Rupees Billion)</option>
                     <option value="revenue_deficit">Revenue Deficit (% of GSDP)</option>
+                    <option value="revenue_deficit_abs">Revenue Balance (Absolute) (Rupees Billion)</option>
                     <option value="capital_outlay">Capital Outlay (% of GSDP)</option>
+                    <option value="capital_outlay_abs">Capital Outlay (Absolute) (Rupees Billion)</option>
                     <option value="debt_gsdp">Outstanding Debt (% of GSDP)</option>
                     <option value="own_tax_gsdp" selected>Own Tax Revenue (% of GSDP)</option>
                     <option value="central_transfers">Federal Transfers (% of Revenue)</option>
                     <option value="committed_exp">Committed Expenditure (% of Revenue)</option>
                     <option value="pc_gsdp">Per Capita GSDP (Rupees)</option>
                     <option value="pc_debt">Per Capita Debt (Rupees)</option>
+                    <option value="gsdp_absolute">GSDP (Rupees Billion)</option>
+                    <option value="total_budget">Total Budget Size (Rupees Billion)</option>
                   </select>
                 </div>
                 <div class="filter-group" style="flex-direction: column; align-items: flex-start; gap: 0.3rem;">
                   <label for="3d-y-select" style="font-size: 0.8rem;">Y-Axis (Asset Creation):</label>
                   <select id="3d-y-select" class="custom-select" style="width: 100%; max-width: 100%;">
                     <option value="fiscal_deficit">Gross Fiscal Deficit (% of GSDP)</option>
+                    <option value="fiscal_deficit_abs">Fiscal Deficit (Absolute) (Rupees Billion)</option>
                     <option value="revenue_deficit">Revenue Deficit (% of GSDP)</option>
+                    <option value="revenue_deficit_abs">Revenue Balance (Absolute) (Rupees Billion)</option>
                     <option value="capital_outlay" selected>Capital Outlay (% of GSDP)</option>
+                    <option value="capital_outlay_abs">Capital Outlay (Absolute) (Rupees Billion)</option>
                     <option value="debt_gsdp">Outstanding Debt (% of GSDP)</option>
                     <option value="own_tax_gsdp">Own Tax Revenue (% of GSDP)</option>
                     <option value="central_transfers">Federal Transfers (% of Revenue)</option>
                     <option value="committed_exp">Committed Expenditure (% of Revenue)</option>
                     <option value="pc_gsdp">Per Capita GSDP (Rupees)</option>
                     <option value="pc_debt">Per Capita Debt (Rupees)</option>
+                    <option value="gsdp_absolute">GSDP (Rupees Billion)</option>
+                    <option value="total_budget">Total Budget Size (Rupees Billion)</option>
                   </select>
                 </div>
                 <div class="filter-group" style="flex-direction: column; align-items: flex-start; gap: 0.3rem;">
                   <label for="3d-z-select" style="font-size: 0.8rem;">Z-Axis (Accumulated Leverage):</label>
                   <select id="3d-z-select" class="custom-select" style="width: 100%; max-width: 100%;">
                     <option value="fiscal_deficit">Gross Fiscal Deficit (% of GSDP)</option>
+                    <option value="fiscal_deficit_abs">Fiscal Deficit (Absolute) (Rupees Billion)</option>
                     <option value="revenue_deficit">Revenue Deficit (% of GSDP)</option>
+                    <option value="revenue_deficit_abs">Revenue Balance (Absolute) (Rupees Billion)</option>
                     <option value="capital_outlay">Capital Outlay (% of GSDP)</option>
+                    <option value="capital_outlay_abs">Capital Outlay (Absolute) (Rupees Billion)</option>
                     <option value="debt_gsdp" selected>Outstanding Debt (% of GSDP)</option>
                     <option value="own_tax_gsdp">Own Tax Revenue (% of GSDP)</option>
                     <option value="central_transfers">Federal Transfers (% of Revenue)</option>
                     <option value="committed_exp">Committed Expenditure (% of Revenue)</option>
                     <option value="pc_gsdp">Per Capita GSDP (Rupees)</option>
                     <option value="pc_debt">Per Capita Debt (Rupees)</option>
+                    <option value="gsdp_absolute">GSDP (Rupees Billion)</option>
+                    <option value="total_budget">Total Budget Size (Rupees Billion)</option>
                   </select>
                 </div>
               </div>

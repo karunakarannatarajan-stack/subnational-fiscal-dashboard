@@ -190,8 +190,8 @@ const fiscalData = {
       WB: [45000, 50000, 56000, 63000, 70000, 78000, 86000, 95000, 104000, 110000, 115000, 126000, 141000, 160000, 175000]
     },
     gsdp_absolute: {
-      name: "Gross State Domestic Product (GSDP) (Rupees Crore)",
-      description: "Nominal GSDP in absolute Crore Rupees at current prices. Indicates total size of the state economy.",
+      name: "Gross State Domestic Product (GSDP) (Rupees Billion)",
+      description: "Nominal GSDP in absolute Billion Rupees at current prices. Indicates total size of the state economy.",
       MH: [873600, 997040, 1146000, 1321260, 1523600, 1730100, 1952740, 2179800, 2386800, 2498740, 2412500, 2715450, 3087920, 3609200, 4036200],
       TN: [612000, 697920, 792720, 904020, 1032240, 1170250, 1318260, 1476480, 1629600, 1738260, 1738000, 1952650, 2251200, 2635750, 2944800],
       GJ: [480000, 559360, 646800, 748800, 859520, 985600, 1114560, 1246400, 1381120, 1478400, 1441600, 1623680, 1879200, 2182400, 2456400],
@@ -203,8 +203,8 @@ const fiscalData = {
       WB: [409500, 459000, 518560, 588420, 659400, 741000, 823880, 917700, 1012960, 1080200, 1138500, 1257480, 1418460, 1622400, 1788500]
     },
     total_budget: {
-      name: "Total Budget Expenditure (Rupees Crore)",
-      description: "Total annual budget size representing both revenue expenditure and capital outlay of the state.",
+      name: "Total Budget Expenditure (Rupees Billion)",
+      description: "Total annual budget size representing both revenue expenditure and capital outlay of the state in Billion Rupees.",
       MH: [126672, 144571, 166170, 191583, 220922, 250864, 283147, 316071, 346086, 362317, 349812, 393740, 447748, 523334, 585249],
       TN: [91800, 104688, 118908, 135603, 154836, 175538, 197739, 221472, 244440, 260739, 260700, 292898, 337680, 395362, 441720],
       GJ: [64800, 75514, 87318, 101088, 116035, 133056, 150466, 168264, 186451, 199584, 194616, 219197, 253692, 294624, 331614],

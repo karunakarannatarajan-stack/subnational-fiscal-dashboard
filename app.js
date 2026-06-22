@@ -233,17 +233,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const latestPcGsdp = fiscalData.metrics.pc_gsdp[stateId][latestIdx];
     const latestPcDebt = (latestDebt / 100.0) * latestPcGsdp;
 
-    document.getElementById("profile-pc-gsdp").textContent = `₹${latestPcGsdp.toLocaleString('en-IN')}`;
-    document.getElementById("profile-pc-debt").textContent = `₹${Math.round(latestPcDebt).toLocaleString('en-IN')}`;
+    document.getElementById("profile-pc-gsdp").textContent = `₹${latestPcGsdp.toLocaleString('en-US')}`;
+    document.getElementById("profile-pc-debt").textContent = `₹${Math.round(latestPcDebt).toLocaleString('en-US')}`;
 
     // Absolute GSDP, Budget, and Growth Rate (latest year FY25 BE)
     const latestGsdp = fiscalData.metrics.gsdp_absolute[stateId][latestIdx];
     const latestBudget = fiscalData.metrics.total_budget[stateId][latestIdx];
     const latestGrowth = fiscalData.metrics.gsdp_growth[stateId][latestIdx];
 
-    document.getElementById("profile-gsdp-abs").textContent = `₹${latestGsdp.toLocaleString('en-IN')} Cr`;
-    document.getElementById("profile-budget-abs").textContent = `₹${latestBudget.toLocaleString('en-IN')} Cr`;
+    // Absolute deficits/outlay
+    const latestFD = getMetricValue(stateId, "fiscal_deficit_abs", latestIdx);
+    const latestRD = getMetricValue(stateId, "revenue_deficit_abs", latestIdx);
+    const latestCO = getMetricValue(stateId, "capital_outlay_abs", latestIdx);
+
+    document.getElementById("profile-gsdp-abs").textContent = formatMetricValue(latestGsdp, "gsdp_absolute");
+    document.getElementById("profile-budget-abs").textContent = formatMetricValue(latestBudget, "total_budget");
     document.getElementById("profile-gsdp-growth").textContent = `${latestGrowth.toFixed(1)}%`;
+
+    document.getElementById("profile-fiscal-deficit-abs").textContent = formatMetricValue(latestFD, "fiscal_deficit_abs");
+    document.getElementById("profile-revenue-deficit-abs").textContent = formatMetricValue(latestRD, "revenue_deficit_abs");
+    document.getElementById("profile-capital-outlay-abs").textContent = formatMetricValue(latestCO, "capital_outlay_abs");
   }
 
   // Update Summary Metrics Card Highlights
@@ -859,8 +868,11 @@ document.addEventListener("DOMContentLoaded", () => {
         total_budget: fiscalData.metrics.total_budget[s.id][yearIdx],
         gsdp_growth: fiscalData.metrics.gsdp_growth[s.id][yearIdx],
         fiscal_deficit: fiscalData.metrics.fiscal_deficit[s.id][yearIdx],
+        fiscal_deficit_abs: getMetricValue(s.id, 'fiscal_deficit_abs', yearIdx),
         revenue_deficit: fiscalData.metrics.revenue_deficit[s.id][yearIdx],
+        revenue_deficit_abs: getMetricValue(s.id, 'revenue_deficit_abs', yearIdx),
         capital_outlay: fiscalData.metrics.capital_outlay[s.id][yearIdx],
+        capital_outlay_abs: getMetricValue(s.id, 'capital_outlay_abs', yearIdx),
         debt_gsdp: debt_pct,
         pc_gsdp: pc_gsdp_val,
         pc_debt: pc_debt_val,
@@ -895,8 +907,11 @@ document.addEventListener("DOMContentLoaded", () => {
       "total_budget",
       "gsdp_growth",
       "fiscal_deficit",
+      "fiscal_deficit_abs",
       "revenue_deficit",
+      "revenue_deficit_abs",
       "capital_outlay",
+      "capital_outlay_abs",
       "debt_gsdp",
       "pc_gsdp",
       "pc_debt",
@@ -906,16 +921,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     metricsToRank.forEach(key => {
       let vals = fiscalData.states.map(s => {
-        if (key === "pc_debt") {
-          const debt = fiscalData.metrics.debt_gsdp[s.id][yearIdx];
-          const pc_gsdp = fiscalData.metrics.pc_gsdp[s.id][yearIdx];
-          return (debt === null || pc_gsdp === null) ? null : (debt / 100.0) * pc_gsdp;
-        }
-        return fiscalData.metrics[key] ? fiscalData.metrics[key][s.id][yearIdx] : null;
+        return getMetricValue(s.id, key, yearIdx);
       }).filter(v => v !== null && v !== undefined);
 
       const lowerIsBetterMetrics = [
         "fiscal_deficit",
+        "fiscal_deficit_abs",
         "debt_gsdp",
         "pc_debt",
         "central_transfers",
@@ -967,26 +978,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function formatCellText(val, metricType) {
-      if (val === null || val === undefined) {
-        return "N/A";
-      }
-      if (metricType === "gsdp_absolute" || metricType === "total_budget") {
-        return `₹${Math.round(val).toLocaleString('en-IN')} Cr`;
-      }
-      if (metricType === "gsdp_growth") {
-        return `${val.toFixed(2)}%`;
-      }
-      if (metricType === "fiscal_deficit" || metricType === "revenue_deficit" || metricType === "capital_outlay" || metricType === "debt_gsdp" || metricType === "central_transfers") {
-        const prefix = (metricType === "revenue_deficit" && val >= 0) ? "+" : "";
-        return `${prefix}${val.toFixed(2)}%`;
-      }
-      if (metricType === "pc_gsdp" || metricType === "pc_debt") {
-        return `₹${Math.round(val).toLocaleString('en-IN')}`;
-      }
-      if (metricType === "borrowing_spread") {
-        return `+${val} bps`;
-      }
-      return val;
+      return formatMetricValue(val, metricType);
     }
 
     // Render table data rows
@@ -1006,8 +998,11 @@ document.addEventListener("DOMContentLoaded", () => {
         <td ${getCellFormatting(rowItem.total_budget, 'total_budget')}>${formatCellText(rowItem.total_budget, 'total_budget')}</td>
         <td ${getCellFormatting(rowItem.gsdp_growth, 'gsdp_growth')}>${formatCellText(rowItem.gsdp_growth, 'gsdp_growth')}</td>
         <td ${getCellFormatting(rowItem.fiscal_deficit, 'fiscal_deficit')}>${formatCellText(rowItem.fiscal_deficit, 'fiscal_deficit')}</td>
+        <td ${getCellFormatting(rowItem.fiscal_deficit_abs, 'fiscal_deficit_abs')}>${formatCellText(rowItem.fiscal_deficit_abs, 'fiscal_deficit_abs')}</td>
         <td ${getCellFormatting(rowItem.revenue_deficit, 'revenue_deficit')}>${formatCellText(rowItem.revenue_deficit, 'revenue_deficit')}</td>
+        <td ${getCellFormatting(rowItem.revenue_deficit_abs, 'revenue_deficit_abs')}>${formatCellText(rowItem.revenue_deficit_abs, 'revenue_deficit_abs')}</td>
         <td ${getCellFormatting(rowItem.capital_outlay, 'capital_outlay')}>${formatCellText(rowItem.capital_outlay, 'capital_outlay')}</td>
+        <td ${getCellFormatting(rowItem.capital_outlay_abs, 'capital_outlay_abs')}>${formatCellText(rowItem.capital_outlay_abs, 'capital_outlay_abs')}</td>
         <td ${getCellFormatting(rowItem.debt_gsdp, 'debt_gsdp')}>${formatCellText(rowItem.debt_gsdp, 'debt_gsdp')}</td>
         <td ${getCellFormatting(rowItem.pc_gsdp, 'pc_gsdp')}>${formatCellText(rowItem.pc_gsdp, 'pc_gsdp')}</td>
         <td ${getCellFormatting(rowItem.pc_debt, 'pc_debt')}>${formatCellText(rowItem.pc_debt, 'pc_debt')}</td>
@@ -1135,6 +1130,21 @@ document.addEventListener("DOMContentLoaded", () => {
       const pc_gsdp = fiscalData.metrics.pc_gsdp[stateId][yearIdx];
       return (debt / 100.0) * pc_gsdp;
     }
+    if (key === "fiscal_deficit_abs") {
+      const gsdp = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
+      const pct = fiscalData.metrics.fiscal_deficit[stateId][yearIdx];
+      return (gsdp === null || pct === null) ? null : (gsdp * pct) / 100.0;
+    }
+    if (key === "revenue_deficit_abs") {
+      const gsdp = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
+      const pct = fiscalData.metrics.revenue_deficit[stateId][yearIdx];
+      return (gsdp === null || pct === null) ? null : (gsdp * pct) / 100.0;
+    }
+    if (key === "capital_outlay_abs") {
+      const gsdp = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
+      const pct = fiscalData.metrics.capital_outlay[stateId][yearIdx];
+      return (gsdp === null || pct === null) ? null : (gsdp * pct) / 100.0;
+    }
     return fiscalData.metrics[key][stateId][yearIdx];
   }
 
@@ -1145,10 +1155,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (key === "pc_debt") {
       return { name: "Per Capita Debt (Rupees)", shortName: "Per Capita Debt" };
     }
+    if (key === "fiscal_deficit_abs") {
+      return { name: "Gross Fiscal Deficit (Absolute) (Rupees Billion)", shortName: "Fiscal Deficit (Absolute)" };
+    }
+    if (key === "revenue_deficit_abs") {
+      return { name: "Revenue Balance (Absolute) (Rupees Billion)", shortName: "Revenue Balance (Absolute)" };
+    }
+    if (key === "capital_outlay_abs") {
+      return { name: "Capital Outlay (Absolute) (Rupees Billion)", shortName: "Capital Outlay (Absolute)" };
+    }
     const names = {
       fiscal_deficit: "Gross Fiscal Deficit",
+      fiscal_deficit_abs: "Fiscal Deficit (Absolute)",
       revenue_deficit: "Revenue Deficit",
+      revenue_deficit_abs: "Revenue Balance (Absolute)",
       capital_outlay: "Capital Outlay",
+      capital_outlay_abs: "Capital Outlay (Absolute)",
       debt_gsdp: "Outstanding Debt",
       own_tax_gsdp: "Own Tax Revenue",
       central_transfers: "Federal Transfers",
@@ -1160,23 +1182,32 @@ document.addEventListener("DOMContentLoaded", () => {
       gsdp_growth: "GSDP Growth"
     };
     return {
-      name: fiscalData.metrics[key] ? fiscalData.metrics[key].name : (key === "pc_debt" ? "Per Capita Debt (Rupees)" : "Debt to Own Tax Revenue (Ratio)"),
-      shortName: names[key] || (fiscalData.metrics[key] ? fiscalData.metrics[key].name : "Debt/Own Tax")
+      name: fiscalData.metrics[key] ? fiscalData.metrics[key].name : (names[key] || "Metric"),
+      shortName: names[key] || (fiscalData.metrics[key] ? fiscalData.metrics[key].name : "Metric")
     };
   }
 
   function formatMetricValue(value, key) {
+    if (value === null || value === undefined) {
+      return "N/A";
+    }
     if (key === "debt_own_tax") {
       return `${value.toFixed(2)}x`;
     }
     if (key === "pc_gsdp" || key === "pc_debt") {
-      return `₹${Math.round(value).toLocaleString('en-IN')}`;
+      return `₹${Math.round(value).toLocaleString('en-US')}`;
     }
-    if (key === "gsdp_absolute" || key === "total_budget") {
-      return `₹${Math.round(value).toLocaleString('en-IN')} Cr`;
+    if (key === "gsdp_absolute" || key === "total_budget" || key === "fiscal_deficit_abs" || key === "revenue_deficit_abs" || key === "capital_outlay_abs") {
+      const bnVal = value / 100.0;
+      const sign = bnVal < 0 ? "-" : "";
+      return `${sign}₹${Math.abs(bnVal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bn`;
     }
     if (key === "borrowing_spread") {
       return `+${value} bps`;
+    }
+    if (key === "revenue_deficit") {
+      const prefix = value >= 0 ? "+" : "";
+      return `${prefix}${value.toFixed(2)}%`;
     }
     return `${value.toFixed(2)}%`;
   }
