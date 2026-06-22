@@ -145,6 +145,14 @@ document.addEventListener("DOMContentLoaded", () => {
     
     profileBorrowCost.textContent = `${yieldCost.toFixed(2)}%`;
     profileSpread.textContent = `+${spreadBps} bps vs G-Sec`;
+
+    // Debt to own tax revenue ratio (latest year FY25 BE)
+    const latestIdx = fiscalData.years.length - 1;
+    const latestDebt = fiscalData.metrics.debt_gsdp[stateId][latestIdx];
+    const latestOwnTax = fiscalData.metrics.own_tax_gsdp[stateId][latestIdx];
+    const debtOwnTaxRatio = latestDebt / latestOwnTax;
+    
+    document.getElementById("profile-debt-own-revenue").textContent = `${debtOwnTaxRatio.toFixed(2)}x`;
   }
 
   // Update Summary Metrics Card Highlights
@@ -666,23 +674,41 @@ document.addEventListener("DOMContentLoaded", () => {
     const yearStr = fiscalData.years[yearIdx];
     const t = getThemeColors();
 
-    const metricMeta = fiscalData.metrics[metricKey];
-    compareChartTitle.textContent = `${metricMeta.name} - ${yearStr} Rankings`;
+    let metricMeta;
+    let sortedStates;
 
-    // 1. Prepare data points for comparison
-    const sortedStates = fiscalData.states.map(s => {
-      const val = fiscalData.metrics[metricKey][s.id][yearIdx];
-      return {
-        id: s.id,
-        name: s.name,
-        value: val,
-        color: s.color
+    if (metricKey === "debt_own_tax") {
+      metricMeta = {
+        name: "Debt to Own Tax Revenue (Ratio)",
+        description: "Outstanding Debt as a multiple of State's Own Tax Revenue."
       };
-    }).sort((a, b) => {
-      // Sort depending on positive (higher is better vs lower is better)
-      // For deficits/debt: lower is generally better, but let's just sort descending for clear visual ranking
-      return b.value - a.value;
-    });
+      
+      sortedStates = fiscalData.states.map(s => {
+        const debt = fiscalData.metrics.debt_gsdp[s.id][yearIdx];
+        const ownTax = fiscalData.metrics.own_tax_gsdp[s.id][yearIdx];
+        const val = debt / ownTax;
+        return {
+          id: s.id,
+          name: s.name,
+          value: val,
+          color: s.color
+        };
+      }).sort((a, b) => b.value - a.value);
+    } else {
+      metricMeta = fiscalData.metrics[metricKey];
+      
+      sortedStates = fiscalData.states.map(s => {
+        const val = fiscalData.metrics[metricKey][s.id][yearIdx];
+        return {
+          id: s.id,
+          name: s.name,
+          value: val,
+          color: s.color
+        };
+      }).sort((a, b) => b.value - a.value);
+    }
+
+    compareChartTitle.textContent = `${metricMeta.name} - ${yearStr} Rankings`;
 
     // 2. Render horizontal ranking chart
     const ctx = document.getElementById("chart-comparison").getContext("2d");
