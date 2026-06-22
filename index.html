@@ -119,6 +119,18 @@
               <span class="lbl">Per Capita Debt</span>
               <span class="val" id="profile-pc-debt">-</span>
             </div>
+            <div class="detail-row" title="Nominal GSDP in Crore Rupees (FY25 BE)">
+              <span class="lbl">GSDP (Absolute)</span>
+              <span class="val" id="profile-gsdp-abs">-</span>
+            </div>
+            <div class="detail-row" title="Total Budget Expenditure size in Crore Rupees (FY25 BE)">
+              <span class="lbl">Total Budget Size</span>
+              <span class="val" id="profile-budget-abs">-</span>
+            </div>
+            <div class="detail-row" title="Nominal GSDP Growth Rate (FY25 BE)">
+              <span class="lbl">GSDP Growth Rate</span>
+              <span class="val" id="profile-gsdp-growth">-</span>
+            </div>
           </div>
         </div>
 
@@ -292,6 +304,9 @@
                   <option value="debt_own_tax">Debt to Own Tax Revenue (Ratio)</option>
                   <option value="pc_gsdp">Per Capita GSDP (Rupees)</option>
                   <option value="pc_debt">Per Capita Debt (Rupees)</option>
+                  <option value="gsdp_absolute">GSDP (Rupees Crore)</option>
+                  <option value="total_budget">Total Budget Size (Rupees Crore)</option>
+                  <option value="gsdp_growth">Nominal GSDP Growth Rate (%)</option>
                   <option value="own_tax_gsdp">Own Tax Revenue (% of GSDP)</option>
                   <option value="central_transfers">Federal Transfers (% of Revenue Receipts)</option>
                   <option value="committed_exp">Committed Expenditure (% of Revenue)</option>
@@ -303,6 +318,11 @@
                 <select id="compare-year-select" class="custom-select compare-select">
                   <!-- Populated via JS -->
                 </select>
+              </div>
+              <div class="filter-group" style="align-self: flex-end;">
+                <button id="toggle-heatmap-style" class="btn-theme" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.2rem; border-radius: var(--radius-sm); font-size: 0.85rem; height: 38px; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: var(--accent-color); cursor: pointer; font-weight: 600; transition: all 0.2s ease;">
+                  <i class="fa-solid fa-brush"></i> <span id="toggle-heatmap-label">Vibrant Heatmap</span>
+                </button>
               </div>
             </div>
 
@@ -329,6 +349,9 @@
                 <thead>
                   <tr>
                     <th class="sortable-header" data-sort-key="state">State <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable-header" data-sort-key="gsdp_absolute">GSDP (₹ Cr) <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable-header" data-sort-key="total_budget">Total Budget (₹ Cr) <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable-header" data-sort-key="gsdp_growth">GSDP Growth (%) <i class="fa-solid fa-sort"></i></th>
                     <th class="sortable-header" data-sort-key="fiscal_deficit">Fiscal Deficit (% GSDP) <i class="fa-solid fa-sort"></i></th>
                     <th class="sortable-header" data-sort-key="revenue_deficit">Revenue Balance (% GSDP) <i class="fa-solid fa-sort"></i></th>
                     <th class="sortable-header" data-sort-key="capital_outlay">Capital Outlay (% GSDP) <i class="fa-solid fa-sort"></i></th>

@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let charts = {}; // Cache to hold Chart.js instances
   let currentSortColumn = "state"; // Default sort column for comparison table
   let currentSortAsc = true; // Default sort order
+  let isVibrantHeatmap = false; // Toggle for heatmap style
 
   // --- DOM Elements ---
   const stateSelector = document.getElementById("state-selector");
@@ -128,6 +129,28 @@ document.addEventListener("DOMContentLoaded", () => {
       renderComparisonTab();
     });
 
+    // Toggle Heatmap style
+    const toggleHeatmapBtn = document.getElementById("toggle-heatmap-style");
+    if (toggleHeatmapBtn) {
+      toggleHeatmapBtn.addEventListener("click", () => {
+        isVibrantHeatmap = !isVibrantHeatmap;
+        const label = document.getElementById("toggle-heatmap-label");
+        if (label) {
+          label.textContent = isVibrantHeatmap ? "Subtle Heatmap" : "Vibrant Heatmap";
+        }
+        if (isVibrantHeatmap) {
+          toggleHeatmapBtn.style.background = "var(--accent-color)";
+          toggleHeatmapBtn.style.color = "var(--color-bg, #0f172a)";
+          toggleHeatmapBtn.style.borderColor = "var(--accent-color)";
+        } else {
+          toggleHeatmapBtn.style.background = "rgba(99, 102, 241, 0.15)";
+          toggleHeatmapBtn.style.color = "var(--accent-color)";
+          toggleHeatmapBtn.style.borderColor = "rgba(99, 102, 241, 0.3)";
+        }
+        renderComparisonTab();
+      });
+    }
+
     // 3D Selector Changed
     const threedSelects = ["3d-year-select", "3d-x-select", "3d-y-select", "3d-z-select"];
     threedSelects.forEach(id => {
@@ -212,6 +235,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("profile-pc-gsdp").textContent = `₹${latestPcGsdp.toLocaleString('en-IN')}`;
     document.getElementById("profile-pc-debt").textContent = `₹${Math.round(latestPcDebt).toLocaleString('en-IN')}`;
+
+    // Absolute GSDP, Budget, and Growth Rate (latest year FY25 BE)
+    const latestGsdp = fiscalData.metrics.gsdp_absolute[stateId][latestIdx];
+    const latestBudget = fiscalData.metrics.total_budget[stateId][latestIdx];
+    const latestGrowth = fiscalData.metrics.gsdp_growth[stateId][latestIdx];
+
+    document.getElementById("profile-gsdp-abs").textContent = `₹${latestGsdp.toLocaleString('en-IN')} Cr`;
+    document.getElementById("profile-budget-abs").textContent = `₹${latestBudget.toLocaleString('en-IN')} Cr`;
+    document.getElementById("profile-gsdp-growth").textContent = `${latestGrowth.toFixed(1)}%`;
   }
 
   // Update Summary Metrics Card Highlights
@@ -782,13 +814,7 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             ticks: {
               callback: function(value) {
-                if (metricKey === "pc_gsdp" || metricKey === "pc_debt") {
-                  return '₹' + value.toLocaleString('en-IN');
-                }
-                if (metricKey === "debt_own_tax") {
-                  return value.toFixed(1) + 'x';
-                }
-                return value + '%';
+                return formatMetricValue(value, metricKey);
               }
             }
           },
@@ -829,6 +855,9 @@ document.addEventListener("DOMContentLoaded", () => {
         id: s.id,
         name: s.name,
         color: s.color,
+        gsdp_absolute: fiscalData.metrics.gsdp_absolute[s.id][yearIdx],
+        total_budget: fiscalData.metrics.total_budget[s.id][yearIdx],
+        gsdp_growth: fiscalData.metrics.gsdp_growth[s.id][yearIdx],
         fiscal_deficit: fiscalData.metrics.fiscal_deficit[s.id][yearIdx],
         revenue_deficit: fiscalData.metrics.revenue_deficit[s.id][yearIdx],
         capital_outlay: fiscalData.metrics.capital_outlay[s.id][yearIdx],
@@ -844,10 +873,14 @@ document.addEventListener("DOMContentLoaded", () => {
     tableData.sort((a, b) => {
       let valA = currentSortColumn === "state" ? a.name : a[currentSortColumn];
       let valB = currentSortColumn === "state" ? b.name : b[currentSortColumn];
-
-      if (valA === null || valA === undefined) return currentSortAsc ? 1 : -1;
-      if (valB === null || valB === undefined) return currentSortAsc ? -1 : 1;
-
+ 
+      // Always push null/undefined to the bottom regardless of sort direction
+      const aNull = valA === null || valA === undefined;
+      const bNull = valB === null || valB === undefined;
+      if (aNull && bNull) return 0;
+      if (aNull) return 1;
+      if (bNull) return -1;
+ 
       if (typeof valA === "string") {
         return currentSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
       } else {
@@ -855,35 +888,93 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+    // Pre-calculate column values for percentile ranking
+    const columnValuesCache = {};
+    const metricsToRank = [
+      "gsdp_absolute",
+      "total_budget",
+      "gsdp_growth",
+      "fiscal_deficit",
+      "revenue_deficit",
+      "capital_outlay",
+      "debt_gsdp",
+      "pc_gsdp",
+      "pc_debt",
+      "central_transfers",
+      "borrowing_spread"
+    ];
+
+    metricsToRank.forEach(key => {
+      let vals = fiscalData.states.map(s => {
+        if (key === "pc_debt") {
+          const debt = fiscalData.metrics.debt_gsdp[s.id][yearIdx];
+          const pc_gsdp = fiscalData.metrics.pc_gsdp[s.id][yearIdx];
+          return (debt === null || pc_gsdp === null) ? null : (debt / 100.0) * pc_gsdp;
+        }
+        return fiscalData.metrics[key] ? fiscalData.metrics[key][s.id][yearIdx] : null;
+      }).filter(v => v !== null && v !== undefined);
+
+      const lowerIsBetterMetrics = [
+        "fiscal_deficit",
+        "debt_gsdp",
+        "pc_debt",
+        "central_transfers",
+        "borrowing_spread"
+      ];
+      const isLowerBetter = lowerIsBetterMetrics.includes(key);
+      vals.sort((a, b) => isLowerBetter ? b - a : a - b);
+      columnValuesCache[key] = vals;
+    });
+
     // Helper for scorecard heatmap coloring
     function getCellFormatting(value, metricType) {
       if (value === null || value === undefined) {
         return `style="background-color: transparent; font-weight: 500; color: var(--text-secondary);"`;
       }
-      let bgColor = "";
-      if (metricType === "fiscal_deficit") {
-        bgColor = value < 3.0 ? "rgba(16, 185, 129, 0.08)" : (value <= 4.0 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
-      } else if (metricType === "revenue_deficit") {
-        bgColor = value >= 0.0 ? "rgba(16, 185, 129, 0.08)" : (value >= -1.5 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
-      } else if (metricType === "capital_outlay") {
-        bgColor = value >= 2.5 ? "rgba(16, 185, 129, 0.08)" : (value >= 1.5 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
-      } else if (metricType === "debt_gsdp") {
-        bgColor = value < 20.0 ? "rgba(16, 185, 129, 0.08)" : (value <= 30.0 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
-      } else if (metricType === "central_transfers") {
-        bgColor = value < 25.0 ? "rgba(16, 185, 129, 0.08)" : (value <= 45.0 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
-      } else if (metricType === "borrowing_spread") {
-        bgColor = value < 20 ? "rgba(16, 185, 129, 0.08)" : (value <= 35 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
-      } else if (metricType === "pc_gsdp") {
-        bgColor = value >= 300000 ? "rgba(16, 185, 129, 0.08)" : (value >= 200000 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
-      } else if (metricType === "pc_debt") {
-        bgColor = value < 60000 ? "rgba(16, 185, 129, 0.08)" : (value <= 90000 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
+      const vals = columnValuesCache[metricType];
+      if (!vals || vals.length === 0) {
+        return `style="background-color: transparent; font-weight: 500;"`;
       }
-      return `style="background-color: ${bgColor}; font-weight: 500;"`;
+      
+      let p = 0.5;
+      if (vals.length > 1) {
+        const idx = vals.indexOf(value);
+        if (idx !== -1) {
+          p = idx / (vals.length - 1);
+        }
+      }
+
+      // Red: rgb(244, 63, 94), Amber: rgb(245, 158, 11), Green: rgb(16, 185, 129)
+      let r, g, b;
+      if (p > 0.5) {
+        const t = (p - 0.5) / 0.5;
+        r = Math.round((1 - t) * 245 + t * 16);
+        g = Math.round((1 - t) * 158 + t * 185);
+        b = Math.round((1 - t) * 11 + t * 129);
+      } else {
+        const t = p / 0.5;
+        r = Math.round((1 - t) * 244 + t * 245);
+        g = Math.round((1 - t) * 63 + t * 158);
+        b = Math.round((1 - t) * 94 + t * 11);
+      }
+
+      const minOpacity = isVibrantHeatmap ? 0.14 : 0.04;
+      const maxOpacity = isVibrantHeatmap ? 0.38 : 0.12;
+      const dist = Math.abs(p - 0.5) * 2;
+      const opacity = minOpacity + dist * (maxOpacity - minOpacity);
+
+      return `style="background-color: rgba(${r}, ${g}, ${b}, ${opacity.toFixed(3)}); font-weight: 500;"`;
     }
 
     function formatCellText(val, metricType) {
       if (val === null || val === undefined) {
         return "N/A";
+      }
+      if (metricType === "gsdp_absolute" || metricType === "total_budget") {
+        return `₹${Math.round(val).toLocaleString('en-IN')} Cr`;
+      }
+      if (metricType === "gsdp_growth") {
+        return `${val.toFixed(2)}%`;
       }
       if (metricType === "fiscal_deficit" || metricType === "revenue_deficit" || metricType === "capital_outlay" || metricType === "debt_gsdp" || metricType === "central_transfers") {
         const prefix = (metricType === "revenue_deficit" && val >= 0) ? "+" : "";
@@ -901,7 +992,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Render table data rows
     tableData.forEach(rowItem => {
       const row = document.createElement("tr");
-      // Highlight the active state row
       if (rowItem.id === activeStateId) {
         row.style.background = "rgba(99, 102, 241, 0.08)";
         row.style.fontWeight = "600";
@@ -912,6 +1002,9 @@ document.addEventListener("DOMContentLoaded", () => {
           <span class="state-bullet" style="background: ${rowItem.color}"></span>
           ${rowItem.name}
         </td>
+        <td ${getCellFormatting(rowItem.gsdp_absolute, 'gsdp_absolute')}>${formatCellText(rowItem.gsdp_absolute, 'gsdp_absolute')}</td>
+        <td ${getCellFormatting(rowItem.total_budget, 'total_budget')}>${formatCellText(rowItem.total_budget, 'total_budget')}</td>
+        <td ${getCellFormatting(rowItem.gsdp_growth, 'gsdp_growth')}>${formatCellText(rowItem.gsdp_growth, 'gsdp_growth')}</td>
         <td ${getCellFormatting(rowItem.fiscal_deficit, 'fiscal_deficit')}>${formatCellText(rowItem.fiscal_deficit, 'fiscal_deficit')}</td>
         <td ${getCellFormatting(rowItem.revenue_deficit, 'revenue_deficit')}>${formatCellText(rowItem.revenue_deficit, 'revenue_deficit')}</td>
         <td ${getCellFormatting(rowItem.capital_outlay, 'capital_outlay')}>${formatCellText(rowItem.capital_outlay, 'capital_outlay')}</td>
@@ -1061,7 +1154,10 @@ document.addEventListener("DOMContentLoaded", () => {
       central_transfers: "Federal Transfers",
       committed_exp: "Committed Expenditure",
       pc_gsdp: "Per Capita GSDP",
-      pc_debt: "Per Capita Debt"
+      pc_debt: "Per Capita Debt",
+      gsdp_absolute: "GSDP (Absolute)",
+      total_budget: "Total Budget",
+      gsdp_growth: "GSDP Growth"
     };
     return {
       name: fiscalData.metrics[key] ? fiscalData.metrics[key].name : (key === "pc_debt" ? "Per Capita Debt (Rupees)" : "Debt to Own Tax Revenue (Ratio)"),
@@ -1075,6 +1171,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (key === "pc_gsdp" || key === "pc_debt") {
       return `₹${Math.round(value).toLocaleString('en-IN')}`;
+    }
+    if (key === "gsdp_absolute" || key === "total_budget") {
+      return `₹${Math.round(value).toLocaleString('en-IN')} Cr`;
     }
     if (key === "borrowing_spread") {
       return `+${value} bps`;
