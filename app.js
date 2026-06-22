@@ -840,6 +840,25 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+    // Helper for scorecard heatmap coloring
+    function getCellFormatting(value, metricType) {
+      let bgColor = "";
+      if (metricType === "fiscal_deficit") {
+        bgColor = value < 3.0 ? "rgba(16, 185, 129, 0.08)" : (value <= 4.0 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
+      } else if (metricType === "revenue_deficit") {
+        bgColor = value >= 0.0 ? "rgba(16, 185, 129, 0.08)" : (value >= -1.5 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
+      } else if (metricType === "capital_outlay") {
+        bgColor = value >= 2.5 ? "rgba(16, 185, 129, 0.08)" : (value >= 1.5 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
+      } else if (metricType === "debt_gsdp") {
+        bgColor = value < 20.0 ? "rgba(16, 185, 129, 0.08)" : (value <= 30.0 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
+      } else if (metricType === "central_transfers") {
+        bgColor = value < 25.0 ? "rgba(16, 185, 129, 0.08)" : (value <= 45.0 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
+      } else if (metricType === "borrowing_spread") {
+        bgColor = value < 20 ? "rgba(16, 185, 129, 0.08)" : (value <= 35 ? "rgba(245, 158, 11, 0.08)" : "rgba(244, 63, 94, 0.08)");
+      }
+      return `style="background-color: ${bgColor}; font-weight: 500;"`;
+    }
+
     // Render table data rows
     tableData.forEach(rowItem => {
       const row = document.createElement("tr");
@@ -850,16 +869,16 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       row.innerHTML = `
-        <td>
+        <td style="font-weight: 600;">
           <span class="state-bullet" style="background: ${rowItem.color}"></span>
           ${rowItem.name}
         </td>
-        <td>${rowItem.fiscal_deficit.toFixed(2)}%</td>
-        <td style="color: ${rowItem.revenue_deficit >= 0 ? 'var(--color-capex)' : 'var(--color-revenue)'}">${rowItem.revenue_deficit >= 0 ? '+' : ''}${rowItem.revenue_deficit.toFixed(2)}%</td>
-        <td>${rowItem.capital_outlay.toFixed(2)}%</td>
-        <td>${rowItem.debt_gsdp.toFixed(2)}%</td>
-        <td>${rowItem.central_transfers.toFixed(1)}%</td>
-        <td>+${rowItem.borrowing_spread} bps</td>
+        <td ${getCellFormatting(rowItem.fiscal_deficit, 'fiscal_deficit')}>${rowItem.fiscal_deficit.toFixed(2)}%</td>
+        <td ${getCellFormatting(rowItem.revenue_deficit, 'revenue_deficit')}>${rowItem.revenue_deficit >= 0 ? '+' : ''}${rowItem.revenue_deficit.toFixed(2)}%</td>
+        <td ${getCellFormatting(rowItem.capital_outlay, 'capital_outlay')}>${rowItem.capital_outlay.toFixed(2)}%</td>
+        <td ${getCellFormatting(rowItem.debt_gsdp, 'debt_gsdp')}>${rowItem.debt_gsdp.toFixed(2)}%</td>
+        <td ${getCellFormatting(rowItem.central_transfers, 'central_transfers')}>${rowItem.central_transfers.toFixed(1)}%</td>
+        <td ${getCellFormatting(rowItem.borrowing_spread, 'borrowing_spread')}>+${rowItem.borrowing_spread} bps</td>
       `;
       tableBody.appendChild(row);
     });
