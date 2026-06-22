@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>India Sub-National Fiscal Dashboard</title>
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- FontAwesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Dashboard Grid Layout -->
+  <div class="app-container">
+    
+    <!-- Navbar Header -->
+    <header class="dashboard-header">
+      <div class="logo-area">
+        <i class="fa-solid fa-chart-line-up logo-icon"></i>
+        <div>
+          <h1>Sub-National Fiscal Analytics</h1>
+          <p class="subtitle">State Budgets & Debt Sustainability Dashboard (FY21 - FY25)</p>
+        </div>
+      </div>
+      <div class="header-controls">
+        <div class="source-tag">
+          <i class="fa-solid fa-building-columns"></i> Sourced from RBI Website
+        </div>
+        <button id="theme-toggle" class="btn-theme" title="Toggle Theme">
+          <i class="fa-solid fa-sun icon-sun"></i>
+          <i class="fa-solid fa-moon icon-moon"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="dashboard-main">
+      
+      <!-- Control Sidebar -->
+      <aside class="dashboard-sidebar">
+        
+        <!-- State Selector Group -->
+        <div class="sidebar-section">
+          <label for="state-selector" class="section-label">
+            <i class="fa-solid fa-map-location-dot"></i> Select Target State
+          </label>
+          <select id="state-selector" class="custom-select">
+            <!-- Populated dynamically via JS -->
+          </select>
+        </div>
+
+        <!-- Navigation Categories -->
+        <div class="sidebar-section">
+          <span class="section-label"><i class="fa-solid fa-sliders"></i> Analysis Categories</span>
+          <nav class="category-nav">
+            <button class="nav-item active" data-tab="deficit">
+              <i class="fa-solid fa-scale-unbalanced-left"></i>
+              <span>Deficit & Quality</span>
+            </button>
+            <button class="nav-item" data-tab="sustainability">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>Debt Sustainability</span>
+            </button>
+            <button class="nav-item" data-tab="revenue">
+              <i class="fa-solid fa-wallet"></i>
+              <span>Revenue Quality</span>
+            </button>
+            <button class="nav-item" data-tab="expenditure">
+              <i class="fa-solid fa-money-bill-transfer"></i>
+              <span>Expenditure Quality</span>
+            </button>
+            <button class="nav-item" data-tab="comparison">
+              <i class="fa-solid fa-code-compare"></i>
+              <span>Cross-State Rankings</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- State Profile Card -->
+        <div class="state-profile-card">
+          <div class="profile-header">
+            <span class="state-region-badge" id="profile-region">-</span>
+            <h3 id="profile-state-name">-</h3>
+          </div>
+          <div class="profile-details">
+            <div class="detail-row">
+              <span class="lbl">Capital</span>
+              <span class="val" id="profile-capital">-</span>
+            </div>
+            <div class="detail-row">
+              <span class="lbl">Cost of Borrowing (SDL)</span>
+              <span class="val" id="profile-borrow-cost">-</span>
+            </div>
+            <div class="detail-row">
+              <span class="lbl">Yield Spread over G-Sec</span>
+              <span class="val" id="profile-spread">-</span>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- Dashboard Content View Area -->
+      <section class="dashboard-content">
+        
+        <!-- Top Metrics Strips (Selected State Highlights) -->
+        <div class="metrics-grid" id="metrics-summary-strip">
+          <div class="metric-card">
+            <div class="card-icon c-deficit"><i class="fa-solid fa-receipt"></i></div>
+            <div class="card-info">
+              <span class="card-label">Fiscal Deficit (FY25 BE)</span>
+              <h2 id="m-fiscal-deficit">-</h2>
+              <span class="card-trend" id="t-fiscal-deficit">-</span>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="card-icon c-revenue"><i class="fa-solid fa-piggy-bank"></i></div>
+            <div class="card-info">
+              <span class="card-label">Revenue Deficit / Surplus</span>
+              <h2 id="m-revenue-deficit">-</h2>
+              <span class="card-trend" id="t-revenue-deficit">-</span>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="card-icon c-capex"><i class="fa-solid fa-bridge"></i></div>
+            <div class="card-info">
+              <span class="card-label">Capital Outlay (FY25 BE)</span>
+              <h2 id="m-capital-outlay">-</h2>
+              <span class="card-trend" id="t-capital-outlay">-</span>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="card-icon c-debt"><i class="fa-solid fa-hourglass-half"></i></div>
+            <div class="card-info">
+              <span class="card-label">Outstanding Liabilities</span>
+              <h2 id="m-debt-ratio">-</h2>
+              <span class="card-trend" id="t-debt-ratio">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Visualization Cards -->
+        <div class="visualization-area">
+          
+          <!-- Deficit Tab View -->
+          <div class="tab-view active" id="tab-deficit">
+            <div class="chart-main-card">
+              <div class="card-header-bar">
+                <h3>Headline Deficit & Deficit Quality Decomposition</h3>
+                <span class="badge info">5-Year Trend View</span>
+              </div>
+              <div class="chart-body">
+                <canvas id="chart-deficit-decomposition"></canvas>
+              </div>
+            </div>
+            
+            <div class="analysis-narrative">
+              <h3><i class="fa-solid fa-circle-info"></i> Macro-Fiscal Insight: Deficit Quality</h3>
+              <p>The headline fiscal deficit shows how much the state is borrowing, but the key indicator of fiscal quality is the <strong>Revenue Deficit vs. Capital Outlay</strong> breakdown.</p>
+              <div class="narrative-highlights">
+                <div class="highlight-item">
+                  <i class="fa-solid fa-circle-exclamation text-amber"></i>
+                  <p><strong>Revenue Deficit (RD):</strong> Reflects borrowing for daily consumption (interest payments, salaries, subsidies). Running a revenue deficit means current revenues cannot cover operational costs, requiring debt for asset-free spending.</p>
+                </div>
+                <div class="highlight-item">
+                  <i class="fa-solid fa-circle-check text-emerald"></i>
+                  <p><strong>Capital Outlay (CO):</strong> Reflects borrowing for asset creation (highways, power lines, hospitals). This spending has a high fiscal multiplier (typically 2x–3x), crowding in private investment and building future growth capacity.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Debt Sustainability Tab View -->
+          <div class="tab-view" id="tab-sustainability">
+            <div class="double-charts-row">
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3>Debt-to-GSDP vs Interest-to-Revenue Ratio</h3>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-debt-trends"></canvas>
+                </div>
+              </div>
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3>GSDP Growth vs Borrowing Cost (Sustainability Spread)</h3>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-growth-cost-spread"></canvas>
+                </div>
+              </div>
+            </div>
+            
+            <div class="analysis-narrative">
+              <h3><i class="fa-solid fa-shield-halved"></i> Debt Sustainability Framework</h3>
+              <p>A state's debt position remains sustainable as long as its <strong>nominal GSDP growth rate (g) exceeds the effective borrowing cost (r)</strong>. If <em>(g - r) > 0</em>, the state's debt-to-GSDP ratio can stabilize or decline even in the presence of fiscal deficits. If borrowing costs exceed economic growth, the state is exposed to debt spirals.</p>
+              <p>Additionally, the <strong>Interest-to-Revenue receipts ratio</strong> measures fiscal flexibility. A ratio exceeding 15% means a large share of tax revenues is committed to debt servicing, crowding out development expenditures.</p>
+            </div>
+          </div>
+
+          <!-- Revenue Quality Tab View -->
+          <div class="tab-view" id="tab-revenue">
+            <div class="double-charts-row">
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3>Own Tax Revenue Mobilization Capacity (% of GSDP)</h3>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-own-tax"></canvas>
+                </div>
+              </div>
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3>Federal Transfers Share (% of Revenue Receipts)</h3>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-central-transfers"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="analysis-narrative">
+              <h3><i class="fa-solid fa-wallet"></i> Revenue Quality, Transfers & Fiscal Autonomy</h3>
+              <p>A state's fiscal autonomy is determined by its **Own Tax Revenue (SOTR) to GSDP ratio** vs. its **Federal Transfers Share (devolutions + grants-in-aid) to total revenue receipts**.</p>
+              <p>States with higher SOTR-to-GSDP (e.g., Maharashtra, Telangana, Karnataka) rely less on the Federal government, giving them higher policy flexibility. States with high dependency on Central Transfers (e.g., Uttar Pradesh, Andhra Pradesh, West Bengal) are highly exposed to macroeconomic shocks, changes in Finance Commission devolution formulae, and Central policy shifts.</p>
+            </div>
+          </div>
+
+          <!-- Expenditure Quality Tab View -->
+          <div class="tab-view" id="tab-expenditure">
+            <div class="double-charts-row">
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3>Committed spending & Subsidies vs Capital Outlay</h3>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-committed-vs-capex"></canvas>
+                </div>
+              </div>
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3>Contingent Liabilities: Outstanding Guarantees (% of GSDP)</h3>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-guarantees"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="analysis-narrative">
+              <h3><i class="fa-solid fa-money-bill-transfer"></i> Rigid Expenditures and Off-Budget Risks</h3>
+              <p><strong>Committed Expenditure</strong> (salaries, pensions, interest payments) is rigid and cannot be adjusted in the short term. When committed spending exceeds 60% of revenue receipts, the state's budget becomes vulnerable to fiscal shocks.</p>
+              <p><strong>Contingent Liabilities:</strong> Outstanding guarantees reflect state-backed debt issued by state PSUs (e.g., discoms, water boards). Although not reflected in the headline deficit, they represent a significant off-budget liability. In the event of a default, the liability falls directly onto the state budget.</p>
+            </div>
+          </div>
+
+          <!-- Cross-State Comparison Tab View -->
+          <div class="tab-view" id="tab-comparison">
+            
+            <div class="comparison-filters">
+              <div class="filter-group">
+                <label for="compare-metric-select">Select Metric to Rank:</label>
+                <select id="compare-metric-select" class="custom-select compare-select">
+                  <option value="fiscal_deficit">Fiscal Deficit (% of GSDP)</option>
+                  <option value="revenue_deficit">Revenue Deficit/Surplus (% of GSDP)</option>
+                  <option value="capital_outlay">Capital Outlay (% of GSDP)</option>
+                  <option value="debt_gsdp">Outstanding Debt (% of GSDP)</option>
+                  <option value="own_tax_gsdp">Own Tax Revenue (% of GSDP)</option>
+                  <option value="central_transfers">Federal Transfers (% of Revenue Receipts)</option>
+                  <option value="committed_exp">Committed Expenditure (% of Revenue)</option>
+                  <option value="borrowing_spread">SDL Spread over G-Sec (bps)</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label for="compare-year-select">Select Year:</label>
+                <select id="compare-year-select" class="custom-select compare-select">
+                  <!-- Populated via JS -->
+                </select>
+              </div>
+            </div>
+
+            <div class="chart-main-card">
+              <div class="card-header-bar">
+                <h3 id="compare-chart-title">Cross-State Rankings Comparison</h3>
+              </div>
+              <div class="chart-body">
+                <canvas id="chart-comparison"></canvas>
+              </div>
+            </div>
+
+            <div class="comparison-table-container">
+              <table class="comparison-table" id="states-comparison-table">
+                <thead>
+                  <tr>
+                    <th>State</th>
+                    <th>Fiscal Deficit (% GSDP)</th>
+                    <th>Revenue Balance (% GSDP)</th>
+                    <th>Capital Outlay (% GSDP)</th>
+                    <th>Outstanding Debt (% GSDP)</th>
+                    <th>Central Transfers (% Revenue)</th>
+                    <th>SDL Spread (bps)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+      <p>India Sub-National Fiscal Analytics Dashboard &copy; 2026. Data sourced from Reserve Bank of India (RBI) State Budgets Annual Publications.</p>
+    </footer>
+
+  </div>
+
+  <!-- Script Files -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
