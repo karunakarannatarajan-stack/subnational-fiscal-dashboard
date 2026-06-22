@@ -711,3 +711,35 @@ body {
 }
 
 /* Verified Sync Trigger 2 */
+
+/* Sortable Table Headers */
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+  position: relative;
+}
+
+.sortable-header:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: var(--text-primary) !important;
+}
+
+.sortable-header i {
+  margin-left: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  opacity: 0.6;
+  transition: var(--transition-smooth);
+}
+
+.sortable-header:hover i {
+  opacity: 1;
+  color: var(--accent-color);
+}
+
+.sortable-header.sorted-asc i, 
+.sortable-header.sorted-desc i {
+  opacity: 1;
+  color: var(--accent-color);
+}

@@ -10,6 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Plotly.js CDN for 3D interactive graphics -->
+  <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
   <!-- FontAwesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Custom Stylesheet -->
@@ -78,6 +80,10 @@
             <button class="nav-item" data-tab="comparison">
               <i class="fa-solid fa-code-compare"></i>
               <span>Cross-State Rankings</span>
+            </button>
+            <button class="nav-item" data-tab="threed">
+              <i class="fa-solid fa-cube"></i>
+              <span>3D Fiscal Space</span>
             </button>
           </nav>
         </div>
@@ -303,13 +309,13 @@
               <table class="comparison-table" id="states-comparison-table">
                 <thead>
                   <tr>
-                    <th>State</th>
-                    <th>Fiscal Deficit (% GSDP)</th>
-                    <th>Revenue Balance (% GSDP)</th>
-                    <th>Capital Outlay (% GSDP)</th>
-                    <th>Outstanding Debt (% GSDP)</th>
-                    <th>Central Transfers (% Revenue)</th>
-                    <th>SDL Spread (bps)</th>
+                    <th class="sortable-header" data-sort-key="state">State <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable-header" data-sort-key="fiscal_deficit">Fiscal Deficit (% GSDP) <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable-header" data-sort-key="revenue_deficit">Revenue Balance (% GSDP) <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable-header" data-sort-key="capital_outlay">Capital Outlay (% GSDP) <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable-header" data-sort-key="debt_gsdp">Outstanding Debt (% GSDP) <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable-header" data-sort-key="central_transfers">Central Transfers (% Revenue) <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable-header" data-sort-key="borrowing_spread">SDL Spread (bps) <i class="fa-solid fa-sort"></i></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -319,6 +325,87 @@
             </div>
 
           </div>
+
+          <!-- 3D Fiscal Space Tab View -->
+          <div class="tab-view" id="tab-threed">
+            <div class="chart-main-card">
+              <div class="card-header-bar">
+                <h3>3D Multi-Dimensional Fiscal Space Analysis</h3>
+                <div class="threed-controls">
+                  <span class="badge info">Interactive 3D Scatter View</span>
+                </div>
+              </div>
+              <p class="section-desc" style="color: var(--text-secondary); font-size: 0.9rem; margin-top: -0.5rem; line-height: 1.4;">
+                Explore all 9 states simultaneously across three critical dimensions. Hover to see details, click and drag to rotate, and scroll to zoom.
+              </p>
+              
+              <div class="comparison-filters" style="margin-top: 0.5rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 1rem;">
+                <div class="filter-group" style="flex-direction: column; align-items: flex-start; gap: 0.3rem;">
+                  <label for="3d-year-select" style="font-size: 0.8rem;">Select Year:</label>
+                  <select id="3d-year-select" class="custom-select" style="width: 100%; max-width: 100%;">
+                    <!-- Populated dynamically via JS -->
+                  </select>
+                </div>
+                <div class="filter-group" style="flex-direction: column; align-items: flex-start; gap: 0.3rem;">
+                  <label for="3d-x-select" style="font-size: 0.8rem;">X-Axis (Fiscal Capacity):</label>
+                  <select id="3d-x-select" class="custom-select" style="width: 100%; max-width: 100%;">
+                    <option value="fiscal_deficit">Gross Fiscal Deficit (% of GSDP)</option>
+                    <option value="revenue_deficit">Revenue Deficit (% of GSDP)</option>
+                    <option value="capital_outlay">Capital Outlay (% of GSDP)</option>
+                    <option value="debt_gsdp">Outstanding Debt (% of GSDP)</option>
+                    <option value="own_tax_gsdp" selected>Own Tax Revenue (% of GSDP)</option>
+                    <option value="central_transfers">Federal Transfers (% of Revenue)</option>
+                    <option value="committed_exp">Committed Expenditure (% of Revenue)</option>
+                  </select>
+                </div>
+                <div class="filter-group" style="flex-direction: column; align-items: flex-start; gap: 0.3rem;">
+                  <label for="3d-y-select" style="font-size: 0.8rem;">Y-Axis (Asset Creation):</label>
+                  <select id="3d-y-select" class="custom-select" style="width: 100%; max-width: 100%;">
+                    <option value="fiscal_deficit">Gross Fiscal Deficit (% of GSDP)</option>
+                    <option value="revenue_deficit">Revenue Deficit (% of GSDP)</option>
+                    <option value="capital_outlay" selected>Capital Outlay (% of GSDP)</option>
+                    <option value="debt_gsdp">Outstanding Debt (% of GSDP)</option>
+                    <option value="own_tax_gsdp">Own Tax Revenue (% of GSDP)</option>
+                    <option value="central_transfers">Federal Transfers (% of Revenue)</option>
+                    <option value="committed_exp">Committed Expenditure (% of Revenue)</option>
+                  </select>
+                </div>
+                <div class="filter-group" style="flex-direction: column; align-items: flex-start; gap: 0.3rem;">
+                  <label for="3d-z-select" style="font-size: 0.8rem;">Z-Axis (Accumulated Leverage):</label>
+                  <select id="3d-z-select" class="custom-select" style="width: 100%; max-width: 100%;">
+                    <option value="fiscal_deficit">Gross Fiscal Deficit (% of GSDP)</option>
+                    <option value="revenue_deficit">Revenue Deficit (% of GSDP)</option>
+                    <option value="capital_outlay">Capital Outlay (% of GSDP)</option>
+                    <option value="debt_gsdp" selected>Outstanding Debt (% of GSDP)</option>
+                    <option value="own_tax_gsdp">Own Tax Revenue (% of GSDP)</option>
+                    <option value="central_transfers">Federal Transfers (% of Revenue)</option>
+                    <option value="committed_exp">Committed Expenditure (% of Revenue)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="chart-body" style="height: 520px; overflow: hidden; border-radius: var(--radius-md); background: rgba(0,0,0,0.15);">
+                <div id="chart-3d-scatter" style="width: 100%; height: 100%;"></div>
+              </div>
+            </div>
+            
+            <div class="analysis-narrative">
+              <h3><i class="fa-solid fa-circle-nodes"></i> Understanding the 3D Fiscal Space</h3>
+              <p>Mapping states in 3D helps analyze relative performance on multiple axes simultaneously:</p>
+              <div class="narrative-highlights" style="grid-template-columns: 1fr 1fr; margin-top: 0.5rem;">
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-triangle-exclamation text-amber" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Fiscal Leverage Cluster:</strong> States grouped near the top (high Z-axis / Debt) and far-left (low X-axis / Own Tax). These states face tight constraints and require cautious borrowing to avoid structural stress.</p>
+                </div>
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-circle-check text-emerald" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Fiscal Autonomy Cluster:</strong> States grouped near the right (high X-axis / SOTR) and top-right (high Y-axis / Capex) with low Z-axis debt. These states have strong capacity to finance growth on their own.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
 
         </div>
 

@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let activeStateId = "MH"; // Default to Maharashtra
   let activeTab = "deficit"; // Default tab
   let charts = {}; // Cache to hold Chart.js instances
+  let currentSortColumn = "state"; // Default sort column for comparison table
+  let currentSortAsc = true; // Default sort order
 
   // --- DOM Elements ---
   const stateSelector = document.getElementById("state-selector");
@@ -54,6 +56,16 @@ document.addEventListener("DOMContentLoaded", () => {
       compareYearSelect.appendChild(option);
     });
     compareYearSelect.value = 4; // Default to latest (2024-25 BE)
+
+    // Populate 3D Year Selector
+    const threedYearSelect = document.getElementById("3d-year-select");
+    fiscalData.years.forEach((yr, idx) => {
+      const option = document.createElement("option");
+      option.value = idx;
+      option.textContent = yr;
+      threedYearSelect.appendChild(option);
+    });
+    threedYearSelect.value = 4; // Default to latest (2024-25 BE)
 
     // 3. Initialize Sidebar profile
     updateSidebarProfile(activeStateId);
@@ -114,6 +126,45 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     compareYearSelect.addEventListener("change", () => {
       renderComparisonTab();
+    });
+
+    // 3D Selector Changed
+    const threedSelects = ["3d-year-select", "3d-x-select", "3d-y-select", "3d-z-select"];
+    threedSelects.forEach(id => {
+      document.getElementById(id).addEventListener("change", () => {
+        if (activeTab === "threed") renderThreeDTab();
+      });
+    });
+
+    // Bind click events on sortable headers
+    const headers = document.querySelectorAll(".sortable-header");
+    headers.forEach(header => {
+      header.addEventListener("click", () => {
+        const sortKey = header.getAttribute("data-sort-key");
+        if (currentSortColumn === sortKey) {
+          currentSortAsc = !currentSortAsc;
+        } else {
+          currentSortColumn = sortKey;
+          currentSortAsc = true;
+        }
+        
+        // Update header sorting classes and icons
+        headers.forEach(h => {
+          h.classList.remove("sorted-asc", "sorted-desc");
+          const icon = h.querySelector("i");
+          if (icon) icon.className = "fa-solid fa-sort";
+        });
+        
+        if (currentSortAsc) {
+          header.classList.add("sorted-asc");
+          header.querySelector("i").className = "fa-solid fa-caret-up";
+        } else {
+          header.classList.add("sorted-desc");
+          header.querySelector("i").className = "fa-solid fa-caret-down";
+        }
+        
+        renderComparisonTab();
+      });
     });
   }
 
@@ -249,6 +300,8 @@ document.addEventListener("DOMContentLoaded", () => {
       renderExpenditureTab(t);
     } else if (activeTab === "comparison") {
       renderComparisonTab();
+    } else if (activeTab === "threed") {
+      renderThreeDTab();
     }
   }
 
@@ -760,35 +813,184 @@ document.addEventListener("DOMContentLoaded", () => {
     const tableBody = document.querySelector("#states-comparison-table tbody");
     tableBody.innerHTML = "";
 
-    fiscalData.states.forEach(s => {
-      const fd = fiscalData.metrics.fiscal_deficit[s.id][yearIdx];
-      const rd = fiscalData.metrics.revenue_deficit[s.id][yearIdx];
-      const co = fiscalData.metrics.capital_outlay[s.id][yearIdx];
-      const debt = fiscalData.metrics.debt_gsdp[s.id][yearIdx];
-      const trans = fiscalData.metrics.central_transfers[s.id][yearIdx];
-      const spread = fiscalData.metrics.borrowing_spread[s.id][yearIdx];
+    // Prepare table data dynamically
+    const tableData = fiscalData.states.map(s => {
+      return {
+        id: s.id,
+        name: s.name,
+        color: s.color,
+        fiscal_deficit: fiscalData.metrics.fiscal_deficit[s.id][yearIdx],
+        revenue_deficit: fiscalData.metrics.revenue_deficit[s.id][yearIdx],
+        capital_outlay: fiscalData.metrics.capital_outlay[s.id][yearIdx],
+        debt_gsdp: fiscalData.metrics.debt_gsdp[s.id][yearIdx],
+        central_transfers: fiscalData.metrics.central_transfers[s.id][yearIdx],
+        borrowing_spread: fiscalData.metrics.borrowing_spread[s.id][yearIdx]
+      };
+    });
 
+    // Sort table data based on selected column & direction
+    tableData.sort((a, b) => {
+      let valA = currentSortColumn === "state" ? a.name : a[currentSortColumn];
+      let valB = currentSortColumn === "state" ? b.name : b[currentSortColumn];
+
+      if (typeof valA === "string") {
+        return currentSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+      } else {
+        return currentSortAsc ? valA - valB : valB - valA;
+      }
+    });
+
+    // Render table data rows
+    tableData.forEach(rowItem => {
       const row = document.createElement("tr");
       // Highlight the active state row
-      if (s.id === activeStateId) {
+      if (rowItem.id === activeStateId) {
         row.style.background = "rgba(99, 102, 241, 0.08)";
         row.style.fontWeight = "600";
       }
 
       row.innerHTML = `
         <td>
-          <span class="state-bullet" style="background: ${s.color}"></span>
-          ${s.name}
+          <span class="state-bullet" style="background: ${rowItem.color}"></span>
+          ${rowItem.name}
         </td>
-        <td>${fd.toFixed(2)}%</td>
-        <td style="color: ${rd >= 0 ? 'var(--color-capex)' : 'var(--color-revenue)'}">${rd >= 0 ? '+' : ''}${rd.toFixed(2)}%</td>
-        <td>${co.toFixed(2)}%</td>
-        <td>${debt.toFixed(2)}%</td>
-        <td>${trans.toFixed(1)}%</td>
-        <td>+${spread} bps</td>
+        <td>${rowItem.fiscal_deficit.toFixed(2)}%</td>
+        <td style="color: ${rowItem.revenue_deficit >= 0 ? 'var(--color-capex)' : 'var(--color-revenue)'}">${rowItem.revenue_deficit >= 0 ? '+' : ''}${rowItem.revenue_deficit.toFixed(2)}%</td>
+        <td>${rowItem.capital_outlay.toFixed(2)}%</td>
+        <td>${rowItem.debt_gsdp.toFixed(2)}%</td>
+        <td>${rowItem.central_transfers.toFixed(1)}%</td>
+        <td>+${rowItem.borrowing_spread} bps</td>
       `;
       tableBody.appendChild(row);
     });
+  }
+
+  // --- Render 3D Fiscal Space Analysis Tab ---
+  function renderThreeDTab() {
+    const yearIdx = parseInt(document.getElementById("3d-year-select").value);
+    const xKey = document.getElementById("3d-x-select").value;
+    const yKey = document.getElementById("3d-y-select").value;
+    const zKey = document.getElementById("3d-z-select").value;
+
+    const xMeta = getMetricMetadata(xKey);
+    const yMeta = getMetricMetadata(yKey);
+    const zMeta = getMetricMetadata(zKey);
+
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+    // Build data arrays for Plotly
+    const xData = [];
+    const yData = [];
+    const zData = [];
+    const textLabels = [];
+    const colors = [];
+
+    fiscalData.states.forEach(s => {
+      const xVal = getMetricValue(s.id, xKey, yearIdx);
+      const yVal = getMetricValue(s.id, yKey, yearIdx);
+      const zVal = getMetricValue(s.id, zKey, yearIdx);
+
+      xData.push(xVal);
+      yData.push(yVal);
+      zData.push(zVal);
+      textLabels.push(`<b>${s.name}</b><br>${xMeta.name}: ${xVal.toFixed(2)}%<br>${yMeta.name}: ${yVal.toFixed(2)}%<br>${zMeta.name}: ${zVal.toFixed(2)}%`);
+      colors.push(s.color);
+    });
+
+    const trace = {
+      x: xData,
+      y: yData,
+      z: zData,
+      mode: 'markers+text',
+      text: fiscalData.states.map(s => s.name),
+      textposition: 'top center',
+      type: 'scatter3d',
+      marker: {
+        size: 14,
+        color: colors,
+        opacity: 0.85,
+        line: {
+          color: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(15,23,42,0.3)',
+          width: 1
+        }
+      },
+      hoverinfo: 'text',
+      hovertext: textLabels
+    };
+
+    const layout = {
+      margin: { l: 0, r: 0, b: 0, t: 0 },
+      scene: {
+        xaxis: {
+          title: { text: xMeta.shortName, font: { size: 11, color: isDark ? '#94a3b8' : '#475569' } },
+          gridcolor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)',
+          backgroundcolor: isDark ? 'rgba(15,23,42,0.5)' : 'rgba(248,250,252,0.5)',
+          showbackground: true,
+          tickfont: { color: isDark ? '#64748b' : '#64748b' }
+        },
+        yaxis: {
+          title: { text: yMeta.shortName, font: { size: 11, color: isDark ? '#94a3b8' : '#475569' } },
+          gridcolor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)',
+          backgroundcolor: isDark ? 'rgba(15,23,42,0.5)' : 'rgba(248,250,252,0.5)',
+          showbackground: true,
+          tickfont: { color: isDark ? '#64748b' : '#64748b' }
+        },
+        zaxis: {
+          title: { text: zMeta.shortName, font: { size: 11, color: isDark ? '#94a3b8' : '#475569' } },
+          gridcolor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)',
+          backgroundcolor: isDark ? 'rgba(15,23,42,0.5)' : 'rgba(248,250,252,0.5)',
+          showbackground: true,
+          tickfont: { color: isDark ? '#64748b' : '#64748b' }
+        },
+        camera: {
+          eye: { x: 1.5, y: 1.5, z: 1.2 }
+        }
+      },
+      paper_bgcolor: 'transparent',
+      plot_bgcolor: 'transparent',
+      font: {
+        family: 'Outfit, sans-serif',
+        color: isDark ? '#f8fafc' : '#0f172a'
+      }
+    };
+
+    const config = {
+      responsive: true,
+      displayModeBar: true,
+      modeBarButtonsToRemove: ['sendDataToCloud'],
+      displaylogo: false
+    };
+
+    Plotly.newPlot('chart-3d-scatter', [trace], layout, config);
+  }
+
+  // Helper to fetch values/meta dynamically for calculated or compiled metrics
+  function getMetricValue(stateId, key, yearIdx) {
+    if (key === "debt_own_tax") {
+      const debt = fiscalData.metrics.debt_gsdp[stateId][yearIdx];
+      const ownTax = fiscalData.metrics.own_tax_gsdp[stateId][yearIdx];
+      return debt / ownTax;
+    }
+    return fiscalData.metrics[key][stateId][yearIdx];
+  }
+
+  function getMetricMetadata(key) {
+    if (key === "debt_own_tax") {
+      return { name: "Debt to Own Tax Revenue", shortName: "Debt/Own Tax" };
+    }
+    const names = {
+      fiscal_deficit: "Gross Fiscal Deficit",
+      revenue_deficit: "Revenue Deficit",
+      capital_outlay: "Capital Outlay",
+      debt_gsdp: "Outstanding Debt",
+      own_tax_gsdp: "Own Tax Revenue",
+      central_transfers: "Federal Transfers",
+      committed_exp: "Committed Expenditure"
+    };
+    return {
+      name: fiscalData.metrics[key] ? fiscalData.metrics[key].name : "Debt to Own Tax Revenue (Ratio)",
+      shortName: names[key] || (fiscalData.metrics[key] ? fiscalData.metrics[key].name : "Debt/Own Tax")
+    };
   }
 
   // Run initialization
