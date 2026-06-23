@@ -102,7 +102,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  max-width: 1600px;
+  max-width: 1800px;
   width: 100%;
   margin: 0 auto;
   padding: 1.5rem;
@@ -195,7 +195,7 @@ body {
 /* Main Workspace Layout */
 .dashboard-main {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 280px minmax(0, 1fr);
   gap: 1.5rem;
   flex: 1;
 }
@@ -358,6 +358,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  min-width: 0;
 }
 
 /* Summary Metrics Strip */
