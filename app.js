@@ -10,6 +10,63 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentSortAsc = true; // Default sort order
   let isVibrantHeatmap = false; // Toggle for heatmap style
 
+  // --- Dynamic Column Re-ordering State ---
+  let columnOrder = [
+    "state",
+    "gsdp_absolute",
+    "total_budget",
+    "gsdp_growth",
+    "fiscal_deficit",
+    "fiscal_deficit_abs",
+    "revenue_deficit",
+    "revenue_deficit_abs",
+    "capital_outlay",
+    "capital_outlay_abs",
+    "debt_gsdp",
+    "pc_gsdp",
+    "pc_debt",
+    "central_transfers",
+    "central_transfers_abs",
+    "borrowing_spread"
+  ];
+
+  // Try to load column order from session storage
+  const savedOrder = sessionStorage.getItem("column_order");
+  if (savedOrder) {
+    try {
+      const parsed = JSON.parse(savedOrder);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        columnOrder = parsed;
+        // Verify we have all columns (in case of updates)
+        const allCols = ["state", "gsdp_absolute", "total_budget", "gsdp_growth", "fiscal_deficit", "fiscal_deficit_abs", "revenue_deficit", "revenue_deficit_abs", "capital_outlay", "capital_outlay_abs", "debt_gsdp", "pc_gsdp", "pc_debt", "central_transfers", "central_transfers_abs", "borrowing_spread"];
+        allCols.forEach(c => {
+          if (!columnOrder.includes(c)) columnOrder.push(c);
+        });
+      }
+    } catch (e) {
+      console.error("Failed to parse saved column order:", e);
+    }
+  }
+
+  const columnMetadata = {
+    state: { label: "State" },
+    gsdp_absolute: { label: "GSDP (₹ Bn)" },
+    total_budget: { label: "Total Budget (₹ Bn)" },
+    gsdp_growth: { label: "GSDP Growth (%)" },
+    fiscal_deficit: { label: "Fiscal Deficit (% GSDP)" },
+    fiscal_deficit_abs: { label: "Fiscal Deficit (₹ Bn)" },
+    revenue_deficit: { label: "Revenue Balance (% GSDP)" },
+    revenue_deficit_abs: { label: "Revenue Balance (₹ Bn)" },
+    capital_outlay: { label: "Capital Outlay (% GSDP)" },
+    capital_outlay_abs: { label: "Capital Outlay (₹ Bn)" },
+    debt_gsdp: { label: "Outstanding Debt (% GSDP)" },
+    pc_gsdp: { label: "Per Capita GSDP" },
+    pc_debt: { label: "Per Capita Debt" },
+    central_transfers: { label: "Central Transfers (% Revenue)" },
+    central_transfers_abs: { label: "Central Transfers (₹ Bn)" },
+    borrowing_spread: { label: "SDL Spread (bps)" }
+  };
+
   // --- DOM Elements ---
   const stateSelector = document.getElementById("state-selector");
   const themeToggleBtn = document.getElementById("theme-toggle");
@@ -67,6 +124,9 @@ document.addEventListener("DOMContentLoaded", () => {
       threedYearSelect.appendChild(option);
     });
     threedYearSelect.value = fiscalData.years.length - 1; // Default to latest
+
+    // 2.5 Initialize comparison table headers dynamically
+    renderTableHeader();
 
     // 3. Initialize Sidebar profile
     updateSidebarProfile(activeStateId);
@@ -159,36 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // Bind click events on sortable headers
-    const headers = document.querySelectorAll(".sortable-header");
-    headers.forEach(header => {
-      header.addEventListener("click", () => {
-        const sortKey = header.getAttribute("data-sort-key");
-        if (currentSortColumn === sortKey) {
-          currentSortAsc = !currentSortAsc;
-        } else {
-          currentSortColumn = sortKey;
-          currentSortAsc = true;
-        }
-        
-        // Update header sorting classes and icons
-        headers.forEach(h => {
-          h.classList.remove("sorted-asc", "sorted-desc");
-          const icon = h.querySelector("i");
-          if (icon) icon.className = "fa-solid fa-sort";
-        });
-        
-        if (currentSortAsc) {
-          header.classList.add("sorted-asc");
-          header.querySelector("i").className = "fa-solid fa-caret-up";
-        } else {
-          header.classList.add("sorted-desc");
-          header.querySelector("i").className = "fa-solid fa-caret-down";
-        }
-        
-        renderComparisonTab();
-      });
-    });
+    // Sortable header click and drag bindings are now dynamically managed inside renderTableHeader()
   }
 
   // --- Helper Methods ---
@@ -253,6 +284,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("profile-fiscal-deficit-abs").textContent = formatMetricValue(latestFD, "fiscal_deficit_abs");
     document.getElementById("profile-revenue-deficit-abs").textContent = formatMetricValue(latestRD, "revenue_deficit_abs");
     document.getElementById("profile-capital-outlay-abs").textContent = formatMetricValue(latestCO, "capital_outlay_abs");
+
+    const latestCT = getMetricValue(stateId, "central_transfers_abs", latestIdx);
+    document.getElementById("profile-central-transfers-abs").textContent = formatMetricValue(latestCT, "central_transfers_abs");
   }
 
   // Update Summary Metrics Card Highlights
@@ -769,6 +803,80 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- Render Dynamic Draggable Table Headers ---
+  function renderTableHeader() {
+    const thead = document.querySelector("#states-comparison-table thead");
+    if (!thead) return;
+    thead.innerHTML = "";
+    const tr = document.createElement("tr");
+
+    columnOrder.forEach(key => {
+      const meta = columnMetadata[key];
+      const th = document.createElement("th");
+      th.className = "sortable-header draggable-header";
+      th.setAttribute("data-sort-key", key);
+      th.setAttribute("draggable", "true");
+
+      if (currentSortColumn === key) {
+        th.classList.add(currentSortAsc ? "sorted-asc" : "sorted-desc");
+      }
+
+      th.innerHTML = `${meta.label} <i class="fa-solid ${currentSortColumn === key ? (currentSortAsc ? "fa-caret-up" : "fa-caret-down") : "fa-sort"}"></i>`;
+
+      // Drag and Drop Listeners
+      th.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", key);
+        th.style.opacity = "0.4";
+      });
+
+      th.addEventListener("dragend", () => {
+        th.style.opacity = "1";
+      });
+
+      th.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        th.style.backgroundColor = "rgba(99, 102, 241, 0.15)";
+      });
+
+      th.addEventListener("dragleave", () => {
+        th.style.backgroundColor = "";
+      });
+
+      th.addEventListener("drop", (e) => {
+        e.preventDefault();
+        th.style.backgroundColor = "";
+        const draggedKey = e.dataTransfer.getData("text/plain");
+        if (draggedKey && draggedKey !== key) {
+          const fromIdx = columnOrder.indexOf(draggedKey);
+          const toIdx = columnOrder.indexOf(key);
+          if (fromIdx !== -1 && toIdx !== -1) {
+            columnOrder.splice(fromIdx, 1);
+            columnOrder.splice(toIdx, 0, draggedKey);
+            sessionStorage.setItem("column_order", JSON.stringify(columnOrder));
+            renderTableHeader();
+            renderComparisonTab();
+          }
+        }
+      });
+
+      // Sorting click listener
+      th.addEventListener("click", () => {
+        if (currentSortColumn === key) {
+          currentSortAsc = !currentSortAsc;
+        } else {
+          currentSortColumn = key;
+          currentSortAsc = true;
+        }
+        renderTableHeader();
+        renderComparisonTab();
+      });
+
+      tr.appendChild(th);
+    });
+
+    thead.appendChild(tr);
+  }
+
   // --- Render Comparison Tab (Rankings & Data Grid) ---
   function renderComparisonTab() {
     const metricKey = compareMetricSelect.value;
@@ -818,7 +926,7 @@ document.addEventListener("DOMContentLoaded", () => {
             grid: { color: t.gridColor },
             title: {
               display: true,
-              text: metricKey === "debt_own_tax" ? "Ratio (x)" : (metricKey === "pc_gsdp" || metricKey === "pc_debt" ? "Rupees (₹)" : "Percentage (%)"),
+              text: metricKey === "debt_own_tax" ? "Ratio (x)" : (metricKey === "pc_gsdp" || metricKey === "pc_debt" ? "Rupees (₹)" : (metricKey === "fiscal_deficit_abs" || metricKey === "revenue_deficit_abs" || metricKey === "capital_outlay_abs" || metricKey === "central_transfers_abs" || metricKey === "gsdp_absolute" || metricKey === "total_budget" ? "Rupees Billion (₹ Bn)" : "Percentage (%)")),
               font: { weight: 600 }
             },
             ticks: {
@@ -853,6 +961,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 3. Build Comparison Grid Table
     const tableBody = document.querySelector("#states-comparison-table tbody");
+    if (!tableBody) return;
     tableBody.innerHTML = "";
 
     // Prepare table data dynamically
@@ -877,6 +986,7 @@ document.addEventListener("DOMContentLoaded", () => {
         pc_gsdp: pc_gsdp_val,
         pc_debt: pc_debt_val,
         central_transfers: fiscalData.metrics.central_transfers[s.id][yearIdx],
+        central_transfers_abs: getMetricValue(s.id, 'central_transfers_abs', yearIdx),
         borrowing_spread: fiscalData.metrics.borrowing_spread[s.id][yearIdx]
       };
     });
@@ -886,7 +996,6 @@ document.addEventListener("DOMContentLoaded", () => {
       let valA = currentSortColumn === "state" ? a.name : a[currentSortColumn];
       let valB = currentSortColumn === "state" ? b.name : b[currentSortColumn];
  
-      // Always push null/undefined to the bottom regardless of sort direction
       const aNull = valA === null || valA === undefined;
       const bNull = valB === null || valB === undefined;
       if (aNull && bNull) return 0;
@@ -916,6 +1025,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "pc_gsdp",
       "pc_debt",
       "central_transfers",
+      "central_transfers_abs",
       "borrowing_spread"
     ];
 
@@ -930,6 +1040,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "debt_gsdp",
         "pc_debt",
         "central_transfers",
+        "central_transfers_abs",
         "borrowing_spread"
       ];
       const isLowerBetter = lowerIsBetterMetrics.includes(key);
@@ -955,7 +1066,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      // Red: rgb(244, 63, 94), Amber: rgb(245, 158, 11), Green: rgb(16, 185, 129)
       let r, g, b;
       if (p > 0.5) {
         const t = (p - 0.5) / 0.5;
@@ -981,7 +1091,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return formatMetricValue(val, metricType);
     }
 
-    // Render table data rows
+    // Render table data rows dynamically based on columnOrder
     tableData.forEach(rowItem => {
       const row = document.createElement("tr");
       if (rowItem.id === activeStateId) {
@@ -989,26 +1099,21 @@ document.addEventListener("DOMContentLoaded", () => {
         row.style.fontWeight = "600";
       }
 
-      row.innerHTML = `
-        <td style="font-weight: 600;">
-          <span class="state-bullet" style="background: ${rowItem.color}"></span>
-          ${rowItem.name}
-        </td>
-        <td ${getCellFormatting(rowItem.gsdp_absolute, 'gsdp_absolute')}>${formatCellText(rowItem.gsdp_absolute, 'gsdp_absolute')}</td>
-        <td ${getCellFormatting(rowItem.total_budget, 'total_budget')}>${formatCellText(rowItem.total_budget, 'total_budget')}</td>
-        <td ${getCellFormatting(rowItem.gsdp_growth, 'gsdp_growth')}>${formatCellText(rowItem.gsdp_growth, 'gsdp_growth')}</td>
-        <td ${getCellFormatting(rowItem.fiscal_deficit, 'fiscal_deficit')}>${formatCellText(rowItem.fiscal_deficit, 'fiscal_deficit')}</td>
-        <td ${getCellFormatting(rowItem.fiscal_deficit_abs, 'fiscal_deficit_abs')}>${formatCellText(rowItem.fiscal_deficit_abs, 'fiscal_deficit_abs')}</td>
-        <td ${getCellFormatting(rowItem.revenue_deficit, 'revenue_deficit')}>${formatCellText(rowItem.revenue_deficit, 'revenue_deficit')}</td>
-        <td ${getCellFormatting(rowItem.revenue_deficit_abs, 'revenue_deficit_abs')}>${formatCellText(rowItem.revenue_deficit_abs, 'revenue_deficit_abs')}</td>
-        <td ${getCellFormatting(rowItem.capital_outlay, 'capital_outlay')}>${formatCellText(rowItem.capital_outlay, 'capital_outlay')}</td>
-        <td ${getCellFormatting(rowItem.capital_outlay_abs, 'capital_outlay_abs')}>${formatCellText(rowItem.capital_outlay_abs, 'capital_outlay_abs')}</td>
-        <td ${getCellFormatting(rowItem.debt_gsdp, 'debt_gsdp')}>${formatCellText(rowItem.debt_gsdp, 'debt_gsdp')}</td>
-        <td ${getCellFormatting(rowItem.pc_gsdp, 'pc_gsdp')}>${formatCellText(rowItem.pc_gsdp, 'pc_gsdp')}</td>
-        <td ${getCellFormatting(rowItem.pc_debt, 'pc_debt')}>${formatCellText(rowItem.pc_debt, 'pc_debt')}</td>
-        <td ${getCellFormatting(rowItem.central_transfers, 'central_transfers')}>${formatCellText(rowItem.central_transfers, 'central_transfers')}</td>
-        <td ${getCellFormatting(rowItem.borrowing_spread, 'borrowing_spread')}>${formatCellText(rowItem.borrowing_spread, 'borrowing_spread')}</td>
-      `;
+      let rowHtml = "";
+      columnOrder.forEach(key => {
+        if (key === "state") {
+          rowHtml += `
+            <td style="font-weight: 600;">
+              <span class="state-bullet" style="background: ${rowItem.color}"></span>
+              ${rowItem.name}
+            </td>
+          `;
+        } else {
+          rowHtml += `<td ${getCellFormatting(rowItem[key], key)}>${formatCellText(rowItem[key], key)}</td>`;
+        }
+      });
+
+      row.innerHTML = rowHtml;
       tableBody.appendChild(row);
     });
   }
@@ -1145,6 +1250,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const pct = fiscalData.metrics.capital_outlay[stateId][yearIdx];
       return (gsdp === null || pct === null) ? null : (gsdp * pct) / 100.0;
     }
+    if (key === "central_transfers_abs") {
+      const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
+      const fd_abs = getMetricValue(stateId, "fiscal_deficit_abs", yearIdx);
+      const ct_pct = fiscalData.metrics.central_transfers[stateId][yearIdx];
+      if (budget === null || fd_abs === null || ct_pct === null) return null;
+      const rev_receipts = budget - fd_abs;
+      return (rev_receipts * ct_pct) / 100.0;
+    }
     return fiscalData.metrics[key][stateId][yearIdx];
   }
 
@@ -1164,6 +1277,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (key === "capital_outlay_abs") {
       return { name: "Capital Outlay (Absolute) (Rupees Billion)", shortName: "Capital Outlay (Absolute)" };
     }
+    if (key === "central_transfers_abs") {
+      return { name: "Federal Transfers (Absolute) (Rupees Billion)", shortName: "Federal Transfers (Absolute)" };
+    }
     const names = {
       fiscal_deficit: "Gross Fiscal Deficit",
       fiscal_deficit_abs: "Fiscal Deficit (Absolute)",
@@ -1174,6 +1290,7 @@ document.addEventListener("DOMContentLoaded", () => {
       debt_gsdp: "Outstanding Debt",
       own_tax_gsdp: "Own Tax Revenue",
       central_transfers: "Federal Transfers",
+      central_transfers_abs: "Federal Transfers (Absolute)",
       committed_exp: "Committed Expenditure",
       pc_gsdp: "Per Capita GSDP",
       pc_debt: "Per Capita Debt",
@@ -1197,7 +1314,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (key === "pc_gsdp" || key === "pc_debt") {
       return `₹${Math.round(value).toLocaleString('en-US')}`;
     }
-    if (key === "gsdp_absolute" || key === "total_budget" || key === "fiscal_deficit_abs" || key === "revenue_deficit_abs" || key === "capital_outlay_abs") {
+    if (key === "gsdp_absolute" || key === "total_budget" || key === "fiscal_deficit_abs" || key === "revenue_deficit_abs" || key === "capital_outlay_abs" || key === "central_transfers_abs") {
       const bnVal = value / 100.0;
       const sign = bnVal < 0 ? "-" : "";
       return `${sign}₹${Math.abs(bnVal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bn`;

@@ -15,7 +15,7 @@
   <!-- FontAwesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2.1">
 </head>
 <body>
   <!-- Dashboard Grid Layout -->
@@ -142,6 +142,10 @@
             <div class="detail-row" title="Capital Outlay in Billion Rupees (FY25 BE)">
               <span class="lbl">Capital Outlay (Abs)</span>
               <span class="val" id="profile-capital-outlay-abs">-</span>
+            </div>
+            <div class="detail-row" title="Federal/Central Transfers in Billion Rupees (FY25 BE)">
+              <span class="lbl">Central Transfers (Abs)</span>
+              <span class="val" id="profile-central-transfers-abs">-</span>
             </div>
           </div>
         </div>
@@ -324,6 +328,7 @@
                   <option value="gsdp_growth">Nominal GSDP Growth Rate (%)</option>
                   <option value="own_tax_gsdp">Own Tax Revenue (% of GSDP)</option>
                   <option value="central_transfers">Federal Transfers (% of Revenue Receipts)</option>
+                  <option value="central_transfers_abs">Federal Transfers (Absolute) (Rupees Billion)</option>
                   <option value="committed_exp">Committed Expenditure (% of Revenue)</option>
                   <option value="borrowing_spread">SDL Spread over G-Sec (bps)</option>
                 </select>
@@ -362,23 +367,7 @@
             <div class="comparison-table-container">
               <table class="comparison-table" id="states-comparison-table">
                 <thead>
-                  <tr>
-                    <th class="sortable-header" data-sort-key="state">State <i class="fa-solid fa-sort"></i></th>
-                    <th class="sortable-header" data-sort-key="gsdp_absolute">GSDP (₹ Bn) <i class="fa-solid fa-sort"></i></th>
-                    <th class="sortable-header" data-sort-key="total_budget">Total Budget (₹ Bn) <i class="fa-solid fa-sort"></i></th>
-                    <th class="sortable-header" data-sort-key="gsdp_growth">GSDP Growth (%) <i class="fa-solid fa-sort"></i></th>
-                    <th class="sortable-header" data-sort-key="fiscal_deficit">Fiscal Deficit (% GSDP) <i class="fa-solid fa-sort"></i></th>
-                    <th class="sortable-header" data-sort-key="fiscal_deficit_abs">Fiscal Deficit (₹ Bn) <i class="fa-solid fa-sort"></i></th>
-                    <th class="sortable-header" data-sort-key="revenue_deficit">Revenue Balance (% GSDP) <i class="fa-solid fa-sort"></i></th>
-                    <th class="sortable-header" data-sort-key="revenue_deficit_abs">Revenue Balance (₹ Bn) <i class="fa-solid fa-sort"></i></th>
-                    <th class="sortable-header" data-sort-key="capital_outlay">Capital Outlay (% GSDP) <i class="fa-solid fa-sort"></i></th>
-                    <th class="sortable-header" data-sort-key="capital_outlay_abs">Capital Outlay (₹ Bn) <i class="fa-solid fa-sort"></i></th>
-                    <th class="sortable-header" data-sort-key="debt_gsdp">Outstanding Debt (% GSDP) <i class="fa-solid fa-sort"></i></th>
-                    <th class="sortable-header" data-sort-key="pc_gsdp">Per Capita GSDP <i class="fa-solid fa-sort"></i></th>
-                    <th class="sortable-header" data-sort-key="pc_debt">Per Capita Debt <i class="fa-solid fa-sort"></i></th>
-                    <th class="sortable-header" data-sort-key="central_transfers">Central Transfers (% Revenue) <i class="fa-solid fa-sort"></i></th>
-                    <th class="sortable-header" data-sort-key="borrowing_spread">SDL Spread (bps) <i class="fa-solid fa-sort"></i></th>
-                  </tr>
+                  <!-- Populated dynamically via JS to support re-ordering -->
                 </thead>
                 <tbody>
                   <!-- Populated via JS -->
@@ -420,6 +409,7 @@
                     <option value="debt_gsdp">Outstanding Debt (% of GSDP)</option>
                     <option value="own_tax_gsdp" selected>Own Tax Revenue (% of GSDP)</option>
                     <option value="central_transfers">Federal Transfers (% of Revenue)</option>
+                    <option value="central_transfers_abs">Federal Transfers (Absolute) (Rupees Billion)</option>
                     <option value="committed_exp">Committed Expenditure (% of Revenue)</option>
                     <option value="pc_gsdp">Per Capita GSDP (Rupees)</option>
                     <option value="pc_debt">Per Capita Debt (Rupees)</option>
@@ -439,6 +429,7 @@
                     <option value="debt_gsdp">Outstanding Debt (% of GSDP)</option>
                     <option value="own_tax_gsdp">Own Tax Revenue (% of GSDP)</option>
                     <option value="central_transfers">Federal Transfers (% of Revenue)</option>
+                    <option value="central_transfers_abs">Federal Transfers (Absolute) (Rupees Billion)</option>
                     <option value="committed_exp">Committed Expenditure (% of Revenue)</option>
                     <option value="pc_gsdp">Per Capita GSDP (Rupees)</option>
                     <option value="pc_debt">Per Capita Debt (Rupees)</option>
@@ -458,6 +449,7 @@
                     <option value="debt_gsdp" selected>Outstanding Debt (% of GSDP)</option>
                     <option value="own_tax_gsdp">Own Tax Revenue (% of GSDP)</option>
                     <option value="central_transfers">Federal Transfers (% of Revenue)</option>
+                    <option value="central_transfers_abs">Federal Transfers (Absolute) (Rupees Billion)</option>
                     <option value="committed_exp">Committed Expenditure (% of Revenue)</option>
                     <option value="pc_gsdp">Per Capita GSDP (Rupees)</option>
                     <option value="pc_debt">Per Capita Debt (Rupees)</option>
@@ -505,6 +497,6 @@
 
   <!-- Script Files -->
   <script src="data.js"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=2.1"></script>
 </body>
 </html>

@@ -813,3 +813,12 @@ body {
     padding-bottom: 0.5rem;
   }
 }
+
+/* Draggable Table Headers */
+.draggable-header {
+  cursor: grab;
+  user-select: none;
+}
+.draggable-header:active {
+  cursor: grabbing;
+}
