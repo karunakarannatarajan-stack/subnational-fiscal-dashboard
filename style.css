@@ -775,7 +775,7 @@ body {
 /* Resolution Scaling Adjustments for Ultrawide Monitors & 4K (3440px / 3840px) */
 @media (min-width: 2560px) {
   .app-container {
-    max-width: 3200px;
+    max-width: 100%;
     padding: 2.5rem;
   }
   .dashboard-main {
