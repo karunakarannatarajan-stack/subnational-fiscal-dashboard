@@ -744,3 +744,72 @@ body {
   opacity: 1;
   color: var(--accent-color);
 }
+
+/* 3D Plot Container Styling */
+.chart-3d-body {
+  height: 520px;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.15);
+  transition: var(--transition-smooth);
+}
+
+/* Resolution Scaling Adjustments for Large Monitors (Full HD & QHD) */
+@media (min-width: 1920px) {
+  .app-container {
+    max-width: 1800px;
+    padding: 2rem;
+  }
+  .dashboard-main {
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 2rem;
+  }
+  .chart-body {
+    height: 420px; /* Taller standard charts */
+  }
+  .chart-3d-body {
+    height: 580px; /* Taller 3D visualization */
+  }
+}
+
+/* Resolution Scaling Adjustments for Ultrawide Monitors & 4K (3440px / 3840px) */
+@media (min-width: 2560px) {
+  .app-container {
+    max-width: 2400px;
+    padding: 2.5rem;
+  }
+  .dashboard-main {
+    grid-template-columns: 360px minmax(0, 1fr);
+    gap: 2.5rem;
+  }
+  .metrics-grid {
+    gap: 1.5rem;
+  }
+  .chart-body {
+    height: 485px; /* Taller chart height prevents thin lines on ultrawide */
+  }
+  .chart-3d-body {
+    height: 660px; /* Extra vertical space for 3D visualization */
+  }
+  body {
+    font-size: 17px; /* Increased basic font size for high-res readability */
+  }
+  .nav-item {
+    font-size: 1.05rem;
+    padding: 1.1rem 1.25rem;
+  }
+  .custom-select {
+    font-size: 1.05rem;
+  }
+  .sidebar-section {
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+  .state-profile-card {
+    padding: 1.5rem;
+  }
+  .detail-row {
+    font-size: 0.95rem;
+    padding-bottom: 0.5rem;
+  }
+}
