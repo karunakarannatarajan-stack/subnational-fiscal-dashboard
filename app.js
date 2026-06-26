@@ -15,6 +15,9 @@ document.addEventListener("DOMContentLoaded", () => {
     "state",
     "gsdp_absolute",
     "total_budget",
+    "budget_gsdp",
+    "total_revenue",
+    "revenue_gsdp",
     "gsdp_growth",
     "fiscal_deficit",
     "fiscal_deficit_abs",
@@ -38,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (Array.isArray(parsed) && parsed.length > 0) {
         columnOrder = parsed;
         // Verify we have all columns (in case of updates)
-        const allCols = ["state", "gsdp_absolute", "total_budget", "gsdp_growth", "fiscal_deficit", "fiscal_deficit_abs", "revenue_deficit", "revenue_deficit_abs", "capital_outlay", "capital_outlay_abs", "debt_gsdp", "pc_gsdp", "pc_debt", "central_transfers", "central_transfers_abs", "borrowing_spread"];
+        const allCols = ["state", "gsdp_absolute", "total_budget", "budget_gsdp", "total_revenue", "revenue_gsdp", "gsdp_growth", "fiscal_deficit", "fiscal_deficit_abs", "revenue_deficit", "revenue_deficit_abs", "capital_outlay", "capital_outlay_abs", "debt_gsdp", "pc_gsdp", "pc_debt", "central_transfers", "central_transfers_abs", "borrowing_spread"];
         allCols.forEach(c => {
           if (!columnOrder.includes(c)) columnOrder.push(c);
         });
@@ -52,6 +55,9 @@ document.addEventListener("DOMContentLoaded", () => {
     state: { label: "State" },
     gsdp_absolute: { label: "GSDP (₹ Bn)" },
     total_budget: { label: "Total Budget (₹ Bn)" },
+    budget_gsdp: { label: "Total Budget (% GSDP)" },
+    total_revenue: { label: "Total Revenue (₹ Bn)" },
+    revenue_gsdp: { label: "Total Revenue (% GSDP)" },
     gsdp_growth: { label: "GSDP Growth (%)" },
     fiscal_deficit: { label: "Fiscal Deficit (% GSDP)" },
     fiscal_deficit_abs: { label: "Fiscal Deficit (₹ Bn)" },
