@@ -981,6 +981,9 @@ document.addEventListener("DOMContentLoaded", () => {
         color: s.color,
         gsdp_absolute: fiscalData.metrics.gsdp_absolute[s.id][yearIdx],
         total_budget: fiscalData.metrics.total_budget[s.id][yearIdx],
+        budget_gsdp: getMetricValue(s.id, 'budget_gsdp', yearIdx),
+        total_revenue: getMetricValue(s.id, 'total_revenue', yearIdx),
+        revenue_gsdp: getMetricValue(s.id, 'revenue_gsdp', yearIdx),
         gsdp_growth: fiscalData.metrics.gsdp_growth[s.id][yearIdx],
         fiscal_deficit: fiscalData.metrics.fiscal_deficit[s.id][yearIdx],
         fiscal_deficit_abs: getMetricValue(s.id, 'fiscal_deficit_abs', yearIdx),
@@ -1020,6 +1023,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const metricsToRank = [
       "gsdp_absolute",
       "total_budget",
+      "budget_gsdp",
+      "total_revenue",
+      "revenue_gsdp",
       "gsdp_growth",
       "fiscal_deficit",
       "fiscal_deficit_abs",
@@ -1231,6 +1237,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Helper to fetch values/meta dynamically for calculated or compiled metrics
   function getMetricValue(stateId, key, yearIdx) {
+    if (key === "total_revenue") {
+      const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
+      const fd_abs = getMetricValue(stateId, "fiscal_deficit_abs", yearIdx);
+      if (budget === null || fd_abs === null) return null;
+      return budget - fd_abs;
+    }
+    if (key === "revenue_gsdp") {
+      const gsdp = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
+      const rev = getMetricValue(stateId, "total_revenue", yearIdx);
+      if (gsdp === null || rev === null || gsdp === 0) return null;
+      return (rev / gsdp) * 100;
+    }
+    if (key === "budget_gsdp") {
+      const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
+      const gsdp = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
+      if (budget === null || gsdp === null || gsdp === 0) return null;
+      return (budget / gsdp) * 100;
+    }
     if (key === "debt_own_tax") {
       const debt = fiscalData.metrics.debt_gsdp[stateId][yearIdx];
       const ownTax = fiscalData.metrics.own_tax_gsdp[stateId][yearIdx];
@@ -1268,6 +1292,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getMetricMetadata(key) {
+    if (key === "total_revenue") {
+      return { name: "Total Revenue (Absolute) (Rupees Billion)", shortName: "Total Revenue" };
+    }
+    if (key === "revenue_gsdp") {
+      return { name: "Total Revenue (% of GSDP)", shortName: "Total Revenue (%)" };
+    }
+    if (key === "budget_gsdp") {
+      return { name: "Total Budget (% of GSDP)", shortName: "Total Budget (%)" };
+    }
     if (key === "debt_own_tax") {
       return { name: "Debt to Own Tax Revenue (Ratio)", shortName: "Debt/Own Tax" };
     }
@@ -1320,7 +1353,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (key === "pc_gsdp" || key === "pc_debt") {
       return `₹${Math.round(value).toLocaleString('en-US')}`;
     }
-    if (key === "gsdp_absolute" || key === "total_budget" || key === "fiscal_deficit_abs" || key === "revenue_deficit_abs" || key === "capital_outlay_abs" || key === "central_transfers_abs") {
+    if (key === "gsdp_absolute" || key === "total_budget" || key === "total_revenue" || key === "fiscal_deficit_abs" || key === "revenue_deficit_abs" || key === "capital_outlay_abs" || key === "central_transfers_abs") {
       const bnVal = value / 100.0;
       const sign = bnVal < 0 ? "-" : "";
       return `${sign}₹${Math.abs(bnVal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bn`;
