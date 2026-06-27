@@ -132,6 +132,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     threedYearSelect.value = fiscalData.years.length - 1; // Default to latest
 
+    // Populate Deficit Quality Matrix Year Selector
+    const deficitYearSelect = document.getElementById("deficit-year-select");
+    fiscalData.years.forEach((yr, idx) => {
+      const option = document.createElement("option");
+      option.value = idx;
+      option.textContent = yr;
+      deficitYearSelect.appendChild(option);
+    });
+    deficitYearSelect.value = fiscalData.years.length - 1; // Default to latest
+
     // 2.5 Initialize comparison table headers dynamically
     renderTableHeader();
 
@@ -156,6 +166,14 @@ document.addEventListener("DOMContentLoaded", () => {
       updateSidebarProfile(activeStateId);
       updateSummaryStrip(activeStateId);
       renderActiveTabCharts();
+    });
+
+    // Deficit Tab Year Selection Changed
+    const deficitYearSelect = document.getElementById("deficit-year-select");
+    deficitYearSelect.addEventListener("change", () => {
+      if (activeTab === "deficit") {
+        renderDeficitTab(getThemeColors());
+      }
     });
 
     // Tab Navigation Item Clicked
@@ -402,69 +420,108 @@ document.addEventListener("DOMContentLoaded", () => {
     // Destroy previous chart
     if (charts["deficit"]) charts["deficit"].destroy();
 
-    const gfdData = fiscalData.metrics.fiscal_deficit[activeStateId];
-    const rdData = fiscalData.metrics.revenue_deficit[activeStateId];
-    const capexData = fiscalData.metrics.capital_outlay[activeStateId];
+    const yearIdx = parseInt(document.getElementById("deficit-year-select").value);
+    
+    const datasets = [];
+    fiscalData.states.forEach(state => {
+      const rd = fiscalData.metrics.revenue_deficit[state.id][yearIdx];
+      const capex = fiscalData.metrics.capital_outlay[state.id][yearIdx];
+      const gfd = fiscalData.metrics.fiscal_deficit[state.id][yearIdx];
+      
+      if (rd !== null && capex !== null && gfd !== null) {
+        // Calculate bubble radius scaling
+        const radius = Math.max(gfd * 5, 4); // Example: 3% GFD -> 15px radius
+        
+        datasets.push({
+          label: state.name,
+          data: [{
+            x: rd, 
+            y: capex, 
+            r: radius,
+            gfd: gfd // Store for tooltip
+          }],
+          backgroundColor: state.color + 'CC', // 80% opacity
+          borderColor: state.color,
+          borderWidth: 2,
+          hoverBackgroundColor: state.color,
+          hoverBorderWidth: 3,
+          hoverRadius: radius + 2
+        });
+      }
+    });
 
     charts["deficit"] = new Chart(ctx, {
-      type: "bar",
+      type: "bubble",
       data: {
-        labels: fiscalData.years,
-        datasets: [
-          {
-            label: "Gross Fiscal Deficit (GFD)",
-            data: gfdData,
-            backgroundColor: "rgba(59, 130, 246, 0.7)",
-            borderColor: "rgba(59, 130, 246, 1)",
-            borderWidth: 1.5,
-            borderRadius: 4
-          },
-          {
-            label: "Revenue Deficit/Surplus (RD)",
-            data: rdData,
-            backgroundColor: rdData.map(v => v >= 0 ? "rgba(16, 185, 129, 0.4)" : "rgba(245, 158, 11, 0.6)"),
-            borderColor: rdData.map(v => v >= 0 ? "rgba(16, 185, 129, 1)" : "rgba(245, 158, 11, 1)"),
-            borderWidth: 1.5,
-            borderRadius: 4
-          },
-          {
-            label: "Capital Outlay (Capex)",
-            data: capexData,
-            backgroundColor: "rgba(16, 185, 129, 0.7)",
-            borderColor: "rgba(16, 185, 129, 1)",
-            borderWidth: 1.5,
-            borderRadius: 4
-          }
-        ]
+        datasets: datasets
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        scales: {
-          x: {
-            grid: { color: t.gridColor },
-            ticks: { font: { weight: 500 } }
-          },
-          y: {
-            grid: { color: t.gridColor },
-            title: {
-              display: true,
-              text: "% of GSDP",
-              font: { family: "'Outfit', sans-serif", size: 12, weight: 600 }
-            }
+        layout: {
+          padding: {
+            top: 20,
+            right: 30,
+            bottom: 10,
+            left: 10
           }
         },
         plugins: {
           legend: {
-            position: "top",
-            labels: { boxWidth: 12, font: { weight: 500 } }
+            display: true,
+            position: 'right',
+            labels: {
+              color: t.textColor,
+              usePointStyle: true,
+              boxWidth: 8,
+              font: { size: 11 }
+            }
           },
           tooltip: {
             backgroundColor: t.tooltipBg,
             titleColor: t.tooltipText,
             bodyColor: t.textColor,
             borderColor: t.tooltipBorder,
-            borderWidth: 1
+            borderWidth: 1,
+            callbacks: {
+              label: function(context) {
+                const stateName = context.dataset.label;
+                const rd = context.raw.x.toFixed(2);
+                const capex = context.raw.y.toFixed(2);
+                const gfd = context.raw.gfd.toFixed(2);
+                return `${stateName} | Rev Bal: ${rd}% | Capex: ${capex}% | GFD: ${gfd}%`;
+              }
+            }
+          },
+          annotation: {
+            // Optional: You could use chartjs-plugin-annotation here if included, 
+            // but we'll use native grid line styling instead.
+          }
+        },
+        scales: {
+          x: {
+            grid: { 
+              color: context => context.tick.value === 0 ? t.textColor : t.gridColor,
+              lineWidth: context => context.tick.value === 0 ? 2 : 1,
+              z: 1 // Draw above background but below points
+            },
+            title: {
+              display: true,
+              text: "Revenue Deficit (-) / Surplus (+)  (% of GSDP)",
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
+          },
+          y: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: "Capital Outlay (% of GSDP)",
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
           }
         }
       }

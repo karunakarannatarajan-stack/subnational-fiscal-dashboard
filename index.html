@@ -196,10 +196,20 @@
           
           <!-- Deficit Tab View -->
           <div class="tab-view active" id="tab-deficit">
+            
+            <div class="comparison-filters">
+              <div class="filter-group">
+                <label for="deficit-year-select">Select Year:</label>
+                <select id="deficit-year-select" class="custom-select compare-select">
+                  <!-- Populated via JS -->
+                </select>
+              </div>
+            </div>
+
             <div class="chart-main-card">
               <div class="card-header-bar">
-                <h3>Headline Deficit & Deficit Quality Decomposition</h3>
-                <span class="badge info">5-Year Trend View</span>
+                <h3>Deficit Quality Matrix: Revenue Balance vs Capital Outlay</h3>
+                <span class="badge info">Cross-State Quadrant View</span>
               </div>
               <div class="chart-body">
                 <canvas id="chart-deficit-decomposition"></canvas>
@@ -207,16 +217,16 @@
             </div>
             
             <div class="analysis-narrative">
-              <h3><i class="fa-solid fa-circle-info"></i> Macro-Fiscal Insight: Deficit Quality</h3>
-              <p>The headline fiscal deficit shows how much the state is borrowing, but the key indicator of fiscal quality is the <strong>Revenue Deficit vs. Capital Outlay</strong> breakdown.</p>
-              <div class="narrative-highlights">
-                <div class="highlight-item">
-                  <i class="fa-solid fa-circle-exclamation text-amber"></i>
-                  <p><strong>Revenue Deficit (RD):</strong> Reflects borrowing for daily consumption (interest payments, salaries, subsidies). Running a revenue deficit means current revenues cannot cover operational costs, requiring debt for asset-free spending.</p>
+              <h3><i class="fa-solid fa-circle-nodes"></i> Macro-Fiscal Insight: The Deficit Quality Matrix</h3>
+              <p>This quadrant chart compares all states on two critical fiscal metrics: <strong>Revenue Balance</strong> (X-axis) and <strong>Capital Outlay</strong> (Y-axis). The size of each bubble represents the state's total <strong>Gross Fiscal Deficit</strong>. Hover over bubbles to see details.</p>
+              <div class="narrative-highlights" style="grid-template-columns: 1fr 1fr; margin-top: 0.5rem;">
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-circle-check text-emerald" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Top-Right (Golden Quadrant):</strong> States here run a Revenue Surplus and maintain high Capital Outlay. Their fiscal deficit is entirely used for productive asset creation, representing high fiscal prudence.</p>
                 </div>
-                <div class="highlight-item">
-                  <i class="fa-solid fa-circle-check text-emerald"></i>
-                  <p><strong>Capital Outlay (CO):</strong> Reflects borrowing for asset creation (highways, power lines, hospitals). This spending has a high fiscal multiplier (typically 2x–3x), crowding in private investment and building future growth capacity.</p>
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-triangle-exclamation text-amber" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Bottom-Left (Vulnerable Zone):</strong> States here run a Revenue Deficit and have low Capital Outlay. They are borrowing money primarily to fund daily consumption (salaries, interest) rather than growth.</p>
                 </div>
               </div>
             </div>
