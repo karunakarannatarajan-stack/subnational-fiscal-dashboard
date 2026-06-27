@@ -287,9 +287,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Comparison Selector Changed
     compareMetricSelect.addEventListener("change", () => {
       renderComparisonTab();
+      renderFiscalNavigator();
     });
     compareYearSelect.addEventListener("change", () => {
       renderComparisonTab();
+      renderFiscalNavigator();
     });
 
     // Toggle Heatmap style
@@ -486,6 +488,8 @@ document.addEventListener("DOMContentLoaded", () => {
       renderExpenditureTab(t);
     } else if (activeTab === "comparison") {
       renderComparisonTab();
+      // Use setTimeout so canvas has been laid out with correct dimensions
+      setTimeout(() => renderFiscalNavigator(), 50);
     } else if (activeTab === "threed") {
       renderThreeDTab();
     }
@@ -1361,9 +1365,9 @@ document.addEventListener("DOMContentLoaded", () => {
           {
             label: metricMeta.name,
             data: sortedStates.map(s => s.value),
-            backgroundColor: sortedStates.map(s => s.id === activeStateId ? "rgba(99, 102, 241, 0.85)" : "rgba(255, 255, 255, 0.15)"),
-            borderColor: sortedStates.map(s => s.id === activeStateId ? "rgba(99, 102, 241, 1)" : "rgba(255, 255, 255, 0.3)"),
-            borderWidth: 1.5,
+            backgroundColor: sortedStates.map(s => s.color + 'CC'),
+            borderColor: sortedStates.map(s => s.color),
+            borderWidth: s => s.id === activeStateId ? 2.5 : 1.5,
             borderRadius: 4
           }
         ]
@@ -1555,8 +1559,8 @@ document.addEventListener("DOMContentLoaded", () => {
     tableData.forEach(rowItem => {
       const row = document.createElement("tr");
       if (rowItem.id === activeStateId) {
-        row.style.background = "rgba(99, 102, 241, 0.08)";
-        row.style.fontWeight = "600";
+        row.style.background = rowItem.color + '18'; // 10% opacity of state color
+        row.style.boxShadow = `inset 3px 0 0 ${rowItem.color}`;
       }
 
       let rowHtml = "";
@@ -1576,6 +1580,257 @@ document.addEventListener("DOMContentLoaded", () => {
       row.innerHTML = rowHtml;
       tableBody.appendChild(row);
     });
+  }
+
+
+  // --- Render Fiscal Navigator (Parallel Coordinates) ---
+  function renderFiscalNavigator() {
+    const canvas = document.getElementById("chart-fiscal-navigator");
+    if (!canvas) return;
+    const ctx2d = canvas.getContext("2d");
+
+    const yearIdx = parseInt(document.getElementById("compare-year-select").value);
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+    // Define the axes (parameters)
+    const axes = [
+      { key: "gsdp_growth",     label: "GSDP\nGrowth %",    higherBetter: true  },
+      { key: "own_tax_gsdp",    label: "Own Tax\n% GSDP",   higherBetter: true  },
+      { key: "fiscal_deficit",  label: "Fiscal\nDeficit %", higherBetter: false },
+      { key: "capital_outlay",  label: "Capex\n% GSDP",     higherBetter: true  },
+      { key: "debt_gsdp",       label: "Debt\n% GSDP",      higherBetter: false },
+      { key: "borrowing_spread",label: "Borrow\nSpread bps", higherBetter: false }
+    ];
+
+    // Collect data for all states
+    const stateData = fiscalData.states.map(state => {
+      const vals = axes.map(a => getMetricValue(state.id, a.key, yearIdx));
+      return { id: state.id, name: state.name, color: state.color, vals };
+    }).filter(s => s.vals.every(v => v !== null && v !== undefined));
+
+    // Compute min/max per axis for normalization
+    const mins = axes.map((_, i) => Math.min(...stateData.map(s => s.vals[i])));
+    const maxs = axes.map((_, i) => Math.max(...stateData.map(s => s.vals[i])));
+
+    // Normalize: returns 0-1 where 1 = visually "better"
+    function normalizeVal(val, i) {
+      const range = maxs[i] - mins[i];
+      if (range === 0) return 0.5;
+      const raw = (val - mins[i]) / range;
+      return axes[i].higherBetter ? raw : 1 - raw;
+    }
+
+    // Sizing
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width  = rect.width  * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width  = rect.width  + "px";
+    canvas.style.height = rect.height + "px";
+    ctx2d.scale(dpr, dpr);
+    const W = rect.width, H = rect.height;
+
+    const padL = 30, padR = 30, padT = 40, padB = 45;
+    const axisCount = axes.length;
+    const axisSpacing = (W - padL - padR) / (axisCount - 1);
+    const axisX = i => padL + i * axisSpacing;
+    const yForVal = v => padT + (1 - v) * (H - padT - padB);
+
+    ctx2d.clearRect(0, 0, W, H);
+
+    // Draw axis lines
+    for (let i = 0; i < axisCount; i++) {
+      const x = axisX(i);
+      ctx2d.beginPath();
+      ctx2d.moveTo(x, padT);
+      ctx2d.lineTo(x, H - padB);
+      ctx2d.strokeStyle = isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)";
+      ctx2d.lineWidth = 1.5;
+      ctx2d.stroke();
+
+      // Arrow tip at top (better direction)
+      ctx2d.beginPath();
+      ctx2d.moveTo(x - 5, padT + 10);
+      ctx2d.lineTo(x, padT + 1);
+      ctx2d.lineTo(x + 5, padT + 10);
+      ctx2d.strokeStyle = "#10b981";
+      ctx2d.lineWidth = 1.5;
+      ctx2d.stroke();
+
+      // Axis label
+      const labelLines = axes[i].label.split("\n");
+      ctx2d.fillStyle = isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.65)";
+      ctx2d.font = "bold 10px 'Outfit', sans-serif";
+      ctx2d.textAlign = "center";
+      labelLines.forEach((line, li) => {
+        ctx2d.fillText(line, x, H - padB + 14 + li * 13);
+      });
+
+      // Min / max labels
+      ctx2d.font = "9px 'Outfit', sans-serif";
+      ctx2d.fillStyle = "#10b981";
+      ctx2d.fillText("Better ↑", x, padT - 5);
+    }
+
+    // Draw state lines (dim first pass)
+    let hoveredState = null;
+
+    function drawLines(highlightId) {
+      ctx2d.clearRect(0, 0, W, H);
+
+      // Redraw axes
+      for (let i = 0; i < axisCount; i++) {
+        const x = axisX(i);
+        ctx2d.beginPath();
+        ctx2d.moveTo(x, padT);
+        ctx2d.lineTo(x, H - padB);
+        ctx2d.strokeStyle = isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)";
+        ctx2d.lineWidth = 1.5;
+        ctx2d.stroke();
+
+        ctx2d.beginPath();
+        ctx2d.moveTo(x - 5, padT + 10);
+        ctx2d.lineTo(x, padT + 1);
+        ctx2d.lineTo(x + 5, padT + 10);
+        ctx2d.strokeStyle = "#10b981";
+        ctx2d.lineWidth = 1.5;
+        ctx2d.stroke();
+
+        const labelLines = axes[i].label.split("\n");
+        ctx2d.fillStyle = isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.65)";
+        ctx2d.font = "bold 10px 'Outfit', sans-serif";
+        ctx2d.textAlign = "center";
+        labelLines.forEach((line, li) => {
+          ctx2d.fillText(line, x, H - padB + 14 + li * 13);
+        });
+        ctx2d.font = "9px 'Outfit', sans-serif";
+        ctx2d.fillStyle = "#10b981";
+        ctx2d.fillText("Better ↑", x, padT - 5);
+      }
+
+      // Draw non-highlighted states dimly first
+      stateData.forEach(s => {
+        if (s.id === highlightId) return;
+        ctx2d.beginPath();
+        const pts = axes.map((_, i) => ({
+          x: axisX(i),
+          y: yForVal(normalizeVal(s.vals[i], i))
+        }));
+        ctx2d.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) {
+          const cp1x = (pts[i-1].x + pts[i].x) / 2;
+          ctx2d.bezierCurveTo(cp1x, pts[i-1].y, cp1x, pts[i].y, pts[i].x, pts[i].y);
+        }
+        ctx2d.strokeStyle = s.color + (highlightId ? "28" : "88");
+        ctx2d.lineWidth = highlightId ? 1 : 1.8;
+        ctx2d.stroke();
+
+        // Dots at axes
+        pts.forEach(pt => {
+          ctx2d.beginPath();
+          ctx2d.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
+          ctx2d.fillStyle = s.color + (highlightId ? "30" : "99");
+          ctx2d.fill();
+        });
+      });
+
+      // Draw highlighted state on top
+      if (highlightId) {
+        const s = stateData.find(s => s.id === highlightId);
+        if (s) {
+          const pts = axes.map((_, i) => ({
+            x: axisX(i),
+            y: yForVal(normalizeVal(s.vals[i], i))
+          }));
+
+          // Glow shadow
+          ctx2d.shadowColor = s.color;
+          ctx2d.shadowBlur = 12;
+          ctx2d.beginPath();
+          ctx2d.moveTo(pts[0].x, pts[0].y);
+          for (let i = 1; i < pts.length; i++) {
+            const cp1x = (pts[i-1].x + pts[i].x) / 2;
+            ctx2d.bezierCurveTo(cp1x, pts[i-1].y, cp1x, pts[i].y, pts[i].x, pts[i].y);
+          }
+          ctx2d.strokeStyle = s.color;
+          ctx2d.lineWidth = 3;
+          ctx2d.stroke();
+          ctx2d.shadowBlur = 0;
+
+          // Arrow markers between segments
+          for (let i = 0; i < pts.length - 1; i++) {
+            const midX = (pts[i].x + pts[i+1].x) / 2;
+            const midY = (pts[i].y + pts[i+1].y) / 2;
+            const angle = Math.atan2(pts[i+1].y - pts[i].y, pts[i+1].x - pts[i].x);
+            ctx2d.save();
+            ctx2d.translate(midX, midY);
+            ctx2d.rotate(angle);
+            ctx2d.beginPath();
+            ctx2d.moveTo(-7, -5);
+            ctx2d.lineTo(0, 0);
+            ctx2d.lineTo(-7, 5);
+            ctx2d.strokeStyle = s.color;
+            ctx2d.lineWidth = 2;
+            ctx2d.stroke();
+            ctx2d.restore();
+          }
+
+          // Dots + value labels
+          pts.forEach((pt, i) => {
+            ctx2d.beginPath();
+            ctx2d.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
+            ctx2d.fillStyle = s.color;
+            ctx2d.fill();
+            ctx2d.strokeStyle = isDark ? "#1a1d2e" : "#fff";
+            ctx2d.lineWidth = 1.5;
+            ctx2d.stroke();
+
+            // Value label
+            const rawVal = s.vals[i];
+            const label = rawVal !== null ? rawVal.toFixed(1) : "N/A";
+            ctx2d.font = "bold 10px 'Outfit', sans-serif";
+            ctx2d.fillStyle = isDark ? "#fff" : "#111";
+            ctx2d.textAlign = "center";
+            ctx2d.fillText(label, pt.x, pt.y - 9);
+          });
+
+          // State name label
+          ctx2d.font = "bold 12px 'Outfit', sans-serif";
+          ctx2d.fillStyle = s.color;
+          ctx2d.textAlign = "left";
+          ctx2d.fillText(`▶ ${s.name}`, padL, padT - 18);
+        }
+      }
+    }
+
+    drawLines(null);
+
+    // Hover interaction
+    canvas.onmousemove = (e) => {
+      const cr = canvas.getBoundingClientRect();
+      const mx = e.clientX - cr.left;
+      const my = e.clientY - cr.top;
+      let closest = null, minDist = 30;
+
+      stateData.forEach(s => {
+        axes.forEach((_, i) => {
+          const px = axisX(i);
+          const py = yForVal(normalizeVal(s.vals[i], i));
+          const d = Math.hypot(mx - px, my - py);
+          if (d < minDist) { minDist = d; closest = s.id; }
+        });
+      });
+
+      if (closest !== hoveredState) {
+        hoveredState = closest;
+        drawLines(hoveredState);
+      }
+    };
+
+    canvas.onmouseleave = () => {
+      hoveredState = null;
+      drawLines(null);
+    };
   }
 
 
