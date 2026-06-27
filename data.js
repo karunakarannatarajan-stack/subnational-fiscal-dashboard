@@ -307,8 +307,77 @@ const fiscalData = {
 }
 };
 
+// Breakdown of Direct Central Investment by category (% of GSDP, estimated)
+// Categories: Railways capital works, NHAI/Road projects, Centrally Sponsored Schemes (CSS), Direct grants & others
+const centralInvestmentBreakdown = {
+  MH: {
+    railways:  [0.9, 0.9, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1, 1.2, 1.1, 1.0, 1.1, 1.1, 1.2, 1.2],
+    nhai:      [0.8, 0.9, 0.9, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1, 1.0, 0.9, 1.0, 1.1, 1.1, 1.2],
+    css:       [1.2, 1.2, 1.2, 1.2, 1.3, 1.3, 1.3, 1.4, 1.4, 1.3, 1.3, 1.4, 1.4, 1.4, 1.4],
+    grants:    [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6],
+    notes: "Major beneficiary of Western Dedicated Freight Corridor, Mumbai-Ahmedabad HSR, NHDP Phase IV"
+  },
+  TN: {
+    railways:  [0.5, 0.6, 0.6, 0.6, 0.6, 0.7, 0.7, 0.7, 0.8, 0.7, 0.6, 0.7, 0.7, 0.7, 0.8],
+    nhai:      [0.6, 0.6, 0.7, 0.7, 0.7, 0.7, 0.8, 0.8, 0.8, 0.7, 0.6, 0.7, 0.8, 0.8, 0.8],
+    css:       [0.9, 0.9, 0.9, 1.0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.0, 1.0, 1.1, 1.1, 1.1, 1.1],
+    grants:    [0.5, 0.5, 0.5, 0.5, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.7, 0.7],
+    notes: "Chennai Metro, coastal highway projects, moderate railway investment relative to economic size"
+  },
+  GJ: {
+    railways:  [1.2, 1.3, 1.3, 1.4, 1.5, 1.6, 1.6, 1.7, 1.8, 1.7, 1.6, 1.7, 1.8, 1.9, 1.9],
+    nhai:      [1.8, 1.8, 1.9, 1.9, 2.0, 2.0, 2.1, 2.1, 2.2, 2.1, 2.0, 2.1, 2.2, 2.2, 2.3],
+    css:       [2.2, 2.3, 2.3, 2.4, 2.4, 2.4, 2.5, 2.5, 2.5, 2.4, 2.3, 2.5, 2.5, 2.5, 2.5],
+    grants:    [1.3, 1.3, 1.4, 1.4, 1.4, 1.5, 1.5, 1.6, 1.6, 1.6, 1.6, 1.7, 1.7, 1.8, 1.8],
+    notes: "Highest Central investment share. GIFT City, Dholera SIR, Diamond Quadrilateral Railway, extensive NHAI presence"
+  },
+  KA: {
+    railways:  [0.6, 0.6, 0.7, 0.7, 0.7, 0.7, 0.8, 0.8, 0.8, 0.7, 0.7, 0.8, 0.8, 0.8, 0.8],
+    nhai:      [0.8, 0.8, 0.8, 0.9, 0.9, 0.9, 0.9, 1.0, 1.0, 0.9, 0.8, 0.9, 1.0, 1.0, 1.0],
+    css:       [1.0, 1.0, 1.1, 1.1, 1.1, 1.1, 1.1, 1.2, 1.2, 1.1, 1.1, 1.2, 1.2, 1.2, 1.3],
+    grants:    [0.6, 0.7, 0.6, 0.6, 0.7, 0.8, 0.8, 0.7, 0.8, 0.8, 0.7, 0.7, 0.7, 0.8, 0.8],
+    notes: "Bengaluru-Chennai Expressway, SWR electrification, Central support has declined post-2019 political shift"
+  },
+  UP: {
+    railways:  [1.8, 1.9, 2.0, 2.1, 2.1, 2.2, 2.3, 2.4, 2.5, 2.4, 2.3, 2.5, 2.6, 2.7, 2.8],
+    nhai:      [1.5, 1.6, 1.6, 1.7, 1.8, 1.8, 1.9, 1.9, 2.0, 1.9, 1.8, 1.9, 2.0, 2.1, 2.2],
+    css:       [1.8, 1.8, 1.9, 1.9, 2.0, 2.0, 2.0, 2.1, 2.1, 2.0, 1.9, 2.0, 2.0, 2.0, 2.0],
+    grants:    [0.9, 0.9, 0.9, 0.9, 0.9, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+    notes: "Largest absolute central allocation. Purvanchal & Bundelkhand Expressways, Lucknow-Varanasi HSR, Eastern DFC"
+  },
+  AP: {
+    railways:  [0.8, 0.8, 0.8, 0.9, 0.9, 0.9, 0.9, 1.0, 1.0, 0.9, 0.9, 1.0, 1.0, 1.0, 1.0],
+    nhai:      [1.0, 1.0, 1.1, 1.1, 1.1, 1.2, 1.2, 1.2, 1.3, 1.2, 1.1, 1.2, 1.2, 1.3, 1.3],
+    css:       [1.5, 1.5, 1.5, 1.5, 1.6, 1.6, 1.6, 1.7, 1.7, 1.6, 1.5, 1.6, 1.7, 1.7, 1.8],
+    grants:    [0.7, 0.8, 0.8, 0.8, 0.8, 0.8, 0.9, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8],
+    notes: "Post-bifurcation special category demands unmet. Polavaram irrigation project Central funding key metric"
+  },
+  TS: {
+    railways:  [null, null, null, null, 0.5, 0.6, 0.6, 0.6, 0.6, 0.6, 0.5, 0.6, 0.6, 0.6, 0.7],
+    nhai:      [null, null, null, null, 0.7, 0.7, 0.8, 0.8, 0.8, 0.7, 0.6, 0.7, 0.8, 0.8, 0.8],
+    css:       [null, null, null, null, 1.0, 1.0, 1.0, 1.1, 1.1, 1.0, 1.0, 1.1, 1.1, 1.1, 1.1],
+    grants:    [null, null, null, null, 0.6, 0.6, 0.6, 0.6, 0.7, 0.6, 0.6, 0.6, 0.6, 0.7, 0.7],
+    notes: "New state (2014). Relatively lower rail investment. Musi river rejuvenation, Hyderabad Metro PPP"
+  },
+  HR: {
+    railways:  [0.4, 0.4, 0.5, 0.5, 0.5, 0.5, 0.5, 0.6, 0.6, 0.5, 0.5, 0.6, 0.6, 0.6, 0.6],
+    nhai:      [0.6, 0.7, 0.7, 0.7, 0.7, 0.8, 0.8, 0.8, 0.9, 0.8, 0.7, 0.8, 0.8, 0.9, 0.9],
+    css:       [0.6, 0.6, 0.6, 0.7, 0.7, 0.7, 0.8, 0.8, 0.8, 0.7, 0.7, 0.8, 0.8, 0.8, 0.8],
+    grants:    [0.4, 0.4, 0.4, 0.4, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.4, 0.4, 0.5, 0.5, 0.6],
+    notes: "Benefits from proximity to Delhi NCR. KMP Expressway, Dwarka Expressway, Kundli-Manesar-Palwal"
+  },
+  WB: {
+    railways:  [0.4, 0.4, 0.4, 0.5, 0.5, 0.5, 0.5, 0.5, 0.6, 0.5, 0.4, 0.5, 0.5, 0.6, 0.6],
+    nhai:      [0.4, 0.4, 0.5, 0.5, 0.5, 0.6, 0.6, 0.6, 0.6, 0.5, 0.5, 0.6, 0.6, 0.6, 0.6],
+    css:       [0.5, 0.5, 0.5, 0.5, 0.6, 0.6, 0.6, 0.7, 0.7, 0.6, 0.6, 0.6, 0.7, 0.7, 0.7],
+    grants:    [0.2, 0.3, 0.3, 0.3, 0.3, 0.3, 0.4, 0.4, 0.4, 0.4, 0.3, 0.4, 0.4, 0.4, 0.5],
+    notes: "Lowest central investment. Long-running political friction with Centre linked to lower allocations"
+  }
+};
+
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = fiscalData;
+  module.exports = { fiscalData, centralInvestmentBreakdown };
 } else {
   window.fiscalData = fiscalData;
+  window.centralInvestmentBreakdown = centralInvestmentBreakdown;
 }

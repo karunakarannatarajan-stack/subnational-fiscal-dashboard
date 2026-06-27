@@ -679,7 +679,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Chart 3: Direct Central Investment (Bar)
+    // Chart 3: Direct Central Investment (Bar) with rich breakdown tooltip
     const ctxCentralInv = document.getElementById("chart-central-favoritism").getContext("2d");
     if (charts["centralInv"]) charts["centralInv"].destroy();
 
@@ -687,6 +687,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const invLabels = [];
     const invColors = [];
     const invBorderColors = [];
+    const invBreakdowns = []; // Per-bar breakdown details
     
     // Sort states by highest direct investment
     const sortedStatesInv = [...fiscalData.states].sort((a, b) => {
@@ -700,6 +701,15 @@ document.addEventListener("DOMContentLoaded", () => {
             invLabels.push(state.name);
             invColors.push(state.color + 'CC');
             invBorderColors.push(state.color);
+            // Store breakdown details for tooltip
+            const bd = (window.centralInvestmentBreakdown && window.centralInvestmentBreakdown[state.id]) || null;
+            invBreakdowns.push(bd ? {
+              railways: bd.railways[yearIdx],
+              nhai:     bd.nhai[yearIdx],
+              css:      bd.css[yearIdx],
+              grants:   bd.grants[yearIdx],
+              notes:    bd.notes
+            } : null);
         }
     });
 
@@ -745,8 +755,30 @@ document.addEventListener("DOMContentLoaded", () => {
             bodyColor: t.textColor,
             borderColor: t.tooltipBorder,
             borderWidth: 1,
+            padding: 12,
+            titleFont: { size: 13, weight: 700 },
+            bodyFont: { size: 11 },
             callbacks: {
-              label: (ctx) => `${ctx.raw.toFixed(1)}%`
+              title: (items) => {
+                const i = items[0].dataIndex;
+                return `${invLabels[i]}  —  Total: ${invData[i].toFixed(1)}% of GSDP`;
+              },
+              label: () => null, // suppress default
+              afterBody: (items) => {
+                const i = items[0].dataIndex;
+                const bd = invBreakdowns[i];
+                if (!bd) return ["  (No breakdown available)"];
+                const lines = [
+                  "  ─────────────────────────────",
+                  `  🚂 Railways Capital Works : ${bd.railways !== null ? bd.railways.toFixed(1) + "%" : "N/A"}`,
+                  `  🛣️  NHAI / Road Projects   : ${bd.nhai !== null ? bd.nhai.toFixed(1) + "%" : "N/A"}`,
+                  `  📋 Centrally Sp. Schemes  : ${bd.css !== null ? bd.css.toFixed(1) + "%" : "N/A"}`,
+                  `  🏛️  Direct Grants & Others : ${bd.grants !== null ? bd.grants.toFixed(1) + "%" : "N/A"}`,
+                  "  ─────────────────────────────",
+                  `  📌 ${bd.notes}`
+                ];
+                return lines;
+              }
             }
           }
         }
