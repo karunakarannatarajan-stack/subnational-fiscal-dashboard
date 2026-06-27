@@ -473,8 +473,10 @@
                 <span class="badge info">Parallel Coordinates</span>
               </div>
               <p style="font-size: 0.8rem; color: var(--text-secondary); padding: 0 1rem 0.5rem; margin: 0;">Each line traces a state's position across key fiscal dimensions. Hover over a line to highlight a state's full fiscal journey.</p>
-              <div style="position: relative; height: 360px; padding: 0 1rem 1rem;">
-                <canvas id="chart-fiscal-navigator"></canvas>
+              <div style="overflow-x: auto; overflow-y: hidden; height: 400px; padding: 0 1rem 1rem;">
+                <div style="position: relative; height: 380px; min-width: 1700px;">
+                  <canvas id="chart-fiscal-navigator" style="width:100%;height:100%;"></canvas>
+                </div>
               </div>
             </div>
 

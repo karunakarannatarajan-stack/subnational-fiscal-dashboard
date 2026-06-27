@@ -1592,45 +1592,68 @@ document.addEventListener("DOMContentLoaded", () => {
     const yearIdx = parseInt(document.getElementById("compare-year-select").value);
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
 
-    // Define the axes (parameters)
+    // All 18 scorecard columns as axes
     const axes = [
-      { key: "gsdp_growth",     label: "GSDP\nGrowth %",    higherBetter: true  },
-      { key: "own_tax_gsdp",    label: "Own Tax\n% GSDP",   higherBetter: true  },
-      { key: "fiscal_deficit",  label: "Fiscal\nDeficit %", higherBetter: false },
-      { key: "capital_outlay",  label: "Capex\n% GSDP",     higherBetter: true  },
-      { key: "debt_gsdp",       label: "Debt\n% GSDP",      higherBetter: false },
-      { key: "borrowing_spread",label: "Borrow\nSpread bps", higherBetter: false }
+      { key: "gsdp_absolute",        label: "GSDP\n(₹ Bn)",            higherBetter: true  },
+      { key: "total_budget",          label: "Total\nBudget (₹ Bn)",     higherBetter: true  },
+      { key: "budget_gsdp",           label: "Budget\n% GSDP",           higherBetter: false },
+      { key: "total_revenue",         label: "Revenue\n(₹ Bn)",           higherBetter: true  },
+      { key: "revenue_gsdp",          label: "Revenue\n% GSDP",           higherBetter: true  },
+      { key: "gsdp_growth",           label: "GSDP\nGrowth %",           higherBetter: true  },
+      { key: "fiscal_deficit",        label: "Fiscal\nDeficit %",         higherBetter: false },
+      { key: "fiscal_deficit_abs",    label: "Deficit\n(₹ Bn)",           higherBetter: false },
+      { key: "revenue_exp_gsdp",      label: "Rev Exp\n% GSDP",           higherBetter: false },
+      { key: "revenue_exp_abs",       label: "Rev Exp\n(₹ Bn)",           higherBetter: false },
+      { key: "capital_outlay",        label: "Capex\n% GSDP",            higherBetter: true  },
+      { key: "capital_outlay_abs",    label: "Capex\n(₹ Bn)",             higherBetter: true  },
+      { key: "debt_gsdp",             label: "Debt\n% GSDP",             higherBetter: false },
+      { key: "pc_gsdp",               label: "Per Cap\nGSDP (₹)",         higherBetter: true  },
+      { key: "pc_debt",               label: "Per Cap\nDebt (₹)",          higherBetter: false },
+      { key: "central_transfers",     label: "C.Transfers\n% Revenue",   higherBetter: false },
+      { key: "central_transfers_abs", label: "C.Transfers\n(₹ Bn)",      higherBetter: false },
+      { key: "borrowing_spread",      label: "SDL\nSpread bps",           higherBetter: false }
     ];
 
-    // Collect data for all states
+    // Collect data — allow some axes to be null and fill forward for resilience
     const stateData = fiscalData.states.map(state => {
-      const vals = axes.map(a => getMetricValue(state.id, a.key, yearIdx));
+      const vals = axes.map(a => {
+        const v = getMetricValue(state.id, a.key, yearIdx);
+        return (v === null || v === undefined) ? null : v;
+      });
       return { id: state.id, name: state.name, color: state.color, vals };
-    }).filter(s => s.vals.every(v => v !== null && v !== undefined));
+    }).filter(s => s.vals.some(v => v !== null)); // show states with at least partial data
 
-    // Compute min/max per axis for normalization
-    const mins = axes.map((_, i) => Math.min(...stateData.map(s => s.vals[i])));
-    const maxs = axes.map((_, i) => Math.max(...stateData.map(s => s.vals[i])));
+    // Compute min/max per axis for normalization (ignoring nulls)
+    const mins = axes.map((_, i) => {
+      const vs = stateData.map(s => s.vals[i]).filter(v => v !== null);
+      return vs.length ? Math.min(...vs) : 0;
+    });
+    const maxs = axes.map((_, i) => {
+      const vs = stateData.map(s => s.vals[i]).filter(v => v !== null);
+      return vs.length ? Math.max(...vs) : 1;
+    });
 
     // Normalize: returns 0-1 where 1 = visually "better"
     function normalizeVal(val, i) {
+      if (val === null) return null;
       const range = maxs[i] - mins[i];
       if (range === 0) return 0.5;
       const raw = (val - mins[i]) / range;
       return axes[i].higherBetter ? raw : 1 - raw;
     }
 
-    // Sizing
+    // Sizing — use the inner div (parent of canvas) which is 1700px wide
     const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.parentElement.getBoundingClientRect();
-    canvas.width  = rect.width  * dpr;
-    canvas.height = rect.height * dpr;
-    canvas.style.width  = rect.width  + "px";
-    canvas.style.height = rect.height + "px";
+    const innerDiv = canvas.parentElement;
+    const W = innerDiv.offsetWidth || 1700;
+    const H = innerDiv.offsetHeight || 380;
+    canvas.width  = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width  = W + "px";
+    canvas.style.height = H + "px";
     ctx2d.scale(dpr, dpr);
-    const W = rect.width, H = rect.height;
 
-    const padL = 30, padR = 30, padT = 40, padB = 45;
+    const padL = 30, padR = 30, padT = 44, padB = 55;
     const axisCount = axes.length;
     const axisSpacing = (W - padL - padR) / (axisCount - 1);
     const axisX = i => padL + i * axisSpacing;
@@ -1711,22 +1734,31 @@ document.addEventListener("DOMContentLoaded", () => {
       // Draw non-highlighted states dimly first
       stateData.forEach(s => {
         if (s.id === highlightId) return;
+        const pts = axes.map((_, i) => {
+          const n = normalizeVal(s.vals[i], i);
+          return n === null ? null : { x: axisX(i), y: yForVal(n) };
+        });
+        // Draw line segments between non-null points
+        let penDown = false;
         ctx2d.beginPath();
-        const pts = axes.map((_, i) => ({
-          x: axisX(i),
-          y: yForVal(normalizeVal(s.vals[i], i))
-        }));
-        ctx2d.moveTo(pts[0].x, pts[0].y);
-        for (let i = 1; i < pts.length; i++) {
-          const cp1x = (pts[i-1].x + pts[i].x) / 2;
-          ctx2d.bezierCurveTo(cp1x, pts[i-1].y, cp1x, pts[i].y, pts[i].x, pts[i].y);
-        }
+        pts.forEach((pt, i) => {
+          if (!pt) { penDown = false; return; }
+          if (!penDown) { ctx2d.moveTo(pt.x, pt.y); penDown = true; }
+          else {
+            const prev = pts.slice(0, i).reverse().find(p => p);
+            if (prev) {
+              const cp1x = (prev.x + pt.x) / 2;
+              ctx2d.bezierCurveTo(cp1x, prev.y, cp1x, pt.y, pt.x, pt.y);
+            }
+          }
+        });
         ctx2d.strokeStyle = s.color + (highlightId ? "28" : "88");
         ctx2d.lineWidth = highlightId ? 1 : 1.8;
         ctx2d.stroke();
 
-        // Dots at axes
+        // Dots at non-null axes
         pts.forEach(pt => {
+          if (!pt) return;
           ctx2d.beginPath();
           ctx2d.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
           ctx2d.fillStyle = s.color + (highlightId ? "30" : "99");
@@ -1738,45 +1770,55 @@ document.addEventListener("DOMContentLoaded", () => {
       if (highlightId) {
         const s = stateData.find(s => s.id === highlightId);
         if (s) {
-          const pts = axes.map((_, i) => ({
-            x: axisX(i),
-            y: yForVal(normalizeVal(s.vals[i], i))
-          }));
+          const pts = axes.map((_, i) => {
+            const n = normalizeVal(s.vals[i], i);
+            return n === null ? null : { x: axisX(i), y: yForVal(n) };
+          });
 
-          // Glow shadow
+          // Glow pass — draw segments between non-null consecutive points
           ctx2d.shadowColor = s.color;
           ctx2d.shadowBlur = 12;
+          let penDown = false;
           ctx2d.beginPath();
-          ctx2d.moveTo(pts[0].x, pts[0].y);
-          for (let i = 1; i < pts.length; i++) {
-            const cp1x = (pts[i-1].x + pts[i].x) / 2;
-            ctx2d.bezierCurveTo(cp1x, pts[i-1].y, cp1x, pts[i].y, pts[i].x, pts[i].y);
-          }
+          pts.forEach((pt, i) => {
+            if (!pt) { penDown = false; return; }
+            if (!penDown) { ctx2d.moveTo(pt.x, pt.y); penDown = true; }
+            else {
+              const prev = pts.slice(0, i).reverse().find(p => p);
+              if (prev) {
+                const cp1x = (prev.x + pt.x) / 2;
+                ctx2d.bezierCurveTo(cp1x, prev.y, cp1x, pt.y, pt.x, pt.y);
+              }
+            }
+          });
           ctx2d.strokeStyle = s.color;
           ctx2d.lineWidth = 3;
           ctx2d.stroke();
           ctx2d.shadowBlur = 0;
 
-          // Arrow markers between segments
+          // Arrow markers mid-segment (only for adjacent non-null pairs)
           for (let i = 0; i < pts.length - 1; i++) {
-            const midX = (pts[i].x + pts[i+1].x) / 2;
-            const midY = (pts[i].y + pts[i+1].y) / 2;
-            const angle = Math.atan2(pts[i+1].y - pts[i].y, pts[i+1].x - pts[i].x);
+            const a = pts[i], b = pts[i+1];
+            if (!a || !b) continue;
+            const midX = (a.x + b.x) / 2;
+            const midY = (a.y + b.y) / 2;
+            const angle = Math.atan2(b.y - a.y, b.x - a.x);
             ctx2d.save();
             ctx2d.translate(midX, midY);
             ctx2d.rotate(angle);
             ctx2d.beginPath();
-            ctx2d.moveTo(-7, -5);
+            ctx2d.moveTo(-6, -4);
             ctx2d.lineTo(0, 0);
-            ctx2d.lineTo(-7, 5);
+            ctx2d.lineTo(-6, 4);
             ctx2d.strokeStyle = s.color;
             ctx2d.lineWidth = 2;
             ctx2d.stroke();
             ctx2d.restore();
           }
 
-          // Dots + value labels
+          // Dots + compact value labels for non-null points
           pts.forEach((pt, i) => {
+            if (!pt) return;
             ctx2d.beginPath();
             ctx2d.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
             ctx2d.fillStyle = s.color;
@@ -1785,17 +1827,17 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx2d.lineWidth = 1.5;
             ctx2d.stroke();
 
-            // Value label
+            // Value label — use formatted value
             const rawVal = s.vals[i];
-            const label = rawVal !== null ? rawVal.toFixed(1) : "N/A";
-            ctx2d.font = "bold 10px 'Outfit', sans-serif";
+            const label = rawVal !== null ? formatMetricValue(rawVal, axes[i].key) : "N/A";
+            ctx2d.font = "bold 9px 'Outfit', sans-serif";
             ctx2d.fillStyle = isDark ? "#fff" : "#111";
             ctx2d.textAlign = "center";
             ctx2d.fillText(label, pt.x, pt.y - 9);
           });
 
-          // State name label
-          ctx2d.font = "bold 12px 'Outfit', sans-serif";
+          // State name label top-left
+          ctx2d.font = "bold 13px 'Outfit', sans-serif";
           ctx2d.fillStyle = s.color;
           ctx2d.textAlign = "left";
           ctx2d.fillText(`▶ ${s.name}`, padL, padT - 18);
@@ -1814,8 +1856,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       stateData.forEach(s => {
         axes.forEach((_, i) => {
+          const n = normalizeVal(s.vals[i], i);
+          if (n === null) return;
           const px = axisX(i);
-          const py = yForVal(normalizeVal(s.vals[i], i));
+          const py = yForVal(n);
           const d = Math.hypot(mx - px, my - py);
           if (d < minDist) { minDist = d; closest = s.id; }
         });
