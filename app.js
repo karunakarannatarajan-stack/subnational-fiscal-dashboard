@@ -132,6 +132,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     threedYearSelect.value = fiscalData.years.length - 1; // Default to latest
 
+
+    // Populate Transfers Matrix Year Selector
+    const transfersYearSelect = document.getElementById("transfers-year-select");
+    if(transfersYearSelect) {
+      fiscalData.years.forEach((yr, idx) => {
+        const option = document.createElement("option");
+        option.value = idx;
+        option.textContent = yr;
+        transfersYearSelect.appendChild(option);
+      });
+      transfersYearSelect.value = fiscalData.years.length - 1;
+    }
+
     // Populate Deficit Quality Matrix Year Selector
     const deficitYearSelect = document.getElementById("deficit-year-select");
     fiscalData.years.forEach((yr, idx) => {
@@ -197,6 +210,17 @@ document.addEventListener("DOMContentLoaded", () => {
       updateSummaryStrip(activeStateId);
       renderActiveTabCharts();
     });
+
+
+    // Transfers Tab Year Selection Changed
+    const transfersYearSelect2 = document.getElementById("transfers-year-select");
+    if(transfersYearSelect2) {
+      transfersYearSelect2.addEventListener("change", () => {
+        if (activeTab === "transfers") {
+          renderTransfersTab(getThemeColors());
+        }
+      });
+    }
 
     // Deficit Tab Year Selection Changed
     const deficitYearSelect = document.getElementById("deficit-year-select");
@@ -1370,6 +1394,163 @@ document.addEventListener("DOMContentLoaded", () => {
 
       row.innerHTML = rowHtml;
       tableBody.appendChild(row);
+    });
+  }
+
+
+  // --- Render Central Transfers Tab Charts ---
+  function renderTransfersTab(t) {
+    const yearIdxStr = document.getElementById("transfers-year-select").value;
+    if(!yearIdxStr) return;
+    const yearIdx = parseInt(yearIdxStr);
+
+    // Chart 1: Central Transfers Dependency Matrix (Bubble Scatter)
+    const ctxMatrix = document.getElementById("chart-transfers-matrix").getContext("2d");
+    if (charts["transfersMatrix"]) charts["transfersMatrix"].destroy();
+
+    const bubbleDatasets = [];
+    fiscalData.states.forEach(state => {
+      const ct_pct = fiscalData.metrics.central_transfers[state.id][yearIdx];
+      const ct_abs = getMetricValue(state.id, "central_transfers_abs", yearIdx);
+      const gsdp = getMetricValue(state.id, "gsdp_absolute", yearIdx) || 0; 
+      if (ct_pct === null || ct_abs === null) return;
+      
+      const r = Math.max(8, Math.min(30, (gsdp / 1000) * 1.5));
+      bubbleDatasets.push({
+        label: state.name,
+        data: [{ x: ct_pct, y: ct_abs, r: r }],
+        backgroundColor: state.color + 'CC',
+        borderColor: state.color,
+        borderWidth: 1.5,
+        hoverBackgroundColor: state.color,
+        hoverBorderWidth: 2,
+        stateId: state.id
+      });
+    });
+
+    charts["transfersMatrix"] = new Chart(ctxMatrix, {
+      type: "bubble",
+      data: { datasets: bubbleDatasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: "Central Transfers (% of Revenue Receipts)",
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
+          },
+          y: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: "Central Transfers Absolute (\u20B9 Bn)",
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary, callback: function(value) { return '\u20B9' + value; } }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: t.tooltipBg,
+            titleColor: t.tooltipText,
+            bodyColor: t.textColor,
+            borderColor: t.tooltipBorder,
+            borderWidth: 1,
+            callbacks: {
+              label: (ctx) => {
+                const ds = ctx.dataset;
+                return [
+                  ds.label,
+                  `Transfers (% Rev): ${ctx.raw.x.toFixed(2)}%`,
+                  `Transfers (Abs): \u20B9${ctx.raw.y.toLocaleString('en-US', {minimumFractionDigits: 2})} Bn`
+                ];
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Chart 2: State-wise Transfer Dependency (Bar)
+    const ctxBar = document.getElementById("chart-transfers-bar").getContext("2d");
+    if (charts["transfersBar"]) charts["transfersBar"].destroy();
+
+    const barData = [];
+    const barLabels = [];
+    const barColors = [];
+    const barBorderColors = [];
+    
+    // Sort states by transfer dependency
+    const sortedStates = [...fiscalData.states].sort((a, b) => {
+        return fiscalData.metrics.central_transfers[b.id][yearIdx] - fiscalData.metrics.central_transfers[a.id][yearIdx];
+    });
+
+    sortedStates.forEach(state => {
+        const val = fiscalData.metrics.central_transfers[state.id][yearIdx];
+        if (val !== null) {
+            barData.push(val);
+            barLabels.push(state.name);
+            barColors.push(state.color + 'CC');
+            barBorderColors.push(state.color);
+        }
+    });
+
+    charts["transfersBar"] = new Chart(ctxBar, {
+      type: "bar",
+      data: {
+        labels: barLabels,
+        datasets: [
+          {
+            label: "Central Transfers (% of Revenue Receipts)",
+            data: barData,
+            backgroundColor: barColors,
+            borderColor: barBorderColors,
+            borderWidth: 1.5,
+            borderRadius: 4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { 
+            grid: { display: false },
+            ticks: { font: { weight: 500, size: 10 }, color: t.textSecondary }
+          },
+          y: {
+            grid: { color: t.gridColor },
+            title: { 
+              display: true, 
+              text: "% of Revenue Receipts", 
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" } 
+            },
+            ticks: { color: t.textSecondary }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: t.tooltipBg,
+            titleColor: t.tooltipText,
+            bodyColor: t.textColor,
+            borderColor: t.tooltipBorder,
+            borderWidth: 1,
+            callbacks: {
+              label: (ctx) => `${ctx.raw.toFixed(2)}%`
+            }
+          }
+        }
+      }
     });
   }
 
