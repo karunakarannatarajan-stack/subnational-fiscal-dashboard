@@ -1890,9 +1890,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (key === "direct_central_investment") {
       return fiscalData.metrics.direct_central_investment[stateId][yearIdx];
     }
-    if (key === "direct_central_investment") {
-      return { name: "Direct Central Investment (% of GSDP)", shortName: "Direct Central Inv." };
-    }
     if (key === "central_transfers_abs") {
       const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
       const fd_abs = getMetricValue(stateId, "fiscal_deficit_abs", yearIdx);
@@ -1934,9 +1931,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (key === "capital_outlay_abs") {
       return { name: "Capital Outlay (Absolute) (Rupees Billion)", shortName: "Capital Outlay (Absolute)" };
-    }
-    if (key === "direct_central_investment") {
-      return fiscalData.metrics.direct_central_investment[stateId][yearIdx];
     }
     if (key === "direct_central_investment") {
       return { name: "Direct Central Investment (% of GSDP)", shortName: "Direct Central Inv." };
