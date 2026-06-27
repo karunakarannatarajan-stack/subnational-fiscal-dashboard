@@ -635,7 +635,7 @@ document.addEventListener("DOMContentLoaded", () => {
         labels: defSotrLabels,
         datasets: [
           {
-            label: "Revenue Deficit/Surplus (% of Total Revenue)",
+            label: "Own Revenue Deficit/Surplus (% of Own Revenue)",
             data: defSotrData,
             backgroundColor: defSotrColors,
             borderColor: defSotrBorderColors,
@@ -1794,15 +1794,24 @@ document.addEventListener("DOMContentLoaded", () => {
     if (key === "deficit_to_sotr") {
       const gsdp_abs = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
       
-      // Calculate Total Revenue Receipts (TRR)
       const trr_abs = getMetricValue(stateId, "total_revenue", yearIdx);
+      const central_transfers_pct = fiscalData.metrics.central_transfers[stateId][yearIdx];
       const rd_pct = fiscalData.metrics.revenue_deficit[stateId][yearIdx];
       
-      if (gsdp_abs === null || trr_abs === null || trr_abs === 0 || rd_pct === null) return null;
+      if (gsdp_abs === null || trr_abs === null || trr_abs === 0 || rd_pct === null || central_transfers_pct === null) return null;
       
-      const rd_abs = (rd_pct / 100) * gsdp_abs;
+      const transfers_abs = (central_transfers_pct / 100) * trr_abs;
+      const orr_abs = trr_abs - transfers_abs; // Own Revenue Receipts
       
-      return (rd_abs / trr_abs) * 100;
+      const headline_rd_abs = (rd_pct / 100) * gsdp_abs;
+      
+      // Headline RD is positive for surplus, negative for deficit
+      // Own RD = Headline RD - Transfers (transfers subsidize the deficit)
+      const own_rd_abs = headline_rd_abs - transfers_abs;
+      
+      if (orr_abs === 0) return null;
+      
+      return (own_rd_abs / orr_abs) * 100;
     }
     if (key === "central_transfers_abs") {
       const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
@@ -1850,7 +1859,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return { name: "Federal Transfers (Absolute) (Rupees Billion)", shortName: "Federal Transfers (Absolute)" };
     }
     if (key === "deficit_to_sotr") {
-      return { name: "Revenue Deficit/Surplus (% of Total Revenue)", shortName: "Deficit to SOTR" };
+      return { name: "Own Revenue Deficit/Surplus (% of Own Revenue)", shortName: "Deficit to SOTR" };
     }
     const names = {
       fiscal_deficit: "Gross Fiscal Deficit",
