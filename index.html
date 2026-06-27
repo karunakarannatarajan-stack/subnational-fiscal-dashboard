@@ -282,10 +282,20 @@
 
           <!-- Revenue Quality Tab View -->
           <div class="tab-view" id="tab-revenue">
+            
+            <div class="comparison-filters">
+              <div class="filter-group">
+                <label for="revenue-year-select">Select Year:</label>
+                <select id="revenue-year-select" class="custom-select compare-select">
+                  <!-- Populated via JS -->
+                </select>
+              </div>
+            </div>
+
             <div class="double-charts-row">
               <div class="chart-main-card flex-1">
                 <div class="card-header-bar">
-                  <h3>Own Tax Revenue Mobilization Capacity (% of GSDP)</h3>
+                  <h3>Fiscal Autonomy Matrix (Own Tax vs Federal Transfers)</h3>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-own-tax"></canvas>
@@ -293,7 +303,7 @@
               </div>
               <div class="chart-main-card flex-1">
                 <div class="card-header-bar">
-                  <h3>Federal Transfers Share (% of Revenue Receipts)</h3>
+                  <h3>Own Tax Revenue Mobilization Capacity (% of GSDP)</h3>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-central-transfers"></canvas>
@@ -302,18 +312,38 @@
             </div>
 
             <div class="analysis-narrative">
-              <h3><i class="fa-solid fa-wallet"></i> Revenue Quality, Transfers & Fiscal Autonomy</h3>
+              <h3><i class="fa-solid fa-wallet"></i> Cross-State Revenue Quality & Fiscal Autonomy</h3>
               <p>A state's fiscal autonomy is determined by its **Own Tax Revenue (SOTR) to GSDP ratio** vs. its **Federal Transfers Share (devolutions + grants-in-aid) to total revenue receipts**.</p>
-              <p>States with higher SOTR-to-GSDP (e.g., Maharashtra, Telangana, Karnataka) rely less on the Federal government, giving them higher policy flexibility. States with high dependency on Central Transfers (e.g., Uttar Pradesh, Andhra Pradesh, West Bengal) are highly exposed to macroeconomic shocks, changes in Finance Commission devolution formulae, and Central policy shifts.</p>
+              
+              <div class="narrative-highlights" style="grid-template-columns: 1fr 1fr; margin-top: 0.5rem;">
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-building-columns text-emerald" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Bottom-Right (High Autonomy):</strong> States here generate high own tax revenues and rely less on the Federal government. This grants them significant policy flexibility to design state-specific welfare and capital programs.</p>
+                </div>
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-hand-holding-dollar text-amber" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Top-Left (High Dependency):</strong> States here have a high dependency on Central Transfers. They are highly exposed to macroeconomic shocks, changes in Finance Commission devolution formulae, and Central policy shifts.</p>
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- Expenditure Quality Tab View -->
           <div class="tab-view" id="tab-expenditure">
+            
+            <div class="comparison-filters">
+              <div class="filter-group">
+                <label for="expenditure-year-select">Select Year:</label>
+                <select id="expenditure-year-select" class="custom-select compare-select">
+                  <!-- Populated via JS -->
+                </select>
+              </div>
+            </div>
+
             <div class="double-charts-row">
               <div class="chart-main-card flex-1">
                 <div class="card-header-bar">
-                  <h3>Committed spending & Subsidies vs Capital Outlay</h3>
+                  <h3>Expenditure Rigidity vs Investment Matrix</h3>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-committed-vs-capex"></canvas>
@@ -331,8 +361,17 @@
 
             <div class="analysis-narrative">
               <h3><i class="fa-solid fa-money-bill-transfer"></i> Rigid Expenditures and Off-Budget Risks</h3>
-              <p><strong>Committed Expenditure</strong> (salaries, pensions, interest payments) is rigid and cannot be adjusted in the short term. When committed spending exceeds 60% of revenue receipts, the state's budget becomes vulnerable to fiscal shocks.</p>
-              <p><strong>Contingent Liabilities:</strong> Outstanding guarantees reflect state-backed debt issued by state PSUs (e.g., discoms, water boards). Although not reflected in the headline deficit, they represent a significant off-budget liability. In the event of a default, the liability falls directly onto the state budget.</p>
+              
+              <div class="narrative-highlights" style="grid-template-columns: 1fr 1fr; margin-top: 0.5rem;">
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-link-slash text-emerald" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Top-Left (Fiscal Space):</strong> States here have lower Committed Expenditure (salaries, pensions, interest) and higher Capital Outlay. They have the flexibility to adjust budgets during shocks and can invest heavily in infrastructure.</p>
+                </div>
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-lock text-amber" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Bottom-Right (Trapped):</strong> High committed spending (>60% of revenue receipts) leaves very little room for productive capital outlay. Additionally, watch out for high Contingent Liabilities (off-budget guarantees) which can suddenly fall on the state's books.</p>
+                </div>
+              </div>
             </div>
           </div>
 

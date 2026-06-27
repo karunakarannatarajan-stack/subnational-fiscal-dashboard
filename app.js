@@ -152,6 +152,26 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     sustainabilityYearSelect.value = fiscalData.years.length - 1; // Default to latest
 
+    // Populate Revenue Matrix Year Selector
+    const revenueYearSelect = document.getElementById("revenue-year-select");
+    fiscalData.years.forEach((yr, idx) => {
+      const option = document.createElement("option");
+      option.value = idx;
+      option.textContent = yr;
+      revenueYearSelect.appendChild(option);
+    });
+    revenueYearSelect.value = fiscalData.years.length - 1; // Default to latest
+
+    // Populate Expenditure Matrix Year Selector
+    const expenditureYearSelect = document.getElementById("expenditure-year-select");
+    fiscalData.years.forEach((yr, idx) => {
+      const option = document.createElement("option");
+      option.value = idx;
+      option.textContent = yr;
+      expenditureYearSelect.appendChild(option);
+    });
+    expenditureYearSelect.value = fiscalData.years.length - 1; // Default to latest
+
     // 2.5 Initialize comparison table headers dynamically
     renderTableHeader();
 
@@ -191,6 +211,22 @@ document.addEventListener("DOMContentLoaded", () => {
     sustainabilityYearSelect.addEventListener("change", () => {
       if (activeTab === "sustainability") {
         renderSustainabilityTab(getThemeColors());
+      }
+    });
+
+    // Revenue Tab Year Selection Changed
+    const revenueYearSelect = document.getElementById("revenue-year-select");
+    revenueYearSelect.addEventListener("change", () => {
+      if (activeTab === "revenue") {
+        renderRevenueTab(getThemeColors());
+      }
+    });
+
+    // Expenditure Tab Year Selection Changed
+    const expenditureYearSelect = document.getElementById("expenditure-year-select");
+    expenditureYearSelect.addEventListener("change", () => {
+      if (activeTab === "expenditure") {
+        renderExpenditureTab(getThemeColors());
       }
     });
 
@@ -717,69 +753,123 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Render Revenue Tab Charts ---
   function renderRevenueTab(t) {
+    // Chart 1: Fiscal Autonomy Matrix (Bubble Scatter)
     const ctxOwnTax = document.getElementById("chart-own-tax").getContext("2d");
     if (charts["owntax"]) charts["owntax"].destroy();
 
-    const ownTaxData = fiscalData.metrics.own_tax_gsdp[activeStateId];
+    const yearIdx = parseInt(document.getElementById("revenue-year-select").value);
+
+    const bubbleDatasets = [];
+    const barLabels = [];
+    const barData = [];
+    const barColors = [];
+    const barBorderColors = [];
+
+    fiscalData.states.forEach(state => {
+      const ownTax = fiscalData.metrics.own_tax_gsdp[state.id][yearIdx];
+      const transfers = fiscalData.metrics.central_transfers[state.id][yearIdx];
+      
+      // Bubble Chart
+      if (ownTax !== null && transfers !== null) {
+        bubbleDatasets.push({
+          label: state.name,
+          data: [{
+            x: ownTax, 
+            y: transfers, 
+            r: 8 // Uniform bubble size
+          }],
+          backgroundColor: state.color + 'CC', 
+          borderColor: state.color,
+          borderWidth: 2,
+          hoverBackgroundColor: state.color,
+          hoverBorderWidth: 3,
+          hoverRadius: 10
+        });
+      }
+
+      // Bar Chart
+      if (ownTax !== null) {
+        barLabels.push(state.name);
+        barData.push(ownTax);
+        barColors.push(state.color + 'CC');
+        barBorderColors.push(state.color);
+      }
+    });
 
     charts["owntax"] = new Chart(ctxOwnTax, {
-      type: "bar",
+      type: "bubble",
       data: {
-        labels: fiscalData.years,
-        datasets: [
-          {
-            label: "State's Own Tax Revenue (% of GSDP)",
-            data: ownTaxData,
-            backgroundColor: "rgba(139, 92, 246, 0.7)",
-            borderColor: "rgba(139, 92, 246, 1)",
-            borderWidth: 1.5,
-            borderRadius: 6
-          }
-        ]
+        datasets: bubbleDatasets
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        scales: {
-          x: { grid: { color: t.gridColor } },
-          y: {
-            grid: { color: t.gridColor },
-            title: { display: true, text: "% of GSDP", font: { weight: 600 } },
-            suggestedMax: 10
-          }
+        layout: {
+          padding: { top: 20, right: 30, bottom: 10, left: 10 }
         },
         plugins: {
-          legend: { display: false },
+          legend: {
+            display: true,
+            position: 'right',
+            labels: { color: t.textColor, usePointStyle: true, boxWidth: 8, font: { size: 11 } }
+          },
           tooltip: {
             backgroundColor: t.tooltipBg,
             titleColor: t.tooltipText,
             bodyColor: t.textColor,
             borderColor: t.tooltipBorder,
-            borderWidth: 1
+            borderWidth: 1,
+            callbacks: {
+              label: function(context) {
+                const stateName = context.dataset.label;
+                const x = context.raw.x.toFixed(2);
+                const y = context.raw.y.toFixed(2);
+                return `${stateName} | Own Tax: ${x}% | Transfers: ${y}%`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: "Own Tax Revenue (% of GSDP)",
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
+          },
+          y: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: "Federal Transfers (% of Revenue Receipts)",
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
           }
         }
       }
     });
 
+    // Chart 2: Own Tax Mobilization (Bar Chart)
     const ctxCentralTrans = document.getElementById("chart-central-transfers").getContext("2d");
     if (charts["centraltransfers"]) charts["centraltransfers"].destroy();
 
-    const centralTransData = fiscalData.metrics.central_transfers[activeStateId];
-
     charts["centraltransfers"] = new Chart(ctxCentralTrans, {
-      type: "line",
+      type: "bar",
       data: {
-        labels: fiscalData.years,
+        labels: barLabels,
         datasets: [
           {
-            label: "Federal Transfers Share (% of Revenue Receipts)",
-            data: centralTransData,
-            borderColor: "rgba(245, 158, 11, 1)",
-            backgroundColor: "rgba(245, 158, 11, 0.1)",
-            borderWidth: 3,
-            tension: 0.3,
-            fill: true,
-            pointBackgroundColor: "rgba(245, 158, 11, 1)"
+            label: "Own Tax Revenue (% of GSDP)",
+            data: barData,
+            backgroundColor: barColors,
+            borderColor: barBorderColors,
+            borderWidth: 1.5,
+            borderRadius: 4
           }
         ]
       },
@@ -787,11 +877,13 @@ document.addEventListener("DOMContentLoaded", () => {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          x: { grid: { color: t.gridColor } },
+          x: { 
+            grid: { display: false },
+            ticks: { font: { weight: 500, size: 10 } }
+          },
           y: {
             grid: { color: t.gridColor },
-            title: { display: true, text: "% of Revenue Receipts", font: { weight: 600 } },
-            suggestedMax: 70
+            title: { display: true, text: "% of GSDP", font: { weight: 600 } }
           }
         },
         plugins: {
@@ -810,64 +902,89 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Render Expenditure Tab Charts ---
   function renderExpenditureTab(t) {
-    // Chart 1: Committed vs Capital Outlay
+    // Chart 1: Expenditure Rigidity Matrix (Bubble Scatter)
     const ctxExp = document.getElementById("chart-committed-vs-capex").getContext("2d");
     if (charts["exp"]) charts["exp"].destroy();
 
-    const committed = fiscalData.metrics.committed_exp[activeStateId];
-    const capex = fiscalData.metrics.capital_outlay[activeStateId];
+    const yearIdx = parseInt(document.getElementById("expenditure-year-select").value);
+
+    const bubbleDatasets = [];
+    
+    fiscalData.states.forEach(state => {
+      const committed = fiscalData.metrics.committed_exp[state.id][yearIdx];
+      const capex = fiscalData.metrics.capital_outlay[state.id][yearIdx];
+      
+      if (committed !== null && capex !== null) {
+        bubbleDatasets.push({
+          label: state.name,
+          data: [{
+            x: committed, 
+            y: capex, 
+            r: 8 // Uniform bubble size
+          }],
+          backgroundColor: state.color + 'CC', 
+          borderColor: state.color,
+          borderWidth: 2,
+          hoverBackgroundColor: state.color,
+          hoverBorderWidth: 3,
+          hoverRadius: 10
+        });
+      }
+    });
 
     charts["exp"] = new Chart(ctxExp, {
-      type: "bar",
+      type: "bubble",
       data: {
-        labels: fiscalData.years,
-        datasets: [
-          {
-            label: "Committed Expenditures (% of Revenue Receipts) [Left Scale]",
-            data: committed,
-            backgroundColor: "rgba(245, 158, 11, 0.7)",
-            borderColor: "rgba(245, 158, 11, 1)",
-            borderWidth: 1.5,
-            borderRadius: 4,
-            yAxisID: "y-committed"
-          },
-          {
-            label: "Capital Outlay (% of GSDP) [Right Scale]",
-            data: capex,
-            backgroundColor: "rgba(16, 185, 129, 0.7)",
-            borderColor: "rgba(16, 185, 129, 1)",
-            borderWidth: 1.5,
-            borderRadius: 4,
-            yAxisID: "y-capex"
-          }
-        ]
+        datasets: bubbleDatasets
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        scales: {
-          x: { grid: { color: t.gridColor } },
-          "y-committed": {
-            type: "linear",
-            position: "left",
-            grid: { color: t.gridColor },
-            title: { display: true, text: "Committed Exp (% of Revenue)", font: { weight: 600 } }
-          },
-          "y-capex": {
-            type: "linear",
-            position: "right",
-            grid: { drawOnChartArea: false },
-            title: { display: true, text: "Capital Outlay (% of GSDP)", font: { weight: 600 } }
-          }
+        layout: {
+          padding: { top: 20, right: 30, bottom: 10, left: 10 }
         },
         plugins: {
-          legend: { position: "top", labels: { boxWidth: 12 } },
+          legend: {
+            display: true,
+            position: 'right',
+            labels: { color: t.textColor, usePointStyle: true, boxWidth: 8, font: { size: 11 } }
+          },
           tooltip: {
             backgroundColor: t.tooltipBg,
             titleColor: t.tooltipText,
             bodyColor: t.textColor,
             borderColor: t.tooltipBorder,
-            borderWidth: 1
+            borderWidth: 1,
+            callbacks: {
+              label: function(context) {
+                const stateName = context.dataset.label;
+                const x = context.raw.x.toFixed(2);
+                const y = context.raw.y.toFixed(2);
+                return `${stateName} | Committed Exp: ${x}% | Capex: ${y}%`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: "Committed Expenditures (% of Revenue Receipts)",
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
+          },
+          y: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: "Capital Outlay (% of GSDP)",
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
           }
         }
       }
@@ -893,8 +1010,8 @@ document.addEventListener("DOMContentLoaded", () => {
           {
             label: "Outstanding State Guarantees (% of GSDP, end-FY23)",
             data: guaranteeDataList,
-            backgroundColor: fiscalData.states.map(s => s.id === activeStateId ? "rgba(99, 102, 241, 0.85)" : "rgba(255, 255, 255, 0.15)"),
-            borderColor: fiscalData.states.map(s => s.id === activeStateId ? "rgba(99, 102, 241, 1)" : "rgba(255, 255, 255, 0.3)"),
+            backgroundColor: fiscalData.states.map(s => s.color + 'CC'),
+            borderColor: fiscalData.states.map(s => s.color),
             borderWidth: 1.5,
             borderRadius: 4
           }
@@ -904,7 +1021,10 @@ document.addEventListener("DOMContentLoaded", () => {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          x: { grid: { color: t.gridColor } },
+          x: { 
+            grid: { display: false },
+            ticks: { font: { weight: 500, size: 10 } }
+          },
           y: {
             grid: { color: t.gridColor },
             title: { display: true, text: "% of GSDP", font: { weight: 600 } }
@@ -917,7 +1037,13 @@ document.addEventListener("DOMContentLoaded", () => {
             titleColor: t.tooltipText,
             bodyColor: t.textColor,
             borderColor: t.tooltipBorder,
-            borderWidth: 1
+            borderWidth: 1,
+            callbacks: {
+              label: function(context) {
+                const val = context.raw.toFixed(1);
+                return `Guarantees: ${val}%`;
+              }
+            }
           }
         }
       }
