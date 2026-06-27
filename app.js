@@ -635,7 +635,7 @@ document.addEventListener("DOMContentLoaded", () => {
         labels: defSotrLabels,
         datasets: [
           {
-            label: "Revenue Deficit/Surplus (% of SOTR)",
+            label: "Revenue Deficit/Surplus (% of Total Revenue)",
             data: defSotrData,
             backgroundColor: defSotrColors,
             borderColor: defSotrBorderColors,
@@ -1793,17 +1793,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (key === "deficit_to_sotr") {
       const gsdp_abs = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
-      const own_tax_pct = fiscalData.metrics.own_tax_gsdp[stateId][yearIdx];
       
-      // The user explicitly requested to calculate total revenue deficit and divide by SOTR
+      // Calculate Total Revenue Receipts (TRR)
+      const trr_abs = getMetricValue(stateId, "total_revenue", yearIdx);
       const rd_pct = fiscalData.metrics.revenue_deficit[stateId][yearIdx];
       
-      if (gsdp_abs === null || own_tax_pct === null || own_tax_pct === 0 || rd_pct === null) return null;
+      if (gsdp_abs === null || trr_abs === null || trr_abs === 0 || rd_pct === null) return null;
       
-      const sotr_abs = (own_tax_pct / 100) * gsdp_abs;
       const rd_abs = (rd_pct / 100) * gsdp_abs;
       
-      return (rd_abs / sotr_abs) * 100;
+      return (rd_abs / trr_abs) * 100;
     }
     if (key === "central_transfers_abs") {
       const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
@@ -1851,7 +1850,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return { name: "Federal Transfers (Absolute) (Rupees Billion)", shortName: "Federal Transfers (Absolute)" };
     }
     if (key === "deficit_to_sotr") {
-      return { name: "Revenue Deficit/Surplus (% of Own Tax Revenue)", shortName: "Deficit to SOTR" };
+      return { name: "Revenue Deficit/Surplus (% of Total Revenue)", shortName: "Deficit to SOTR" };
     }
     const names = {
       fiscal_deficit: "Gross Fiscal Deficit",
