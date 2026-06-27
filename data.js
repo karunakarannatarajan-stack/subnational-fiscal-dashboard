@@ -267,6 +267,19 @@ const fiscalData = {
       HR: [9.5, 9.7, 10.0, 10.1, 10.0, 9.9, 9.8, 9.9, 10.0, 10.1, 10.2, 10.0, 10.0, 10.0, 10.0],
       WB: [8.5, 8.7, 9.0, 9.1, 9.0, 8.9, 8.8, 8.9, 9.0, 9.1, 9.2, 9.0, 9.0, 9.0, 9.0]
     },
+    direct_central_investment: {
+      name: "Direct Central Investment & Projects (% of GSDP)",
+      description: "Placeholder: Off-budget federal spending (Railways, NHAI, Central Sector Schemes, FDI).",
+      MH: [3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1, 4.2, 4.3, 4.0, 3.8, 4.1, 4.2, 4.3, 4.4],
+      TN: [2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2, 3.3, 3.0, 2.8, 3.1, 3.2, 3.3, 3.4],
+      GJ: [6.5, 6.7, 6.9, 7.1, 7.3, 7.5, 7.7, 7.9, 8.1, 7.8, 7.5, 8.0, 8.2, 8.4, 8.5],
+      KA: [3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.5, 3.3, 3.6, 3.7, 3.8, 3.9],
+      UP: [6.0, 6.2, 6.4, 6.6, 6.8, 7.0, 7.2, 7.4, 7.6, 7.3, 7.0, 7.4, 7.6, 7.8, 8.0],
+      AP: [4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.5, 4.3, 4.6, 4.7, 4.8, 4.9],
+      TS: [null, null, null, null, 2.8, 2.9, 3.0, 3.1, 3.2, 2.9, 2.7, 3.0, 3.1, 3.2, 3.3],
+      HR: [2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.5, 2.3, 2.6, 2.7, 2.8, 2.9],
+      WB: [1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.0, 1.8, 2.1, 2.2, 2.3, 2.4]
+    },
     borrowing_spread: {
       name: "SDL Yield Spread over G-Sec (Basis Points)",
       description: "Cost premium paid by the state to borrow in the market relative to Central Govt. Reflects state risk.",
