@@ -234,10 +234,20 @@
 
           <!-- Debt Sustainability Tab View -->
           <div class="tab-view" id="tab-sustainability">
+            
+            <div class="comparison-filters">
+              <div class="filter-group">
+                <label for="sustainability-year-select">Select Year:</label>
+                <select id="sustainability-year-select" class="custom-select compare-select">
+                  <!-- Populated via JS -->
+                </select>
+              </div>
+            </div>
+
             <div class="double-charts-row">
               <div class="chart-main-card flex-1">
                 <div class="card-header-bar">
-                  <h3>Debt-to-GSDP vs Interest-to-Revenue Ratio</h3>
+                  <h3>Debt Burden vs Fiscal Flexibility Matrix</h3>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-debt-trends"></canvas>
@@ -245,7 +255,7 @@
               </div>
               <div class="chart-main-card flex-1">
                 <div class="card-header-bar">
-                  <h3>GSDP Growth vs Borrowing Cost (Sustainability Spread)</h3>
+                  <h3>Sustainability Spread (GSDP Growth vs Borrowing Cost)</h3>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-growth-cost-spread"></canvas>
@@ -254,9 +264,19 @@
             </div>
             
             <div class="analysis-narrative">
-              <h3><i class="fa-solid fa-shield-halved"></i> Debt Sustainability Framework</h3>
-              <p>A state's debt position remains sustainable as long as its <strong>nominal GSDP growth rate (g) exceeds the effective borrowing cost (r)</strong>. If <em>(g - r) > 0</em>, the state's debt-to-GSDP ratio can stabilize or decline even in the presence of fiscal deficits. If borrowing costs exceed economic growth, the state is exposed to debt spirals.</p>
-              <p>Additionally, the <strong>Interest-to-Revenue receipts ratio</strong> measures fiscal flexibility. A ratio exceeding 15% means a large share of tax revenues is committed to debt servicing, crowding out development expenditures.</p>
+              <h3><i class="fa-solid fa-shield-halved"></i> Cross-State Debt Sustainability Framework</h3>
+              <p>These charts compare states across three critical sustainability dimensions: Debt Burden, Fiscal Flexibility, and Growth-Cost Spread.</p>
+              
+              <div class="narrative-highlights" style="grid-template-columns: 1fr 1fr; margin-top: 0.5rem;">
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-chart-line text-emerald" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>The Spread Matrix:</strong> A state's debt is mathematically sustainable if its <strong>Nominal GSDP Growth Rate (g) exceeds Effective Borrowing Cost (r)</strong>. States with a positive (green) spread can theoretically outgrow their debt over time, while a negative (red) spread risks a debt spiral.</p>
+                </div>
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-scale-unbalanced text-amber" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Burden vs Flexibility Quadrant:</strong> States in the bottom-left have low Debt-to-GSDP and low Interest-to-Revenue ratios (high flexibility). States in the top-right are highly leveraged, where debt servicing eats up a huge chunk of tax revenues, crowding out development.</p>
+                </div>
+              </div>
             </div>
           </div>
 

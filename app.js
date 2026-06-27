@@ -142,6 +142,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     deficitYearSelect.value = fiscalData.years.length - 1; // Default to latest
 
+    // Populate Sustainability Matrix Year Selector
+    const sustainabilityYearSelect = document.getElementById("sustainability-year-select");
+    fiscalData.years.forEach((yr, idx) => {
+      const option = document.createElement("option");
+      option.value = idx;
+      option.textContent = yr;
+      sustainabilityYearSelect.appendChild(option);
+    });
+    sustainabilityYearSelect.value = fiscalData.years.length - 1; // Default to latest
+
     // 2.5 Initialize comparison table headers dynamically
     renderTableHeader();
 
@@ -173,6 +183,14 @@ document.addEventListener("DOMContentLoaded", () => {
     deficitYearSelect.addEventListener("change", () => {
       if (activeTab === "deficit") {
         renderDeficitTab(getThemeColors());
+      }
+    });
+
+    // Sustainability Tab Year Selection Changed
+    const sustainabilityYearSelect = document.getElementById("sustainability-year-select");
+    sustainabilityYearSelect.addEventListener("change", () => {
+      if (activeTab === "sustainability") {
+        renderSustainabilityTab(getThemeColors());
       }
     });
 
@@ -530,105 +548,132 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Render Sustainability Tab Charts ---
   function renderSustainabilityTab(t) {
-    // Chart 1: Debt Ratio vs Interest to Revenue Receipts
+    // Chart 1: Debt Ratio vs Interest to Revenue Receipts (Bubble Chart)
     const ctxDebt = document.getElementById("chart-debt-trends").getContext("2d");
     if (charts["debt"]) charts["debt"].destroy();
 
-    const debtData = fiscalData.metrics.debt_gsdp[activeStateId];
-    const interestData = fiscalData.metrics.interest_revenue[activeStateId];
+    const yearIdx = parseInt(document.getElementById("sustainability-year-select").value);
+
+    const bubbleDatasets = [];
+    const spreadLabels = [];
+    const spreadData = [];
+    const spreadBgColors = [];
+    const spreadBorderColors = [];
+
+    fiscalData.states.forEach(state => {
+      const debt = fiscalData.metrics.debt_gsdp[state.id][yearIdx];
+      const interest = fiscalData.metrics.interest_revenue[state.id][yearIdx];
+      
+      const growth = fiscalData.metrics.gsdp_growth[state.id][yearIdx];
+      const cost = fiscalData.metrics.effective_interest[state.id][yearIdx];
+
+      // For Chart 1 (Bubble)
+      if (debt !== null && interest !== null) {
+        bubbleDatasets.push({
+          label: state.name,
+          data: [{
+            x: interest, 
+            y: debt, 
+            r: 8 // Uniform size for simplicity, or could map to per capita debt
+          }],
+          backgroundColor: state.color + 'CC', 
+          borderColor: state.color,
+          borderWidth: 2,
+          hoverBackgroundColor: state.color,
+          hoverBorderWidth: 3,
+          hoverRadius: 10
+        });
+      }
+
+      // For Chart 2 (Bar - Spread)
+      if (growth !== null && cost !== null) {
+        const spread = growth - cost;
+        spreadLabels.push(state.name);
+        spreadData.push(spread);
+        
+        // Green if sustainable (>0), Red if unsustainable (<0)
+        if (spread >= 0) {
+          spreadBgColors.push('rgba(16, 185, 129, 0.7)'); // Emerald
+          spreadBorderColors.push('rgba(16, 185, 129, 1)');
+        } else {
+          spreadBgColors.push('rgba(244, 63, 94, 0.7)'); // Rose
+          spreadBorderColors.push('rgba(244, 63, 94, 1)');
+        }
+      }
+    });
 
     charts["debt"] = new Chart(ctxDebt, {
-      type: "line",
+      type: "bubble",
       data: {
-        labels: fiscalData.years,
-        datasets: [
-          {
-            label: "Outstanding Debt (% of GSDP)",
-            data: debtData,
-            borderColor: "rgba(139, 92, 246, 1)",
-            backgroundColor: "rgba(139, 92, 246, 0.1)",
-            borderWidth: 3,
-            yAxisID: "y-debt",
-            tension: 0.3,
-            fill: true,
-            pointBackgroundColor: "rgba(139, 92, 246, 1)"
-          },
-          {
-            label: "Interest payments (% of Revenue Receipts)",
-            data: interestData,
-            borderColor: "rgba(59, 130, 246, 1)",
-            backgroundColor: "transparent",
-            borderWidth: 3,
-            yAxisID: "y-interest",
-            tension: 0.3,
-            pointBackgroundColor: "rgba(59, 130, 246, 1)"
-          }
-        ]
+        datasets: bubbleDatasets
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        scales: {
-          x: { grid: { color: t.gridColor } },
-          "y-debt": {
-            type: "linear",
-            position: "left",
-            grid: { color: t.gridColor },
-            title: {
-              display: true,
-              text: "Debt to GSDP Ratio (%)",
-              font: { weight: 600 }
-            }
-          },
-          "y-interest": {
-            type: "linear",
-            position: "right",
-            grid: { drawOnChartArea: false }, // Avoid duplicate gridlines
-            title: {
-              display: true,
-              text: "Interest to Revenue Receipts (%)",
-              font: { weight: 600 }
-            }
-          }
+        layout: {
+          padding: { top: 20, right: 30, bottom: 10, left: 10 }
         },
         plugins: {
-          legend: { position: "top", labels: { boxWidth: 12 } },
+          legend: {
+            display: true,
+            position: 'right',
+            labels: { color: t.textColor, usePointStyle: true, boxWidth: 8, font: { size: 11 } }
+          },
           tooltip: {
             backgroundColor: t.tooltipBg,
             titleColor: t.tooltipText,
             bodyColor: t.textColor,
             borderColor: t.tooltipBorder,
-            borderWidth: 1
+            borderWidth: 1,
+            callbacks: {
+              label: function(context) {
+                const stateName = context.dataset.label;
+                const x = context.raw.x.toFixed(2);
+                const y = context.raw.y.toFixed(2);
+                return `${stateName} | Interest/Rev: ${x}% | Debt/GSDP: ${y}%`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: "Interest to Revenue Receipts (%)",
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
+          },
+          y: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: "Debt to GSDP Ratio (%)",
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
           }
         }
       }
     });
 
-    // Chart 2: GSDP Growth vs Borrowing Cost (Growth-Interest Spread)
+    // Chart 2: Sustainability Spread (Bar Chart)
     const ctxSpread = document.getElementById("chart-growth-cost-spread").getContext("2d");
     if (charts["spread"]) charts["spread"].destroy();
-
-    const growthData = fiscalData.metrics.gsdp_growth[activeStateId];
-    const costData = fiscalData.metrics.effective_interest[activeStateId];
 
     charts["spread"] = new Chart(ctxSpread, {
       type: "bar",
       data: {
-        labels: fiscalData.years,
+        labels: spreadLabels,
         datasets: [
           {
-            label: "Nominal GSDP Growth (%)",
-            data: growthData,
-            backgroundColor: "rgba(59, 130, 246, 0.7)",
-            borderColor: "rgba(59, 130, 246, 1)",
-            borderWidth: 1.5,
-            borderRadius: 4
-          },
-          {
-            label: "Effective Interest Cost (%)",
-            data: costData,
-            backgroundColor: "rgba(244, 63, 94, 0.7)",
-            borderColor: "rgba(244, 63, 94, 1)",
+            label: "Sustainability Spread (Growth - Interest)",
+            data: spreadData,
+            backgroundColor: spreadBgColors,
+            borderColor: spreadBorderColors,
             borderWidth: 1.5,
             borderRadius: 4
           }
@@ -638,20 +683,32 @@ document.addEventListener("DOMContentLoaded", () => {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          x: { grid: { color: t.gridColor } },
+          x: { 
+            grid: { display: false },
+            ticks: { font: { weight: 500, size: 10 } }
+          },
           y: {
-            grid: { color: t.gridColor },
-            title: { display: true, text: "Annual Rate (%)", font: { weight: 600 } }
+            grid: { 
+              color: context => context.tick.value === 0 ? t.textColor : t.gridColor,
+              lineWidth: context => context.tick.value === 0 ? 2 : 1
+            },
+            title: { display: true, text: "Spread (%)", font: { weight: 600 } }
           }
         },
         plugins: {
-          legend: { position: "top", labels: { boxWidth: 12 } },
+          legend: { display: false },
           tooltip: {
             backgroundColor: t.tooltipBg,
             titleColor: t.tooltipText,
             bodyColor: t.textColor,
             borderColor: t.tooltipBorder,
-            borderWidth: 1
+            borderWidth: 1,
+            callbacks: {
+              label: function(context) {
+                const val = context.raw.toFixed(2);
+                return `Spread: ${val}%`;
+              }
+            }
           }
         }
       }
