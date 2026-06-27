@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
         parsed = parsed.filter(c => c !== "revenue_deficit" && c !== "revenue_deficit_abs");
         columnOrder = parsed;
         // Verify we have all columns (in case of updates)
-        const allCols = ["state", "gsdp_absolute", "total_budget", "budget_gsdp", "total_revenue", "revenue_gsdp", "revenue_exp_abs", "revenue_exp_gsdp", "gsdp_growth", "fiscal_deficit", "fiscal_deficit_abs", "deficit_to_sotr", "capital_outlay", "capital_outlay_abs", "debt_gsdp", "pc_gsdp", "pc_debt", "central_transfers", "central_transfers_abs", "borrowing_spread"];
+        const allCols = ["state", "gsdp_absolute", "total_budget", "budget_gsdp", "total_revenue", "revenue_gsdp", "revenue_exp_abs", "revenue_exp_gsdp", "gsdp_growth", "fiscal_deficit", "fiscal_deficit_abs", "deficit_to_sotr", "capital_outlay", "capital_outlay_abs", "debt_gsdp", "pc_gsdp", "pc_debt", "central_transfers", "central_transfers_abs", "borrowing_spread", "direct_central_investment"];
         allCols.forEach(c => {
           if (!columnOrder.includes(c)) columnOrder.push(c);
         });
@@ -657,6 +657,80 @@ document.addEventListener("DOMContentLoaded", () => {
             title: { 
               display: true, 
               text: "% of Own Tax Revenue", 
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" } 
+            },
+            ticks: { color: t.textSecondary }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: t.tooltipBg,
+            titleColor: t.tooltipText,
+            bodyColor: t.textColor,
+            borderColor: t.tooltipBorder,
+            borderWidth: 1,
+            callbacks: {
+              label: (ctx) => `${ctx.raw.toFixed(1)}%`
+            }
+          }
+        }
+      }
+    });
+
+    // Chart 3: Direct Central Investment (Bar)
+    const ctxCentralInv = document.getElementById("chart-central-favoritism").getContext("2d");
+    if (charts["centralInv"]) charts["centralInv"].destroy();
+
+    const invData = [];
+    const invLabels = [];
+    const invColors = [];
+    const invBorderColors = [];
+    
+    // Sort states by highest direct investment
+    const sortedStatesInv = [...fiscalData.states].sort((a, b) => {
+        return getMetricValue(b.id, "direct_central_investment", yearIdx) - getMetricValue(a.id, "direct_central_investment", yearIdx);
+    });
+
+    sortedStatesInv.forEach(state => {
+        const val = getMetricValue(state.id, "direct_central_investment", yearIdx);
+        if (val !== null) {
+            invData.push(val);
+            invLabels.push(state.name);
+            invColors.push(state.color + 'CC');
+            invBorderColors.push(state.color);
+        }
+    });
+
+    charts["centralInv"] = new Chart(ctxCentralInv, {
+      type: "bar",
+      data: {
+        labels: invLabels,
+        datasets: [
+          {
+            label: "Direct Central Investment (% of GSDP)",
+            data: invData,
+            backgroundColor: invColors,
+            borderColor: invBorderColors,
+            borderWidth: 1.5,
+            borderRadius: 4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { 
+            grid: { display: false },
+            ticks: { font: { weight: 500, size: 10 }, color: t.textSecondary }
+          },
+          y: {
+            grid: { color: t.gridColor },
+            title: { 
+              display: true, 
+              text: "% of GSDP", 
               color: t.textSecondary,
               font: { weight: 600, family: "'Outfit', sans-serif" } 
             },
@@ -1813,6 +1887,12 @@ document.addEventListener("DOMContentLoaded", () => {
       
       return (own_rd_abs / orr_abs) * 100;
     }
+    if (key === "direct_central_investment") {
+      return fiscalData.metrics.direct_central_investment[stateId][yearIdx];
+    }
+    if (key === "direct_central_investment") {
+      return { name: "Direct Central Investment (% of GSDP)", shortName: "Direct Central Inv." };
+    }
     if (key === "central_transfers_abs") {
       const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
       const fd_abs = getMetricValue(stateId, "fiscal_deficit_abs", yearIdx);
@@ -1854,6 +1934,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (key === "capital_outlay_abs") {
       return { name: "Capital Outlay (Absolute) (Rupees Billion)", shortName: "Capital Outlay (Absolute)" };
+    }
+    if (key === "direct_central_investment") {
+      return fiscalData.metrics.direct_central_investment[stateId][yearIdx];
+    }
+    if (key === "direct_central_investment") {
+      return { name: "Direct Central Investment (% of GSDP)", shortName: "Direct Central Inv." };
     }
     if (key === "central_transfers_abs") {
       return { name: "Federal Transfers (Absolute) (Rupees Billion)", shortName: "Federal Transfers (Absolute)" };
