@@ -635,7 +635,7 @@ document.addEventListener("DOMContentLoaded", () => {
         labels: defSotrLabels,
         datasets: [
           {
-            label: "Fiscal Deficit (% of SOTR)",
+            label: "Revenue Deficit/Surplus (% of SOTR)",
             data: defSotrData,
             backgroundColor: defSotrColors,
             borderColor: defSotrBorderColors,
@@ -1389,7 +1389,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const lowerIsBetterMetrics = [
         "fiscal_deficit",
         "fiscal_deficit_abs",
-        "deficit_to_sotr",
         "revenue_exp_abs",
         "revenue_exp_gsdp",
         "debt_gsdp",
@@ -1793,10 +1792,18 @@ document.addEventListener("DOMContentLoaded", () => {
       return (gsdp === null || pct === null) ? null : (gsdp * pct) / 100.0;
     }
     if (key === "deficit_to_sotr") {
-      const fd_pct = fiscalData.metrics.fiscal_deficit[stateId][yearIdx];
+      const gsdp_abs = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
       const own_tax_pct = fiscalData.metrics.own_tax_gsdp[stateId][yearIdx];
-      if (fd_pct === null || own_tax_pct === null || own_tax_pct === 0) return null;
-      return (fd_pct / own_tax_pct) * 100;
+      
+      // The user explicitly requested to calculate total revenue deficit and divide by SOTR
+      const rd_pct = fiscalData.metrics.revenue_deficit[stateId][yearIdx];
+      
+      if (gsdp_abs === null || own_tax_pct === null || own_tax_pct === 0 || rd_pct === null) return null;
+      
+      const sotr_abs = (own_tax_pct / 100) * gsdp_abs;
+      const rd_abs = (rd_pct / 100) * gsdp_abs;
+      
+      return (rd_abs / sotr_abs) * 100;
     }
     if (key === "central_transfers_abs") {
       const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
@@ -1844,7 +1851,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return { name: "Federal Transfers (Absolute) (Rupees Billion)", shortName: "Federal Transfers (Absolute)" };
     }
     if (key === "deficit_to_sotr") {
-      return { name: "Fiscal Deficit (% of Own Tax Revenue)", shortName: "Deficit to SOTR" };
+      return { name: "Revenue Deficit/Surplus (% of Own Tax Revenue)", shortName: "Deficit to SOTR" };
     }
     const names = {
       fiscal_deficit: "Gross Fiscal Deficit",
