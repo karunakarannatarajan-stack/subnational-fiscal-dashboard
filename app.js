@@ -1653,150 +1653,125 @@ document.addEventListener("DOMContentLoaded", () => {
     canvas.style.height = H + "px";
     ctx2d.scale(dpr, dpr);
 
-    const padL = 30, padR = 30, padT = 44, padB = 55;
+    const padL = 90, padR = 30, padT = 44, padB = 55;
     const axisCount = axes.length;
     const axisSpacing = (W - padL - padR) / (axisCount - 1);
     const axisX = i => padL + i * axisSpacing;
     const yForVal = v => padT + (1 - v) * (H - padT - padB);
 
-    ctx2d.clearRect(0, 0, W, H);
 
-    // Draw axis lines
-    for (let i = 0; i < axisCount; i++) {
-      const x = axisX(i);
+    // Helper to draw one state's bezier path
+    function drawStatePath(s, pts, lineWidth, alpha, glow) {
+      let penDown = false;
       ctx2d.beginPath();
-      ctx2d.moveTo(x, padT);
-      ctx2d.lineTo(x, H - padB);
-      ctx2d.strokeStyle = isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)";
-      ctx2d.lineWidth = 1.5;
-      ctx2d.stroke();
-
-      // Arrow tip at top (better direction)
-      ctx2d.beginPath();
-      ctx2d.moveTo(x - 5, padT + 10);
-      ctx2d.lineTo(x, padT + 1);
-      ctx2d.lineTo(x + 5, padT + 10);
-      ctx2d.strokeStyle = "#10b981";
-      ctx2d.lineWidth = 1.5;
-      ctx2d.stroke();
-
-      // Axis label
-      const labelLines = axes[i].label.split("\n");
-      ctx2d.fillStyle = isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.65)";
-      ctx2d.font = "bold 10px 'Outfit', sans-serif";
-      ctx2d.textAlign = "center";
-      labelLines.forEach((line, li) => {
-        ctx2d.fillText(line, x, H - padB + 14 + li * 13);
+      pts.forEach((pt, i) => {
+        if (!pt) { penDown = false; return; }
+        if (!penDown) { ctx2d.moveTo(pt.x, pt.y); penDown = true; }
+        else {
+          const prev = pts.slice(0, i).reverse().find(p => p);
+          if (prev) {
+            const cp1x = (prev.x + pt.x) / 2;
+            ctx2d.bezierCurveTo(cp1x, prev.y, cp1x, pt.y, pt.x, pt.y);
+          }
+        }
       });
-
-      // Min / max labels
-      ctx2d.font = "9px 'Outfit', sans-serif";
-      ctx2d.fillStyle = "#10b981";
-      ctx2d.fillText("Better ↑", x, padT - 5);
+      if (glow) {
+        ctx2d.shadowColor = s.color;
+        ctx2d.shadowBlur = glow;
+      }
+      ctx2d.strokeStyle = s.color + alpha;
+      ctx2d.lineWidth = lineWidth;
+      ctx2d.stroke();
+      ctx2d.shadowBlur = 0;
     }
 
-    // Draw state lines (dim first pass)
-    let hoveredState = null;
-
-    function drawLines(highlightId) {
-      ctx2d.clearRect(0, 0, W, H);
-
-      // Redraw axes
+    // Build axes once per redraw (extracted helper)
+    function drawAxes() {
       for (let i = 0; i < axisCount; i++) {
         const x = axisX(i);
         ctx2d.beginPath();
         ctx2d.moveTo(x, padT);
         ctx2d.lineTo(x, H - padB);
-        ctx2d.strokeStyle = isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)";
-        ctx2d.lineWidth = 1.5;
+        ctx2d.strokeStyle = isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)";
+        ctx2d.lineWidth = 1;
         ctx2d.stroke();
-
+        // Green arrow tip
         ctx2d.beginPath();
-        ctx2d.moveTo(x - 5, padT + 10);
+        ctx2d.moveTo(x - 4, padT + 9);
         ctx2d.lineTo(x, padT + 1);
-        ctx2d.lineTo(x + 5, padT + 10);
+        ctx2d.lineTo(x + 4, padT + 9);
         ctx2d.strokeStyle = "#10b981";
         ctx2d.lineWidth = 1.5;
         ctx2d.stroke();
-
+        // Axis label bottom
         const labelLines = axes[i].label.split("\n");
-        ctx2d.fillStyle = isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.65)";
+        ctx2d.fillStyle = isDark ? "rgba(255,255,255,0.65)" : "rgba(0,0,0,0.6)";
         ctx2d.font = "bold 10px 'Outfit', sans-serif";
         ctx2d.textAlign = "center";
         labelLines.forEach((line, li) => {
-          ctx2d.fillText(line, x, H - padB + 14 + li * 13);
+          ctx2d.fillText(line, x, H - padB + 15 + li * 13);
         });
-        ctx2d.font = "9px 'Outfit', sans-serif";
+        // "Better ↑" tip text
+        ctx2d.font = "8px 'Outfit', sans-serif";
         ctx2d.fillStyle = "#10b981";
-        ctx2d.fillText("Better ↑", x, padT - 5);
+        ctx2d.fillText("Better ↑", x, padT - 4);
       }
+    }
 
-      // Draw non-highlighted states dimly first
+    let hoveredState = null;
+
+    function drawLines(highlightId) {
+      ctx2d.clearRect(0, 0, W, H);
+      drawAxes();
+
+      // First pass — all states glow with their color
       stateData.forEach(s => {
-        if (s.id === highlightId) return;
         const pts = axes.map((_, i) => {
           const n = normalizeVal(s.vals[i], i);
           return n === null ? null : { x: axisX(i), y: yForVal(n) };
         });
-        // Draw line segments between non-null points
-        let penDown = false;
-        ctx2d.beginPath();
-        pts.forEach((pt, i) => {
-          if (!pt) { penDown = false; return; }
-          if (!penDown) { ctx2d.moveTo(pt.x, pt.y); penDown = true; }
-          else {
-            const prev = pts.slice(0, i).reverse().find(p => p);
-            if (prev) {
-              const cp1x = (prev.x + pt.x) / 2;
-              ctx2d.bezierCurveTo(cp1x, prev.y, cp1x, pt.y, pt.x, pt.y);
-            }
-          }
-        });
-        ctx2d.strokeStyle = s.color + (highlightId ? "28" : "88");
-        ctx2d.lineWidth = highlightId ? 1 : 1.8;
-        ctx2d.stroke();
 
-        // Dots at non-null axes
+        const isHighlighted = s.id === highlightId;
+        const hasHighlight = !!highlightId;
+
+        // Line glow and style
+        const lineWidth = isHighlighted ? 3 : (hasHighlight ? 1.2 : 2);
+        const alpha    = isHighlighted ? "FF" : (hasHighlight ? "30" : "CC");
+        const glow     = isHighlighted ? 18   : (hasHighlight ? 0    : 8);
+
+        drawStatePath(s, pts, lineWidth, alpha, glow);
+
+        // Dots at each axis
         pts.forEach(pt => {
           if (!pt) return;
           ctx2d.beginPath();
-          ctx2d.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
-          ctx2d.fillStyle = s.color + (highlightId ? "30" : "99");
+          ctx2d.arc(pt.x, pt.y, isHighlighted ? 5 : 3, 0, Math.PI * 2);
+          if (isHighlighted) {
+            ctx2d.shadowColor = s.color; ctx2d.shadowBlur = 10;
+          }
+          ctx2d.fillStyle = s.color + (hasHighlight && !isHighlighted ? "35" : "DD");
           ctx2d.fill();
-        });
-      });
-
-      // Draw highlighted state on top
-      if (highlightId) {
-        const s = stateData.find(s => s.id === highlightId);
-        if (s) {
-          const pts = axes.map((_, i) => {
-            const n = normalizeVal(s.vals[i], i);
-            return n === null ? null : { x: axisX(i), y: yForVal(n) };
-          });
-
-          // Glow pass — draw segments between non-null consecutive points
-          ctx2d.shadowColor = s.color;
-          ctx2d.shadowBlur = 12;
-          let penDown = false;
-          ctx2d.beginPath();
-          pts.forEach((pt, i) => {
-            if (!pt) { penDown = false; return; }
-            if (!penDown) { ctx2d.moveTo(pt.x, pt.y); penDown = true; }
-            else {
-              const prev = pts.slice(0, i).reverse().find(p => p);
-              if (prev) {
-                const cp1x = (prev.x + pt.x) / 2;
-                ctx2d.bezierCurveTo(cp1x, prev.y, cp1x, pt.y, pt.x, pt.y);
-              }
-            }
-          });
-          ctx2d.strokeStyle = s.color;
-          ctx2d.lineWidth = 3;
-          ctx2d.stroke();
           ctx2d.shadowBlur = 0;
+          if (isHighlighted) {
+            ctx2d.strokeStyle = isDark ? "#1a1d2e" : "#fff";
+            ctx2d.lineWidth = 1.5; ctx2d.stroke();
+          }
+        });
 
-          // Arrow markers mid-segment (only for adjacent non-null pairs)
+        // State name always left of first non-null point
+        const firstPt = pts.find(p => p);
+        if (firstPt) {
+          const nameAlpha = hasHighlight && !isHighlighted ? "40" : "EE";
+          ctx2d.font = isHighlighted
+            ? "bold 11px 'Outfit', sans-serif"
+            : "10px 'Outfit', sans-serif";
+          ctx2d.fillStyle = s.color + nameAlpha;
+          ctx2d.textAlign = "right";
+          ctx2d.fillText(s.name, firstPt.x - 8, firstPt.y + 4);
+        }
+
+        // On hover: draw directional arrows along the highlighted state's path
+        if (isHighlighted) {
           for (let i = 0; i < pts.length - 1; i++) {
             const a = pts[i], b = pts[i+1];
             if (!a || !b) continue;
@@ -1816,33 +1791,28 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx2d.restore();
           }
 
-          // Dots + compact value labels for non-null points
+          // Value labels on hover
           pts.forEach((pt, i) => {
             if (!pt) return;
-            ctx2d.beginPath();
-            ctx2d.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
-            ctx2d.fillStyle = s.color;
-            ctx2d.fill();
-            ctx2d.strokeStyle = isDark ? "#1a1d2e" : "#fff";
-            ctx2d.lineWidth = 1.5;
-            ctx2d.stroke();
-
-            // Value label — use formatted value
             const rawVal = s.vals[i];
-            const label = rawVal !== null ? formatMetricValue(rawVal, axes[i].key) : "N/A";
+            const label = rawVal !== null ? formatMetricValue(rawVal, axes[i].key) : "";
+            if (!label) return;
             ctx2d.font = "bold 9px 'Outfit', sans-serif";
-            ctx2d.fillStyle = isDark ? "#fff" : "#111";
+            ctx2d.fillStyle = isDark ? "rgba(255,255,255,0.95)" : "#111";
             ctx2d.textAlign = "center";
-            ctx2d.fillText(label, pt.x, pt.y - 9);
+            ctx2d.fillText(label, pt.x, pt.y - 10);
           });
 
-          // State name label top-left
+          // Hovered state name top-left (big)
           ctx2d.font = "bold 13px 'Outfit', sans-serif";
           ctx2d.fillStyle = s.color;
+          ctx2d.shadowColor = s.color;
+          ctx2d.shadowBlur = 8;
           ctx2d.textAlign = "left";
-          ctx2d.fillText(`▶ ${s.name}`, padL, padT - 18);
+          ctx2d.fillText(`▶ ${s.name}`, padL, padT - 20);
+          ctx2d.shadowBlur = 0;
         }
-      }
+      });
     }
 
     drawLines(null);
