@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
         parsed = parsed.filter(c => c !== "revenue_deficit" && c !== "revenue_deficit_abs");
         columnOrder = parsed;
         // Verify we have all columns (in case of updates)
-        const allCols = ["state", "gsdp_absolute", "total_budget", "budget_gsdp", "total_revenue", "revenue_gsdp", "revenue_exp_abs", "revenue_exp_gsdp", "gsdp_growth", "fiscal_deficit", "fiscal_deficit_abs", "capital_outlay", "capital_outlay_abs", "debt_gsdp", "pc_gsdp", "pc_debt", "central_transfers", "central_transfers_abs", "borrowing_spread"];
+        const allCols = ["state", "gsdp_absolute", "total_budget", "budget_gsdp", "total_revenue", "revenue_gsdp", "revenue_exp_abs", "revenue_exp_gsdp", "gsdp_growth", "fiscal_deficit", "fiscal_deficit_abs", "deficit_to_sotr", "capital_outlay", "capital_outlay_abs", "debt_gsdp", "pc_gsdp", "pc_debt", "central_transfers", "central_transfers_abs", "borrowing_spread"];
         allCols.forEach(c => {
           if (!columnOrder.includes(c)) columnOrder.push(c);
         });
@@ -1294,6 +1294,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "gsdp_growth",
       "fiscal_deficit",
       "fiscal_deficit_abs",
+      "deficit_to_sotr",
       "revenue_exp_abs",
       "revenue_exp_gsdp",
       "capital_outlay",
@@ -1314,6 +1315,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const lowerIsBetterMetrics = [
         "fiscal_deficit",
         "fiscal_deficit_abs",
+        "deficit_to_sotr",
         "revenue_exp_abs",
         "revenue_exp_gsdp",
         "debt_gsdp",
@@ -1716,6 +1718,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const pct = fiscalData.metrics.capital_outlay[stateId][yearIdx];
       return (gsdp === null || pct === null) ? null : (gsdp * pct) / 100.0;
     }
+    if (key === "deficit_to_sotr") {
+      const fd_pct = fiscalData.metrics.fiscal_deficit[stateId][yearIdx];
+      const own_tax_pct = fiscalData.metrics.own_tax_gsdp[stateId][yearIdx];
+      if (fd_pct === null || own_tax_pct === null || own_tax_pct === 0) return null;
+      return (fd_pct / own_tax_pct) * 100;
+    }
     if (key === "central_transfers_abs") {
       const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
       const fd_abs = getMetricValue(stateId, "fiscal_deficit_abs", yearIdx);
@@ -1761,6 +1769,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (key === "central_transfers_abs") {
       return { name: "Federal Transfers (Absolute) (Rupees Billion)", shortName: "Federal Transfers (Absolute)" };
     }
+    if (key === "deficit_to_sotr") {
+      return { name: "Fiscal Deficit (% of Own Tax Revenue)", shortName: "Deficit to SOTR" };
+    }
     const names = {
       fiscal_deficit: "Gross Fiscal Deficit",
       fiscal_deficit_abs: "Fiscal Deficit (Absolute)",
@@ -1794,6 +1805,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (key === "pc_gsdp" || key === "pc_debt") {
       return `₹${Math.round(value).toLocaleString('en-US')}`;
+    }
+    if (key === "deficit_to_sotr") {
+      return `${value.toFixed(1)}%`;
     }
     if (key === "gsdp_absolute" || key === "total_budget" || key === "total_revenue" || key === "fiscal_deficit_abs" || key === "revenue_exp_abs" || key === "capital_outlay_abs" || key === "central_transfers_abs") {
       const bnVal = value / 100.0;

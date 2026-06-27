@@ -210,15 +210,27 @@
               </div>
             </div>
 
-            <div class="chart-main-card">
-              <div class="card-header-bar">
-                <h3>Deficit Quality Matrix: Revenue Balance vs Capital Outlay</h3>
-                <span class="badge info">Cross-State Quadrant View</span>
-              </div>
-              <div class="chart-body">
-                <canvas id="chart-deficit-decomposition"></canvas>
+            <div class="charts-row">
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3>Deficit Quality Matrix: Revenue vs Capital</h3>
+                  <span class="badge info">Quadrant View</span>
+                </div>
+                <div class="chart-body" style="position: relative;">
+                  <canvas id="chart-deficit-decomposition"></canvas>
                   <div class="good-dir x-dir" style="position:absolute; bottom: 5px; right: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;">Better <i class="fa-solid fa-arrow-right"></i></div>
                   <div class="good-dir y-dir" style="position:absolute; top: 10px; left: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;">Better <i class="fa-solid fa-arrow-up"></i></div>
+                </div>
+              </div>
+
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3>Fiscal Deficit relative to SOTR</h3>
+                </div>
+                <div class="chart-body" style="position: relative;">
+                  <canvas id="chart-deficit-sotr"></canvas>
+                  <div class="good-dir y-dir" style="position:absolute; bottom: 35px; left: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;">Better <i class="fa-solid fa-arrow-down"></i></div>
+                </div>
               </div>
             </div>
             
@@ -487,7 +499,7 @@
                 <div class="filter-group" style="flex-direction: column; align-items: flex-start; gap: 0.3rem;">
                   <label for="3d-x-select" style="font-size: 0.8rem;">X-Axis (Fiscal Capacity):</label>
                   <select id="3d-x-select" class="custom-select" style="width: 100%; max-width: 100%;">
-                    <option value="fiscal_deficit">Gross Fiscal Deficit (% of GSDP)</option>
+                    <option value="fiscal_deficit">Gross Fiscal Deficit (% of GSDP)</option>\n                    <option value="deficit_to_sotr">Fiscal Deficit to SOTR (%)</option>
                     <option value="fiscal_deficit_abs">Fiscal Deficit (Absolute) (Rupees Billion)</option>
                     <option value="revenue_exp_gsdp">Revenue Expenditure (% of GSDP)</option>
                     <option value="revenue_exp_abs">Revenue Expenditure (Absolute) (Rupees Billion)</option>
@@ -510,7 +522,7 @@
                 <div class="filter-group" style="flex-direction: column; align-items: flex-start; gap: 0.3rem;">
                   <label for="3d-y-select" style="font-size: 0.8rem;">Y-Axis (Asset Creation):</label>
                   <select id="3d-y-select" class="custom-select" style="width: 100%; max-width: 100%;">
-                    <option value="fiscal_deficit">Gross Fiscal Deficit (% of GSDP)</option>
+                    <option value="fiscal_deficit">Gross Fiscal Deficit (% of GSDP)</option>\n                    <option value="deficit_to_sotr">Fiscal Deficit to SOTR (%)</option>
                     <option value="fiscal_deficit_abs">Fiscal Deficit (Absolute) (Rupees Billion)</option>
                     <option value="revenue_exp_gsdp">Revenue Expenditure (% of GSDP)</option>
                     <option value="revenue_exp_abs">Revenue Expenditure (Absolute) (Rupees Billion)</option>
@@ -533,7 +545,7 @@
                 <div class="filter-group" style="flex-direction: column; align-items: flex-start; gap: 0.3rem;">
                   <label for="3d-z-select" style="font-size: 0.8rem;">Z-Axis (Accumulated Leverage):</label>
                   <select id="3d-z-select" class="custom-select" style="width: 100%; max-width: 100%;">
-                    <option value="fiscal_deficit">Gross Fiscal Deficit (% of GSDP)</option>
+                    <option value="fiscal_deficit">Gross Fiscal Deficit (% of GSDP)</option>\n                    <option value="deficit_to_sotr">Fiscal Deficit to SOTR (%)</option>
                     <option value="fiscal_deficit_abs">Fiscal Deficit (Absolute) (Rupees Billion)</option>
                     <option value="revenue_exp_gsdp">Revenue Expenditure (% of GSDP)</option>
                     <option value="revenue_exp_abs">Revenue Expenditure (Absolute) (Rupees Billion)</option>
