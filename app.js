@@ -561,7 +561,7 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             title: {
               display: true,
-              text: "Revenue Deficit (-) / Surplus (+)  (% of GSDP)",
+              text: "Revenue Deficit (-) / Surplus (+)  (% of GSDP) (Better →)",
               color: t.textSecondary,
               font: { weight: 600, family: "'Outfit', sans-serif" }
             },
@@ -571,7 +571,7 @@ document.addEventListener("DOMContentLoaded", () => {
             grid: { color: t.gridColor },
             title: {
               display: true,
-              text: "Capital Outlay (% of GSDP)",
+              text: "Capital Outlay (% of GSDP) (Better ↑)",
               color: t.textSecondary,
               font: { weight: 600, family: "'Outfit', sans-serif" }
             },
@@ -676,7 +676,7 @@ document.addEventListener("DOMContentLoaded", () => {
             grid: { color: t.gridColor },
             title: {
               display: true,
-              text: "Interest to Revenue Receipts (%)",
+              text: "Interest to Revenue Receipts (%) (← Better)",
               color: t.textSecondary,
               font: { weight: 600, family: "'Outfit', sans-serif" }
             },
@@ -686,7 +686,7 @@ document.addEventListener("DOMContentLoaded", () => {
             grid: { color: t.gridColor },
             title: {
               display: true,
-              text: "Debt to GSDP Ratio (%)",
+              text: "Debt to GSDP Ratio (%) (↓ Better)",
               color: t.textSecondary,
               font: { weight: 600, family: "'Outfit', sans-serif" }
             },
@@ -728,7 +728,7 @@ document.addEventListener("DOMContentLoaded", () => {
               color: context => context.tick.value === 0 ? t.textColor : t.gridColor,
               lineWidth: context => context.tick.value === 0 ? 2 : 1
             },
-            title: { display: true, text: "Spread (%)", font: { weight: 600 } }
+            title: { display: true, text: "Spread (%) (Better ↑)", font: { weight: 600 } }
           }
         },
         plugins: {
@@ -834,7 +834,7 @@ document.addEventListener("DOMContentLoaded", () => {
             grid: { color: t.gridColor },
             title: {
               display: true,
-              text: "Own Tax Revenue (% of GSDP)",
+              text: "Own Tax Revenue (% of GSDP) (Better →)",
               color: t.textSecondary,
               font: { weight: 600, family: "'Outfit', sans-serif" }
             },
@@ -844,7 +844,7 @@ document.addEventListener("DOMContentLoaded", () => {
             grid: { color: t.gridColor },
             title: {
               display: true,
-              text: "Federal Transfers (% of Revenue Receipts)",
+              text: "Federal Transfers (% of Revenue Receipts) (↓ Better)",
               color: t.textSecondary,
               font: { weight: 600, family: "'Outfit', sans-serif" }
             },
@@ -883,7 +883,7 @@ document.addEventListener("DOMContentLoaded", () => {
           },
           y: {
             grid: { color: t.gridColor },
-            title: { display: true, text: "% of GSDP", font: { weight: 600 } }
+            title: { display: true, text: "% of GSDP (Better ↑)", font: { weight: 600 } }
           }
         },
         plugins: {
@@ -970,7 +970,7 @@ document.addEventListener("DOMContentLoaded", () => {
             grid: { color: t.gridColor },
             title: {
               display: true,
-              text: "Committed Expenditures (% of Revenue Receipts)",
+              text: "Committed Expenditures (% of Revenue Receipts) (← Better)",
               color: t.textSecondary,
               font: { weight: 600, family: "'Outfit', sans-serif" }
             },
@@ -980,7 +980,7 @@ document.addEventListener("DOMContentLoaded", () => {
             grid: { color: t.gridColor },
             title: {
               display: true,
-              text: "Capital Outlay (% of GSDP)",
+              text: "Capital Outlay (% of GSDP) (Better ↑)",
               color: t.textSecondary,
               font: { weight: 600, family: "'Outfit', sans-serif" }
             },
@@ -1027,7 +1027,7 @@ document.addEventListener("DOMContentLoaded", () => {
           },
           y: {
             grid: { color: t.gridColor },
-            title: { display: true, text: "% of GSDP", font: { weight: 600 } }
+            title: { display: true, text: "% of GSDP (↓ Better)", font: { weight: 600 } }
           }
         },
         plugins: {
