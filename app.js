@@ -604,6 +604,80 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     });
+
+    // Chart 2: Deficit to SOTR (Bar)
+    const ctxDefSotr = document.getElementById("chart-deficit-sotr").getContext("2d");
+    if (charts["deficitSotr"]) charts["deficitSotr"].destroy();
+
+    const defSotrData = [];
+    const defSotrLabels = [];
+    const defSotrColors = [];
+    const defSotrBorderColors = [];
+    
+    // Sort states by deficit to sotr dependency
+    const sortedStatesDef = [...fiscalData.states].sort((a, b) => {
+        return getMetricValue(b.id, "deficit_to_sotr", yearIdx) - getMetricValue(a.id, "deficit_to_sotr", yearIdx);
+    });
+
+    sortedStatesDef.forEach(state => {
+        const val = getMetricValue(state.id, "deficit_to_sotr", yearIdx);
+        if (val !== null) {
+            defSotrData.push(val);
+            defSotrLabels.push(state.name);
+            defSotrColors.push(state.color + 'CC');
+            defSotrBorderColors.push(state.color);
+        }
+    });
+
+    charts["deficitSotr"] = new Chart(ctxDefSotr, {
+      type: "bar",
+      data: {
+        labels: defSotrLabels,
+        datasets: [
+          {
+            label: "Fiscal Deficit (% of SOTR)",
+            data: defSotrData,
+            backgroundColor: defSotrColors,
+            borderColor: defSotrBorderColors,
+            borderWidth: 1.5,
+            borderRadius: 4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { 
+            grid: { display: false },
+            ticks: { font: { weight: 500, size: 10 }, color: t.textSecondary }
+          },
+          y: {
+            grid: { color: t.gridColor },
+            title: { 
+              display: true, 
+              text: "% of Own Tax Revenue", 
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" } 
+            },
+            ticks: { color: t.textSecondary }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: t.tooltipBg,
+            titleColor: t.tooltipText,
+            bodyColor: t.textColor,
+            borderColor: t.tooltipBorder,
+            borderWidth: 1,
+            callbacks: {
+              label: (ctx) => `${ctx.raw.toFixed(1)}%`
+            }
+          }
+        }
+      }
+    });
   }
 
   // --- Render Sustainability Tab Charts ---
