@@ -1181,51 +1181,85 @@ document.addEventListener("DOMContentLoaded", () => {
         id: "debtLimitLine",
         afterDraw(chart) {
           const { ctx, chartArea: { left, right }, scales: { y } } = chart;
-          const LIMIT = 32.5;
-          // Only draw if the limit is within the current y-axis range
-          if (LIMIT < y.min || LIMIT > y.max) return;
-
-          const yPx = y.getPixelForValue(LIMIT);
-
           ctx.save();
 
-          // Dashed line
-          ctx.beginPath();
-          ctx.setLineDash([8, 5]);
-          ctx.moveTo(left, yPx);
-          ctx.lineTo(right, yPx);
-          ctx.lineWidth = 2;
-          ctx.strokeStyle = "rgba(239, 68, 68, 0.85)";
-          ctx.stroke();
-          ctx.setLineDash([]);
+          // Helper to draw one horizontal reference line with a pill label
+          function drawHLine({ value, color, colorAlpha, labelText, labelSide, zoneLabelAbove, zoneLabelBelow }) {
+            if (value < y.min || value > y.max) return;
+            const yPx = y.getPixelForValue(value);
 
-          // Label background pill
-          const label = "15th FC Limit: 32.5%";
-          ctx.font = "bold 11px 'Outfit', sans-serif";
-          const tw = ctx.measureText(label).width;
-          const px = left + 10;
-          const py = yPx - 7;
-          ctx.fillStyle = "rgba(239, 68, 68, 0.15)";
-          ctx.beginPath();
-          ctx.roundRect(px - 4, py - 13, tw + 10, 18, 4);
-          ctx.fill();
-          ctx.strokeStyle = "rgba(239, 68, 68, 0.6)";
-          ctx.lineWidth = 1;
-          ctx.stroke();
+            // Dashed line
+            ctx.beginPath();
+            ctx.setLineDash([8, 5]);
+            ctx.moveTo(left, yPx);
+            ctx.lineTo(right, yPx);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = color;
+            ctx.stroke();
+            ctx.setLineDash([]);
 
-          // Label text
-          ctx.fillStyle = "#ef4444";
-          ctx.textAlign = "left";
-          ctx.fillText(label, px, py);
+            // Pill label
+            ctx.font = "bold 10px 'Outfit', sans-serif";
+            const tw = ctx.measureText(labelText).width;
+            // Place labels on alternating sides to avoid overlap
+            const px = labelSide === "right" ? right - tw - 24 : left + 10;
+            const py = yPx - 7;
+            ctx.fillStyle = colorAlpha;
+            ctx.beginPath();
+            ctx.roundRect(px - 4, py - 13, tw + 10, 18, 4);
+            ctx.fill();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.fillStyle = color;
+            ctx.textAlign = "left";
+            ctx.fillText(labelText, px, py);
 
-          // Zone labels
-          ctx.font = "10px 'Outfit', sans-serif";
-          ctx.fillStyle = "rgba(239,68,68,0.55)";
-          ctx.textAlign = "right";
-          ctx.fillText("▲ Above 15th FC limit", right - 8, yPx - 10);
+            // Zone labels
+            if (zoneLabelAbove) {
+              ctx.font = "9px 'Outfit', sans-serif";
+              ctx.fillStyle = zoneLabelAbove.color;
+              ctx.textAlign = "right";
+              ctx.fillText(zoneLabelAbove.text, right - 8, yPx - 10);
+            }
+            if (zoneLabelBelow) {
+              ctx.font = "9px 'Outfit', sans-serif";
+              ctx.fillStyle = zoneLabelBelow.color;
+              ctx.textAlign = "right";
+              ctx.fillText(zoneLabelBelow.text, right - 8, yPx + 15);
+            }
+          }
 
-          ctx.fillStyle = "rgba(16,185,129,0.6)";
-          ctx.fillText("▼ Within 15th FC limit", right - 8, yPx + 16);
+          // --- Line 1: 15th FC aggregate limit — 32.5% (Red) ---
+          drawHLine({
+            value: 32.5,
+            color: "rgba(239,68,68,0.9)",
+            colorAlpha: "rgba(239,68,68,0.12)",
+            labelText: "15th FC Limit: 32.5%",
+            labelSide: "left",
+            zoneLabelAbove: { text: "▲ Breaching 15th FC limit", color: "rgba(239,68,68,0.6)" },
+            zoneLabelBelow: null  // middle zone label handled by line 2 above
+          });
+
+          // --- Line 2: NK Singh FRBM Review — 20% long-run target (Amber) ---
+          drawHLine({
+            value: 20,
+            color: "rgba(245,158,11,0.9)",
+            colorAlpha: "rgba(245,158,11,0.12)",
+            labelText: "NK Singh Target: 20% (long-run)",
+            labelSide: "right",
+            zoneLabelAbove: { text: "▲ Above long-run NK Singh target", color: "rgba(245,158,11,0.65)" },
+            zoneLabelBelow: { text: "▼ Below 20% — Ideal Zone", color: "rgba(16,185,129,0.7)" }
+          });
+
+          // --- 3-zone shaded bands (very subtle) ---
+          // Zone: 20% to 32.5% = Amber transition zone
+          const y32 = y.getPixelForValue(32.5);
+          const y20 = y.getPixelForValue(20);
+          if (y32 !== undefined && y20 !== undefined && y20 > y32) {
+            ctx.fillStyle = "rgba(245,158,11,0.04)";
+            ctx.fillRect(left, y32, right - left, y20 - y32);
+          }
 
           ctx.restore();
         }
