@@ -55,8 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const parsed = JSON.parse(savedOrder);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        parsed = parsed.filter(c => c !== "revenue_deficit" && c !== "revenue_deficit_abs");
-        columnOrder = parsed;
+        columnOrder = parsed.filter(c => c !== "revenue_deficit" && c !== "revenue_deficit_abs");
         // Verify we have all columns (in case of updates)
         const allCols = ["state", "gsdp_absolute", "total_budget", "budget_gsdp", "total_revenue", "revenue_gsdp", "revenue_exp_abs", "revenue_exp_gsdp", "gsdp_growth", "fiscal_deficit", "fiscal_deficit_abs", "deficit_to_sotr", "capital_outlay", "capital_outlay_abs", "debt_gsdp", "pc_gsdp", "pc_debt", "central_transfers", "central_transfers_abs", "borrowing_spread", "direct_central_investment"];
         allCols.forEach(c => {
