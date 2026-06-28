@@ -81,6 +81,10 @@
               <i class="fa-solid fa-hand-holding-dollar"></i>
               <span>Central Transfers</span>
             </button>
+            <button class="nav-item" data-tab="education">
+              <i class="fa-solid fa-graduation-cap"></i>
+              <span>Education Efficacy</span>
+            </button>
             <button class="nav-item" data-tab="comparison">
               <i class="fa-solid fa-code-compare"></i>
               <span>Cross-State Rankings</span>
@@ -477,6 +481,58 @@
             <div class="analysis-narrative">
               <h3><i class="fa-solid fa-hand-holding-dollar"></i> Central Transfers Devolution & Dependency</h3>
               <p>Federal fiscal transfers consist of tax devolutions recommended by the Finance Commission and various Central grants (including grants-in-aid and Centrally Sponsored Schemes). These transfers represent a critical revenue source for resource-constrained states, but high dependency reduces fiscal flexibility and exposes states to devolution policy shifts.</p>
+            </div>
+          </div>
+
+          <!-- Education Efficacy & Social Investment Tab View -->
+          <div class="tab-view" id="tab-education">
+            
+            <div class="comparison-filters">
+              <div class="filter-group">
+                <label for="education-year-select">Select Year:</label>
+                <select id="education-year-select" class="custom-select compare-select">
+                  <!-- Populated via JS -->
+                </select>
+              </div>
+            </div>
+
+            <div class="double-charts-row">
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3>Social Sector Investment vs. Secondary School Dropout Rate</h3>
+                  <span class="badge info">Bubble Chart</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-education-matrix"></canvas>
+                  <div class="good-dir x-dir" style="position:absolute; bottom: 5px; right: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;">Better <i class="fa-solid fa-arrow-right"></i></div>
+                  <div class="good-dir y-dir" style="position:absolute; bottom: 35px; left: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;"><i class="fa-solid fa-arrow-down"></i> Better</div>
+                </div>
+              </div>
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3>Secondary School Gross Enrolment (GER) vs. Pupil-Teacher Ratio (PTR)</h3>
+                  <span class="badge info">Bar & Line</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-education-outcomes"></canvas>
+                  <div class="good-dir y-dir" style="position:absolute; top: 10px; left: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;">Better <i class="fa-solid fa-arrow-up"></i></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="analysis-narrative">
+              <h3><i class="fa-solid fa-graduation-cap"></i> UDISE+ Education Outcomes & Spending Efficacy</h3>
+              <p>This tab evaluates the efficacy of state-level social and welfare expenditures by tracking key public education indicators. Under traditional fiscal metrics, high revenue expenditure is often discouraged. However, allocation to the **Social Sector (education, health, nutrition)** builds critical human capital.</p>
+              <div class="narrative-highlights" style="grid-template-columns: 1fr 1fr; margin-top: 0.5rem;">
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-circle-check text-emerald" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Top-Left (Efficient Spending):</strong> States in the upper-left quadrant (in the scatter chart) achieve low dropout rates with moderate/efficient social expenditure, indicating high administrative and scheme efficacy.</p>
+                </div>
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-circle-xmark text-amber" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Bottom-Right (High Cost / Low Retention):</strong> States spending a high percentage of GSDP on social sectors but still suffering from elevated dropout rates need to evaluate implementation bottlenecks.</p>
+                </div>
+              </div>
             </div>
 
           </div>

@@ -160,6 +160,18 @@ document.addEventListener("DOMContentLoaded", () => {
       transfersYearSelect.value = fiscalData.years.length - 1;
     }
 
+    // Populate Education Matrix Year Selector
+    const educationYearSelect = document.getElementById("education-year-select");
+    if(educationYearSelect) {
+      fiscalData.years.forEach((yr, idx) => {
+        const option = document.createElement("option");
+        option.value = idx;
+        option.textContent = yr;
+        educationYearSelect.appendChild(option);
+      });
+      educationYearSelect.value = fiscalData.years.length - 1;
+    }
+
     // Populate Deficit Quality Matrix Year Selector
     const deficitYearSelect = document.getElementById("deficit-year-select");
     fiscalData.years.forEach((yr, idx) => {
@@ -233,6 +245,16 @@ document.addEventListener("DOMContentLoaded", () => {
       transfersYearSelect2.addEventListener("change", () => {
         if (activeTab === "transfers") {
           renderTransfersTab(getThemeColors());
+        }
+      });
+    }
+
+    // Education Tab Year Selection Changed
+    const educationYearSelect2 = document.getElementById("education-year-select");
+    if(educationYearSelect2) {
+      educationYearSelect2.addEventListener("change", () => {
+        if (activeTab === "education") {
+          renderEducationTab(getThemeColors());
         }
       });
     }
@@ -503,6 +525,8 @@ document.addEventListener("DOMContentLoaded", () => {
       renderExpenditureTab(t);
     } else if (activeTab === "transfers") {
       renderTransfersTab(t);
+    } else if (activeTab === "education") {
+      renderEducationTab(t);
     } else if (activeTab === "comparison") {
       renderComparisonTab();
       // Use setTimeout so canvas has been laid out with correct dimensions
@@ -2507,6 +2531,238 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- Render Education Efficacy & Social Investment Tab ---
+  function renderEducationTab(t) {
+    const yearIdxStr = document.getElementById("education-year-select").value;
+    if(!yearIdxStr) return;
+    const yearIdx = parseInt(yearIdxStr);
+
+    // Chart 1: Social Spending vs. Secondary Dropout (Bubble Chart)
+    const ctxMatrix = document.getElementById("chart-education-matrix").getContext("2d");
+    if (charts["educationMatrix"]) charts["educationMatrix"].destroy();
+
+    const bubbleDatasets = [];
+    fiscalData.states.forEach(state => {
+      const socialExp = getMetricValue(state.id, "edu_social_exp_gsdp", yearIdx);
+      const dropout = getMetricValue(state.id, "edu_dropout_secondary", yearIdx);
+      const gsdp = getMetricValue(state.id, "gsdp_absolute", yearIdx) || 0;
+      if (socialExp === null || dropout === null) return;
+      
+      const r = Math.max(8, Math.min(30, (gsdp / 1000) * 1.5 + 6));
+      bubbleDatasets.push({
+        label: state.name,
+        data: [{ x: socialExp, y: dropout, r: r }],
+        backgroundColor: state.color + 'CC',
+        borderColor: state.color,
+        borderWidth: 1.5,
+        hoverBackgroundColor: state.color,
+        hoverBorderWidth: 2.5,
+        stateId: state.id
+      });
+    });
+
+    charts["educationMatrix"] = new Chart(ctxMatrix, {
+      type: "bubble",
+      data: { datasets: bubbleDatasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: "Social Sector Expenditure (% of GSDP)",
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
+          },
+          y: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: "Secondary School Dropout Rate (%)",
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: t.tooltipBg,
+            titleColor: t.tooltipText,
+            bodyColor: t.textColor,
+            borderColor: t.tooltipBorder,
+            borderWidth: 1,
+            callbacks: {
+              label: (ctx) => {
+                const ds = ctx.dataset;
+                return [
+                  ds.label,
+                  `Social Spending: ${ctx.raw.x.toFixed(1)}% GSDP`,
+                  `Dropout Rate: ${ctx.raw.y.toFixed(1)}%`
+                ];
+              }
+            }
+          }
+        }
+      },
+      plugins: [{
+        id: "eduQuadrantLines",
+        afterDraw(chart) {
+          const { ctx, chartArea: { top, bottom, left, right }, scales: { x, y } } = chart;
+          if (!x || !y) return;
+          const xMidVal = 8.5; // Spending threshold
+          const yMidVal = 10.0; // Dropout threshold
+          if (x.min === undefined || x.max === undefined || y.min === undefined || y.max === undefined) return;
+          
+          const xPx = x.getPixelForValue(xMidVal);
+          const yPx = y.getPixelForValue(yMidVal);
+
+          ctx.save();
+          ctx.setLineDash([6, 6]);
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = "rgba(99, 102, 241, 0.4)";
+
+          // Vertical spending divider
+          if (xPx >= left && xPx <= right) {
+            ctx.beginPath();
+            ctx.moveTo(xPx, top);
+            ctx.lineTo(xPx, bottom);
+            ctx.stroke();
+          }
+
+          // Horizontal dropout divider
+          if (yPx >= top && yPx <= bottom) {
+            ctx.beginPath();
+            ctx.moveTo(left, yPx);
+            ctx.lineTo(right, yPx);
+            ctx.stroke();
+          }
+
+          // Quadrant Labels
+          ctx.font = "bold 9px 'Outfit', sans-serif";
+          ctx.fillStyle = "rgba(16, 185, 129, 0.7)";
+          ctx.textAlign = "left";
+          ctx.fillText("✓ Efficient Low-Dropout", left + 10, bottom - 10);
+
+          ctx.textAlign = "right";
+          ctx.fillText("✓ Prudent High-Spending", right - 10, bottom - 10);
+
+          ctx.fillStyle = "rgba(239, 68, 68, 0.7)";
+          ctx.textAlign = "left";
+          ctx.fillText("✗ Vulnerable Low-Spending", left + 10, top + 15);
+
+          ctx.textAlign = "right";
+          ctx.fillText("⚠ Low Efficacy High-Spending", right - 10, top + 15);
+
+          ctx.restore();
+        }
+      }]
+    });
+
+    // Chart 2: Secondary GER and PTR (Grouped Bar/Line Chart with Dual Y-Axes)
+    const ctxOutcomes = document.getElementById("chart-education-outcomes").getContext("2d");
+    if (charts["educationOutcomes"]) charts["educationOutcomes"].destroy();
+
+    const statesList = [...fiscalData.states];
+    const labels = statesList.map(s => s.name);
+    const gerData = statesList.map(s => getMetricValue(s.id, "edu_ger_secondary", yearIdx));
+    const ptrData = statesList.map(s => getMetricValue(s.id, "edu_ptr_secondary", yearIdx));
+
+    charts["educationOutcomes"] = new Chart(ctxOutcomes, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            type: "bar",
+            label: "Gross Enrolment Ratio (GER) (%)",
+            data: gerData,
+            backgroundColor: statesList.map(s => s.color + "BB"),
+            borderColor: statesList.map(s => s.color),
+            borderWidth: 1.5,
+            borderRadius: 4,
+            yAxisID: "yGer"
+          },
+          {
+            type: "line",
+            label: "Pupil-Teacher Ratio (PTR)",
+            data: ptrData,
+            borderColor: t.textSecondary === "#94a3b8" ? "#818cf8" : "#4f46e5",
+            borderWidth: 3,
+            pointBackgroundColor: "#f59e0b",
+            pointBorderColor: "#fff",
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            fill: false,
+            yAxisID: "yPtr"
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { weight: 500, size: 10 }, color: t.textSecondary }
+          },
+          yGer: {
+            type: "linear",
+            position: "left",
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: "Gross Enrolment Ratio (%)",
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
+          },
+          yPtr: {
+            type: "linear",
+            position: "right",
+            grid: { drawOnChartArea: false },
+            title: {
+              display: true,
+              text: "Pupil-Teacher Ratio (PTR)",
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
+          }
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: "top",
+            labels: { color: t.textColor, font: { family: "'Outfit', sans-serif", size: 10 } }
+          },
+          tooltip: {
+            backgroundColor: t.tooltipBg,
+            titleColor: t.tooltipText,
+            bodyColor: t.textColor,
+            borderColor: t.tooltipBorder,
+            borderWidth: 1,
+            callbacks: {
+              label: (ctx) => {
+                const label = ctx.dataset.label;
+                const val = ctx.raw;
+                if (label.includes("GER")) return `${label}: ${val.toFixed(1)}%`;
+                return `${label}: ${val.toFixed(1)}:1`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
   // --- Render 3D Fiscal Space Analysis Tab ---
   function renderThreeDTab() {
     const yearIdx = parseInt(document.getElementById("3d-year-select").value);
@@ -2761,7 +3017,11 @@ document.addEventListener("DOMContentLoaded", () => {
       pc_debt: "Per Capita Debt",
       gsdp_absolute: "GSDP (Absolute)",
       total_budget: "Total Budget",
-      gsdp_growth: "GSDP Growth"
+      gsdp_growth: "GSDP Growth",
+      edu_dropout_secondary: "Secondary Dropout",
+      edu_ger_secondary: "Secondary GER",
+      edu_ptr_secondary: "Secondary PTR",
+      edu_social_exp_gsdp: "Social Spend (% GSDP)"
     };
     return {
       name: fiscalData.metrics[key] ? fiscalData.metrics[key].name : (names[key] || "Metric"),
@@ -2775,6 +3035,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (key === "debt_own_tax") {
       return `${value.toFixed(2)}x`;
+    }
+    if (key === "edu_ptr_secondary") {
+      return `${value.toFixed(1)}:1`;
+    }
+    if (key === "edu_dropout_secondary" || key === "edu_ger_secondary" || key === "edu_social_exp_gsdp") {
+      return `${value.toFixed(1)}%`;
     }
     if (key === "pc_gsdp" || key === "pc_debt") {
       return `₹${Math.round(value).toLocaleString('en-US')}`;
