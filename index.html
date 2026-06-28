@@ -438,6 +438,49 @@
             </div>
           </div>
 
+          <!-- Central Transfers Tab View -->
+          <div class="tab-view" id="tab-transfers">
+            
+            <div class="comparison-filters">
+              <div class="filter-group">
+                <label for="transfers-year-select">Select Year:</label>
+                <select id="transfers-year-select" class="custom-select compare-select">
+                  <!-- Populated via JS -->
+                </select>
+              </div>
+            </div>
+
+            <div class="double-charts-row">
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3>Central Transfers Dependency Matrix</h3>
+                  <span class="badge info">Bubble Chart</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-transfers-matrix"></canvas>
+                  <div class="good-dir x-dir" style="position:absolute; bottom: 5px; left: 60px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;"><i class="fa-solid fa-arrow-left"></i> Better</div>
+                  <div class="good-dir y-dir" style="position:absolute; bottom: 35px; left: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;"><i class="fa-solid fa-arrow-down"></i> Better</div>
+                </div>
+              </div>
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3>State-wise Transfer Dependency</h3>
+                  <span class="badge info">Bar Chart</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-transfers-bar"></canvas>
+                  <div class="good-dir y-dir" style="position:absolute; bottom: 35px; left: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;"><i class="fa-solid fa-arrow-down"></i> Better</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="analysis-narrative">
+              <h3><i class="fa-solid fa-hand-holding-dollar"></i> Central Transfers Devolution & Dependency</h3>
+              <p>Federal fiscal transfers consist of tax devolutions recommended by the Finance Commission and various Central grants (including grants-in-aid and Centrally Sponsored Schemes). These transfers represent a critical revenue source for resource-constrained states, but high dependency reduces fiscal flexibility and exposes states to devolution policy shifts.</p>
+            </div>
+
+          </div>
+
           <!-- Cross-State Comparison Tab View -->
           <div class="tab-view" id="tab-comparison">
             

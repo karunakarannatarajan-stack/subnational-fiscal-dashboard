@@ -501,6 +501,8 @@ document.addEventListener("DOMContentLoaded", () => {
       renderRevenueTab(t);
     } else if (activeTab === "expenditure") {
       renderExpenditureTab(t);
+    } else if (activeTab === "transfers") {
+      renderTransfersTab(t);
     } else if (activeTab === "comparison") {
       renderComparisonTab();
       // Use setTimeout so canvas has been laid out with correct dimensions
