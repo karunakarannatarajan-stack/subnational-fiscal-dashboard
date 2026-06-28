@@ -629,8 +629,8 @@ document.addEventListener("DOMContentLoaded", () => {
           const { ctx, chartArea: { top, bottom, left, right }, scales: { x, y } } = chart;
           ctx.save();
 
-          const xZero = (0 >= x.min && 0 <= x.max) ? x.getPixelForValue(0) : null;
-          const yCapex = (1.5 >= y.min && 1.5 <= y.max) ? y.getPixelForValue(1.5) : null;
+          const xZero = (x && x.min !== undefined && x.max !== undefined && 0 >= x.min && 0 <= x.max) ? x.getPixelForValue(0) : null;
+          const yCapex = (y && y.min !== undefined && y.max !== undefined && 1.5 >= y.min && 1.5 <= y.max) ? y.getPixelForValue(1.5) : null;
 
           // --- Quadrant shading (very subtle fills behind bubbles) ---
           if (xZero && yCapex) {
@@ -819,7 +819,7 @@ document.addEventListener("DOMContentLoaded", () => {
         afterDraw(chart) {
           const { ctx, chartArea: { left, right }, scales: { y } } = chart;
           const LIMIT = 0;
-          if (LIMIT < y.min || LIMIT > y.max) return;
+          if (!y || y.min === undefined || y.max === undefined || LIMIT < y.min || LIMIT > y.max) return;
 
           const yPx = y.getPixelForValue(LIMIT);
           ctx.save();
@@ -1262,11 +1262,12 @@ document.addEventListener("DOMContentLoaded", () => {
         id: "debtLimitLine",
         afterDraw(chart) {
           const { ctx, chartArea: { left, right }, scales: { y } } = chart;
+          if (!y) return;
           ctx.save();
 
           // Helper to draw one horizontal reference line with a pill label
           function drawHLine({ value, color, colorAlpha, labelText, labelSide, zoneLabelAbove, zoneLabelBelow }) {
-            if (value < y.min || value > y.max) return;
+            if (y.min === undefined || y.max === undefined || value < y.min || value > y.max) return;
             const yPx = y.getPixelForValue(value);
 
             // Dashed line
@@ -1335,16 +1336,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
           // --- 3-zone shaded bands (very subtle) ---
           // Zone: 20% to 32.5% = Amber transition zone
-          const y32 = y.getPixelForValue(32.5);
-          const y20 = y.getPixelForValue(20);
-          if (y32 !== undefined && y20 !== undefined && y20 > y32) {
-            ctx.fillStyle = "rgba(245,158,11,0.04)";
-            ctx.fillRect(left, y32, right - left, y20 - y32);
+          if (y.min !== undefined && y.max !== undefined && 32.5 >= y.min && 20 <= y.max) {
+            const y32 = y.getPixelForValue(32.5);
+            const y20 = y.getPixelForValue(20);
+            if (y32 !== undefined && y20 !== undefined && y20 > y32) {
+              ctx.fillStyle = "rgba(245,158,11,0.04)";
+              ctx.fillRect(left, y32, right - left, y20 - y32);
+            }
           }
 
           ctx.restore();
         }
       }]
+
     });
 
     // Chart 2: Sustainability Spread (Bar Chart)
@@ -1861,7 +1865,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (metricKey !== "borrowing_spread") return;
           const { ctx, chartArea: { top, bottom, left, right }, scales: { x } } = chart;
           const LIMIT = 50;
-          if (LIMIT < x.min || LIMIT > x.max) return;
+          if (!x || x.min === undefined || x.max === undefined || LIMIT < x.min || LIMIT > x.max) return;
 
           const xPx = x.getPixelForValue(LIMIT);
           ctx.save();
