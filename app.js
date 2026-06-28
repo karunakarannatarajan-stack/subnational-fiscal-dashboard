@@ -788,6 +788,181 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     });
+
+    // Render FRBM Compliance Matrix
+    renderFRBMMatrix(yearIdx);
+  }
+
+  // --- FRBM & 15th Finance Commission Compliance Matrix ---
+  function renderFRBMMatrix(yearIdx) {
+    const container = document.getElementById("frbm-matrix-container");
+    if (!container) return;
+
+    const yearStr = fiscalData.years[yearIdx];
+
+    // FRBM norms — glide path aware
+    // FY24 onwards: 3.0%, FY23: 3.5%, FY22: 4.0%
+    const yrNum = parseInt(yearStr.split("-")[0]);
+    const fdLimit = yrNum >= 2023 ? 3.0 : (yrNum === 2022 ? 3.5 : 4.0);
+
+    const norms = [
+      {
+        key:     "fiscal_deficit",
+        label:   "Fiscal Deficit",
+        unit:    "% of GSDP",
+        limit:   fdLimit,
+        note:    `≤${fdLimit}% GSDP (15th FC glide path)`,
+        lowerBetter: true,
+        noteExtra: "+0.5% allowed for power sector reforms"
+      },
+      {
+        key:     "revenue_deficit",
+        label:   "Revenue Deficit",
+        unit:    "% of GSDP",
+        limit:   0,
+        note:    "≤0% (FRBM: must be zero or surplus)",
+        lowerBetter: true,
+        noteExtra: "Revenue deficit = structural fiscal stress"
+      },
+      {
+        key:     "debt_gsdp",
+        label:   "Debt / GSDP",
+        unit:    "%",
+        limit:   32.5,
+        note:    "≤32.5% GSDP (15th FC aggregate target)",
+        lowerBetter: true,
+        noteExtra: "NK Singh FRBM Review target: 20% long-run"
+      },
+      {
+        key:     "capital_outlay",
+        label:   "Capital Outlay",
+        unit:    "% of GSDP",
+        limit:   1.5,
+        note:    "≥1.5% GSDP (encouraged minimum for development)",
+        lowerBetter: false,
+        noteExtra: "15th FC incentivised incremental capex (+0.5% borrowing room)"
+      },
+      {
+        key:     "borrowing_spread",
+        label:   "SDL Spread over G-Sec",
+        unit:    "bps",
+        limit:   50,
+        note:    "≤50 bps (market stress signal threshold)",
+        lowerBetter: true,
+        noteExtra: "Higher spreads signal market perception of fiscal risk"
+      }
+    ];
+
+    // Build compliance status per state per norm
+    function getStatus(val, norm) {
+      if (val === null || val === undefined) return "na";
+      if (norm.lowerBetter) {
+        if (val <= norm.limit) return "ok";
+        if (val <= norm.limit * 1.1 + (norm.limit === 0 ? 0.5 : 0)) return "warn";
+        return "breach";
+      } else {
+        if (val >= norm.limit) return "ok";
+        if (val >= norm.limit * 0.9) return "warn";
+        return "breach";
+      }
+    }
+
+    const statusColor = { ok: "#10b981", warn: "#f59e0b", breach: "#ef4444", na: "#6b7280" };
+    const statusLabel = { ok: "✓", warn: "~", breach: "✗", na: "—" };
+    const statusBg    = { ok: "rgba(16,185,129,0.1)", warn: "rgba(245,158,11,0.1)", breach: "rgba(239,68,68,0.1)", na: "transparent" };
+
+    // Summary counts
+    const summary = { ok: 0, warn: 0, breach: 0 };
+
+    let html = `
+      <div style="margin-bottom:1rem; background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); border-radius: 8px; padding: 0.8rem 1rem;">
+        <div style="font-size:0.8rem; font-weight:700; color:var(--accent-color); margin-bottom:0.4rem;">
+          <i class="fa-solid fa-scale-balanced"></i>&nbsp; Fiscal Year: ${yearStr} &nbsp;|&nbsp; FRBM Glide Path: Fiscal Deficit ≤ ${fdLimit}% GSDP &nbsp;|&nbsp; Revenue Deficit Target: 0% &nbsp;|&nbsp; Debt Target: ≤32.5% GSDP
+        </div>
+        <div style="font-size:0.75rem; color:var(--text-secondary);">
+          Constitutional limit under <strong>Article 293</strong>: States may not borrow without Central Govt approval. The <strong>Net Borrowing Ceiling (NBC)</strong> is set annually by the Ministry of Finance based on these norms.
+        </div>
+      </div>
+      <table style="width:100%; border-collapse:collapse; font-size:0.82rem;">
+        <thead>
+          <tr style="border-bottom: 2px solid rgba(99,102,241,0.3);">
+            <th style="text-align:left; padding: 0.5rem 0.8rem; font-weight:700; color:var(--text-secondary);">State</th>
+    `;
+
+    norms.forEach(n => {
+      html += `<th style="text-align:center; padding:0.5rem 0.6rem; font-weight:700; color:var(--text-secondary); white-space:nowrap;">
+        ${n.label}<br><span style="font-size:0.7rem; font-weight:400;">${n.note}</span>
+      </th>`;
+    });
+    html += `<th style="text-align:center; padding:0.5rem 0.6rem; font-weight:700; color:var(--text-secondary);">Compliance<br><span style="font-size:0.7rem; font-weight:400;">Score</span></th></tr></thead><tbody>`;
+
+    fiscalData.states.forEach((state, si) => {
+      const rowBg = si % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent";
+      let stateScore = 0, stateTotal = 0;
+      let rowCells = "";
+
+      norms.forEach(norm => {
+        const raw = getMetricValue(state.id, norm.key, yearIdx);
+        const status = getStatus(raw, norm);
+        if (status === "ok")     { stateScore += 2; stateTotal += 2; }
+        else if (status === "warn")   { stateScore += 1; stateTotal += 2; }
+        else if (status === "breach") { stateTotal += 2; }
+        else if (status === "na")     { /* skip */ }
+
+        const displayVal = raw !== null ? (
+          norm.unit === "bps" ? `${Math.round(raw)} bps`
+          : `${raw.toFixed(1)}%`
+        ) : "N/A";
+        const limitStr = norm.lowerBetter ? `Limit: ${norm.limit}${norm.unit === "bps" ? " bps" : "%"}` : `Min: ${norm.limit}%`;
+
+        if (status !== "na") {
+          summary[status] = (summary[status] || 0) + 1;
+        }
+
+        rowCells += `
+          <td style="text-align:center; padding:0.5rem 0.6rem; background:${statusBg[status]};">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+              <span style="font-size:1rem; font-weight:700; color:${statusColor[status]};">${statusLabel[status]}</span>
+              <span style="font-weight:600; color:${statusColor[status]}; font-size:0.8rem;">${displayVal}</span>
+              <div style="width:56px; height:5px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden; margin-top:2px;">
+                ${raw !== null ? (() => {
+                  let pct;
+                  if (norm.lowerBetter) {
+                    pct = norm.limit === 0
+                      ? Math.max(0, Math.min(100, 100 - (raw / 5) * 100))
+                      : Math.max(0, Math.min(100, (1 - (raw / (norm.limit * 2))) * 100));
+                  } else {
+                    pct = Math.max(0, Math.min(100, (raw / (norm.limit * 1.5)) * 100));
+                  }
+                  return `<div style="height:100%; width:${pct.toFixed(0)}%; background:${statusColor[status]}; border-radius:3px; transition:width 0.4s;"></div>`;
+                })() : ''}
+              </div>
+            </div>
+          </td>`;
+      });
+
+      const scorePct = stateTotal > 0 ? Math.round((stateScore / stateTotal) * 100) : 0;
+      const scoreColor = scorePct >= 70 ? "#10b981" : scorePct >= 40 ? "#f59e0b" : "#ef4444";
+      const scoreLabel = scorePct >= 70 ? "Prudent" : scorePct >= 40 ? "Moderate" : "At Risk";
+
+      html += `
+        <tr style="background:${rowBg}; border-bottom: 1px solid rgba(255,255,255,0.04);">
+          <td style="padding: 0.5rem 0.8rem; font-weight:600;">
+            <span class="state-bullet" style="background:${state.color};"></span>
+            ${state.name}
+          </td>
+          ${rowCells}
+          <td style="text-align:center; padding:0.5rem 0.6rem;">
+            <div style="display:inline-flex; flex-direction:column; align-items:center; gap:2px;">
+              <span style="font-size:0.85rem; font-weight:700; color:${scoreColor};">${scorePct}%</span>
+              <span style="font-size:0.7rem; color:${scoreColor}; font-weight:600; background:${scoreColor}22; padding:1px 6px; border-radius:10px;">${scoreLabel}</span>
+            </div>
+          </td>
+        </tr>`;
+    });
+
+    html += `</tbody></table>`;
+    container.innerHTML = html;
   }
 
   // --- Render Sustainability Tab Charts ---

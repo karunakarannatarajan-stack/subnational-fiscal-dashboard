@@ -635,12 +635,14 @@ body {
   border-bottom: none;
 }
 
-.comparison-table td .state-bullet {
+.comparison-table td .state-bullet,
+.state-bullet {
   width: 10px;
   height: 10px;
   border-radius: 50%;
   display: inline-block;
   margin-right: 0.5rem;
+  flex-shrink: 0;
 }
 
 /* Footer Styling */

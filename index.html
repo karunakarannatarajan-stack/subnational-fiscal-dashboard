@@ -260,6 +260,30 @@
                 </div>
               </div>
             </div>
+
+            <!-- FRBM Compliance Matrix -->
+            <div class="chart-main-card" style="margin-top: 1.5rem;">
+              <div class="card-header-bar">
+                <h3><i class="fa-solid fa-gavel"></i> FRBM &amp; 15th Finance Commission Compliance Matrix</h3>
+                <span class="badge info">Central Govt Norms</span>
+              </div>
+              <p style="font-size: 0.82rem; color: var(--text-secondary); padding: 0.6rem 1.2rem 0; margin: 0; line-height: 1.6;">
+                The <strong>FRBM Act (2003)</strong> and <strong>15th Finance Commission (2021–26)</strong> set binding fiscal limits for states.
+                Fiscal deficit is capped at <strong>3% of GSDP</strong> (base), revenue deficit must be <strong>zero or surplus</strong>, 
+                debt-to-GSDP must trend below <strong>32.5%</strong>, and interest payments should stay under <strong>10% of revenue receipts</strong>.
+                An additional <strong>0.5% of GSDP</strong> in borrowing is allowed for power sector reform compliance.
+              </p>
+              <div id="frbm-matrix-container" style="padding: 1rem 1.2rem 1.2rem; overflow-x: auto;">
+                <!-- Populated dynamically via JS -->
+              </div>
+              <div style="padding: 0 1.2rem 1rem; display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                <span style="font-size: 0.75rem; display: flex; align-items: center; gap: 0.4rem;"><span style="width:12px;height:12px;border-radius:3px;background:#10b981;display:inline-block;"></span> Within Limit</span>
+                <span style="font-size: 0.75rem; display: flex; align-items: center; gap: 0.4rem;"><span style="width:12px;height:12px;border-radius:3px;background:#f59e0b;display:inline-block;"></span> Borderline (≤10% over limit)</span>
+                <span style="font-size: 0.75rem; display: flex; align-items: center; gap: 0.4rem;"><span style="width:12px;height:12px;border-radius:3px;background:#ef4444;display:inline-block;"></span> Breached</span>
+                <span style="font-size: 0.75rem; color: var(--text-secondary); margin-left: auto;">Source: 15th Finance Commission Report (2021-26) · FRBM Act 2003 · RBI State Finances</span>
+              </div>
+            </div>
+
           </div>
 
           <!-- Debt Sustainability Tab View -->
