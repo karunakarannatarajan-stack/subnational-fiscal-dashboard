@@ -611,50 +611,115 @@ document.addEventListener("DOMContentLoaded", () => {
         id: "revDeficitLine",
         afterDraw(chart) {
           const { ctx, chartArea: { top, bottom, left, right }, scales: { x, y } } = chart;
-          const LIMIT = 0;
-          if (LIMIT < x.min || LIMIT > x.max) return;
-
-          const xPx = x.getPixelForValue(LIMIT);
           ctx.save();
 
-          // Dashed vertical line
-          ctx.beginPath();
-          ctx.setLineDash([7, 5]);
-          ctx.moveTo(xPx, top);
-          ctx.lineTo(xPx, bottom);
-          ctx.lineWidth = 2;
-          ctx.strokeStyle = "rgba(239, 68, 68, 0.85)";
-          ctx.stroke();
-          ctx.setLineDash([]);
+          const xZero = (0 >= x.min && 0 <= x.max) ? x.getPixelForValue(0) : null;
+          const yCapex = (1.5 >= y.min && 1.5 <= y.max) ? y.getPixelForValue(1.5) : null;
 
-          // FRBM label pill at top of line
-          const label = "FRBM 2003: Rev Deficit = 0%";
-          ctx.font = "bold 10px 'Outfit', sans-serif";
-          const tw = ctx.measureText(label).width;
-          const px = xPx - tw / 2 - 4;
-          const py = top + 4;
-          ctx.fillStyle = "rgba(239,68,68,0.15)";
-          ctx.beginPath();
-          ctx.roundRect(px, py, tw + 10, 18, 4);
-          ctx.fill();
-          ctx.strokeStyle = "rgba(239,68,68,0.55)";
-          ctx.lineWidth = 1;
-          ctx.stroke();
-          ctx.fillStyle = "#ef4444";
+          // --- Quadrant shading (very subtle fills behind bubbles) ---
+          if (xZero && yCapex) {
+            // Bottom-left: Revenue Deficit + Low Capex = Vulnerable (faint red)
+            ctx.fillStyle = "rgba(239,68,68,0.04)";
+            ctx.fillRect(left, yCapex, xZero - left, bottom - yCapex);
+            // Top-right: Revenue Surplus + High Capex = Golden (faint green)
+            ctx.fillStyle = "rgba(16,185,129,0.04)";
+            ctx.fillRect(xZero, top, right - xZero, yCapex - top);
+          }
+
+          // --- Vertical line: FRBM Revenue Deficit = 0% ---
+          if (xZero) {
+            ctx.beginPath();
+            ctx.setLineDash([7, 5]);
+            ctx.moveTo(xZero, top);
+            ctx.lineTo(xZero, bottom);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "rgba(239,68,68,0.85)";
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Pill label centred on line at top
+            const vLabel = "FRBM 2003: Rev Deficit = 0%";
+            ctx.font = "bold 10px 'Outfit', sans-serif";
+            const vTw = ctx.measureText(vLabel).width;
+            const vPx = xZero - vTw / 2 - 4;
+            const vPy = top + 4;
+            ctx.fillStyle = "rgba(239,68,68,0.15)";
+            ctx.beginPath();
+            ctx.roundRect(vPx, vPy, vTw + 10, 17, 4);
+            ctx.fill();
+            ctx.strokeStyle = "rgba(239,68,68,0.55)";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.fillStyle = "#ef4444";
+            ctx.textAlign = "left";
+            ctx.fillText(vLabel, vPx + 5, vPy + 12);
+          }
+
+          // --- Horizontal line: 15th FC Capex Incentive ≥ 1.5% ---
+          if (yCapex) {
+            ctx.beginPath();
+            ctx.setLineDash([7, 5]);
+            ctx.moveTo(left, yCapex);
+            ctx.lineTo(right, yCapex);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "rgba(16,185,129,0.85)";
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Pill label on right side of line
+            const hLabel = "15th FC Capex Incentive: ≥1.5% GSDP";
+            ctx.font = "bold 10px 'Outfit', sans-serif";
+            const hTw = ctx.measureText(hLabel).width;
+            const hPx = right - hTw - 18;
+            const hPy = yCapex - 7;
+            ctx.fillStyle = "rgba(16,185,129,0.12)";
+            ctx.beginPath();
+            ctx.roundRect(hPx - 4, hPy - 13, hTw + 10, 17, 4);
+            ctx.fill();
+            ctx.strokeStyle = "rgba(16,185,129,0.55)";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.fillStyle = "#10b981";
+            ctx.textAlign = "left";
+            ctx.fillText(hLabel, hPx, hPy);
+          }
+
+          // --- Quadrant corner labels ---
+          ctx.font = "bold 9px 'Outfit', sans-serif";
+          const qPad = 10;
+          const midX = xZero || (left + right) / 2;
+          const midY = yCapex || (top + bottom) / 2;
+
+          // Top-right: Golden Quadrant
+          ctx.fillStyle = "rgba(16,185,129,0.65)";
+          ctx.textAlign = "right";
+          ctx.fillText("★ Golden Quadrant", right - qPad, top + 28);
+          ctx.font = "8px 'Outfit', sans-serif";
+          ctx.fillText("Surplus + High Capex", right - qPad, top + 40);
+
+          // Top-left: Productive but stressed
+          ctx.font = "bold 9px 'Outfit', sans-serif";
+          ctx.fillStyle = "rgba(245,158,11,0.7)";
           ctx.textAlign = "left";
-          ctx.fillText(label, px + 5, py + 13);
+          ctx.fillText("⚠ Productive but Stressed", left + qPad, top + 28);
+          ctx.font = "8px 'Outfit', sans-serif";
+          ctx.fillText("Deficit + High Capex", left + qPad, top + 40);
 
-          // Zone labels
-          ctx.font = "10px 'Outfit', sans-serif";
-          ctx.textAlign = "center";
-          // Left zone — Revenue Deficit
-          const leftMid = left + (xPx - left) / 2;
-          ctx.fillStyle = "rgba(239,68,68,0.55)";
-          ctx.fillText("◀ Revenue Deficit", leftMid, bottom - 8);
-          // Right zone — Revenue Surplus
-          const rightMid = xPx + (right - xPx) / 2;
-          ctx.fillStyle = "rgba(16,185,129,0.7)";
-          ctx.fillText("Revenue Surplus ▶", rightMid, bottom - 8);
+          // Bottom-right: Cautious / Under-investing
+          ctx.font = "bold 9px 'Outfit', sans-serif";
+          ctx.fillStyle = "rgba(99,102,241,0.7)";
+          ctx.textAlign = "right";
+          ctx.fillText("◈ Cautious / Under-investing", right - qPad, bottom - 20);
+          ctx.font = "8px 'Outfit', sans-serif";
+          ctx.fillText("Surplus + Low Capex", right - qPad, bottom - 10);
+
+          // Bottom-left: Vulnerable Zone
+          ctx.font = "bold 9px 'Outfit', sans-serif";
+          ctx.fillStyle = "rgba(239,68,68,0.65)";
+          ctx.textAlign = "left";
+          ctx.fillText("✗ Vulnerable Zone", left + qPad, bottom - 20);
+          ctx.font = "8px 'Outfit', sans-serif";
+          ctx.fillText("Deficit + Low Capex", left + qPad, bottom - 10);
 
           ctx.restore();
         }
