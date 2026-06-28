@@ -606,7 +606,59 @@ document.addEventListener("DOMContentLoaded", () => {
             ticks: { color: t.textSecondary }
           }
         }
-      }
+      },
+      plugins: [{
+        id: "revDeficitLine",
+        afterDraw(chart) {
+          const { ctx, chartArea: { top, bottom, left, right }, scales: { x, y } } = chart;
+          const LIMIT = 0;
+          if (LIMIT < x.min || LIMIT > x.max) return;
+
+          const xPx = x.getPixelForValue(LIMIT);
+          ctx.save();
+
+          // Dashed vertical line
+          ctx.beginPath();
+          ctx.setLineDash([7, 5]);
+          ctx.moveTo(xPx, top);
+          ctx.lineTo(xPx, bottom);
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = "rgba(239, 68, 68, 0.85)";
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // FRBM label pill at top of line
+          const label = "FRBM 2003: Rev Deficit = 0%";
+          ctx.font = "bold 10px 'Outfit', sans-serif";
+          const tw = ctx.measureText(label).width;
+          const px = xPx - tw / 2 - 4;
+          const py = top + 4;
+          ctx.fillStyle = "rgba(239,68,68,0.15)";
+          ctx.beginPath();
+          ctx.roundRect(px, py, tw + 10, 18, 4);
+          ctx.fill();
+          ctx.strokeStyle = "rgba(239,68,68,0.55)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          ctx.fillStyle = "#ef4444";
+          ctx.textAlign = "left";
+          ctx.fillText(label, px + 5, py + 13);
+
+          // Zone labels
+          ctx.font = "10px 'Outfit', sans-serif";
+          ctx.textAlign = "center";
+          // Left zone — Revenue Deficit
+          const leftMid = left + (xPx - left) / 2;
+          ctx.fillStyle = "rgba(239,68,68,0.55)";
+          ctx.fillText("◀ Revenue Deficit", leftMid, bottom - 8);
+          // Right zone — Revenue Surplus
+          const rightMid = xPx + (right - xPx) / 2;
+          ctx.fillStyle = "rgba(16,185,129,0.7)";
+          ctx.fillText("Revenue Surplus ▶", rightMid, bottom - 8);
+
+          ctx.restore();
+        }
+      }]
     });
 
     // Chart 2: Deficit to SOTR (Bar)
@@ -680,7 +732,55 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           }
         }
-      }
+      },
+      plugins: [{
+        id: "sotrZeroLine",
+        afterDraw(chart) {
+          const { ctx, chartArea: { left, right }, scales: { y } } = chart;
+          const LIMIT = 0;
+          if (LIMIT < y.min || LIMIT > y.max) return;
+
+          const yPx = y.getPixelForValue(LIMIT);
+          ctx.save();
+
+          // Dashed horizontal line
+          ctx.beginPath();
+          ctx.setLineDash([8, 5]);
+          ctx.moveTo(left, yPx);
+          ctx.lineTo(right, yPx);
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = "rgba(239, 68, 68, 0.85)";
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Label pill
+          const label = "FRBM 2003: Revenue Balance = 0%";
+          ctx.font = "bold 10px 'Outfit', sans-serif";
+          const tw = ctx.measureText(label).width;
+          const px = left + 10;
+          const py = yPx - 7;
+          ctx.fillStyle = "rgba(239,68,68,0.15)";
+          ctx.beginPath();
+          ctx.roundRect(px - 4, py - 13, tw + 10, 18, 4);
+          ctx.fill();
+          ctx.strokeStyle = "rgba(239,68,68,0.55)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          ctx.fillStyle = "#ef4444";
+          ctx.textAlign = "left";
+          ctx.fillText(label, px, py);
+
+          // Zone labels on right
+          ctx.font = "10px 'Outfit', sans-serif";
+          ctx.textAlign = "right";
+          ctx.fillStyle = "rgba(16,185,129,0.65)";
+          ctx.fillText("▲ Revenue Surplus (Compliant)", right - 8, yPx - 10);
+          ctx.fillStyle = "rgba(239,68,68,0.55)";
+          ctx.fillText("▼ Revenue Deficit (FRBM Breach)", right - 8, yPx + 16);
+
+          ctx.restore();
+        }
+      }]
     });
 
     // Chart 3: Direct Central Investment (Bar) with rich breakdown tooltip
