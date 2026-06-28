@@ -1836,9 +1836,63 @@ document.addEventListener("DOMContentLoaded", () => {
                 return ` ${metricMeta.name}: ${formatMetricValue(val, metricKey)}`;
               }
             }
-          }
         }
-      }
+      },
+      plugins: [{
+        id: "compareSpreadLine",
+        afterDraw(chart) {
+          if (metricKey !== "borrowing_spread") return;
+          const { ctx, chartArea: { top, bottom, left, right }, scales: { x } } = chart;
+          const LIMIT = 50;
+          if (LIMIT < x.min || LIMIT > x.max) return;
+
+          const xPx = x.getPixelForValue(LIMIT);
+          ctx.save();
+
+          // Dashed vertical line
+          ctx.beginPath();
+          ctx.setLineDash([7, 5]);
+          ctx.moveTo(xPx, top);
+          ctx.lineTo(xPx, bottom);
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = "rgba(239, 68, 68, 0.85)";
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Pill label at top of the line
+          const label = "Market Stress Limit: 50 bps";
+          ctx.font = "bold 10px 'Outfit', sans-serif";
+          const tw = ctx.measureText(label).width;
+          const px = xPx - tw / 2 - 4;
+          const py = top + 4;
+          ctx.fillStyle = "rgba(239,68,68,0.15)";
+          ctx.beginPath();
+          ctx.roundRect(px, py, tw + 8, 17, 4);
+          ctx.fill();
+          ctx.strokeStyle = "rgba(239,68,68,0.55)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          ctx.fillStyle = "#ef4444";
+          ctx.textAlign = "left";
+          ctx.fillText(label, px + 4, py + 12);
+
+          // Zone labels at the bottom of the chart
+          ctx.font = "9px 'Outfit', sans-serif";
+          // Left zone (under 50 bps)
+          const leftMid = left + (xPx - left) / 2;
+          ctx.fillStyle = "rgba(16,185,129,0.7)";
+          ctx.textAlign = "center";
+          ctx.fillText("Normal Spread ◀", leftMid, bottom - 6);
+
+          // Right zone (above 50 bps)
+          const rightMid = xPx + (right - xPx) / 2;
+          ctx.fillStyle = "rgba(239,68,68,0.65)";
+          ctx.textAlign = "center";
+          ctx.fillText("Elevated Stress ▶", rightMid, bottom - 6);
+
+          ctx.restore();
+        }
+      }]
     });
 
     // 3. Build Comparison Grid Table
