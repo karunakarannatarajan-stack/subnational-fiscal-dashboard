@@ -1076,7 +1076,60 @@ document.addEventListener("DOMContentLoaded", () => {
             ticks: { color: t.textSecondary }
           }
         }
-      }
+      },
+      plugins: [{
+        id: "debtLimitLine",
+        afterDraw(chart) {
+          const { ctx, chartArea: { left, right }, scales: { y } } = chart;
+          const LIMIT = 32.5;
+          // Only draw if the limit is within the current y-axis range
+          if (LIMIT < y.min || LIMIT > y.max) return;
+
+          const yPx = y.getPixelForValue(LIMIT);
+
+          ctx.save();
+
+          // Dashed line
+          ctx.beginPath();
+          ctx.setLineDash([8, 5]);
+          ctx.moveTo(left, yPx);
+          ctx.lineTo(right, yPx);
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = "rgba(239, 68, 68, 0.85)";
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Label background pill
+          const label = "15th FC Limit: 32.5%";
+          ctx.font = "bold 11px 'Outfit', sans-serif";
+          const tw = ctx.measureText(label).width;
+          const px = left + 10;
+          const py = yPx - 7;
+          ctx.fillStyle = "rgba(239, 68, 68, 0.15)";
+          ctx.beginPath();
+          ctx.roundRect(px - 4, py - 13, tw + 10, 18, 4);
+          ctx.fill();
+          ctx.strokeStyle = "rgba(239, 68, 68, 0.6)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          // Label text
+          ctx.fillStyle = "#ef4444";
+          ctx.textAlign = "left";
+          ctx.fillText(label, px, py);
+
+          // Zone labels
+          ctx.font = "10px 'Outfit', sans-serif";
+          ctx.fillStyle = "rgba(239,68,68,0.55)";
+          ctx.textAlign = "right";
+          ctx.fillText("▲ Above 15th FC limit", right - 8, yPx - 10);
+
+          ctx.fillStyle = "rgba(16,185,129,0.6)";
+          ctx.fillText("▼ Within 15th FC limit", right - 8, yPx + 16);
+
+          ctx.restore();
+        }
+      }]
     });
 
     // Chart 2: Sustainability Spread (Bar Chart)
