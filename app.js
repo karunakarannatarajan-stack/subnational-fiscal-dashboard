@@ -2534,63 +2534,71 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Render Education Efficacy & Retention Metrics Tab ---
   function renderEducationTab(t) {
     const stateId = activeStateId;
-    const state = fiscalData.states.find(s => s.id === stateId);
-    if (!state) return;
-    const years = fiscalData.years;
-    const latestIdx = years.length - 1;
+    const yearSelect = document.getElementById("education-year-select");
+    const yearIdx = yearSelect ? parseInt(yearSelect.value) : (fiscalData.years.length - 1);
+    const selectedYearName = fiscalData.years[yearIdx];
 
-    // Helper: create a time-series line chart for one education metric
-    function createEduLineChart(canvasId, chartKey, metricKey, label, unit, accentColor, refLine) {
+    // Helper: create a comparative bar chart for one education metric
+    function createEduCompareChart(canvasId, chartKey, metricKey, label, unit, refLine) {
       const ctx = document.getElementById(canvasId);
       if (!ctx) return;
       if (charts[chartKey]) charts[chartKey].destroy();
 
-      const data = years.map((_, i) => getMetricValue(stateId, metricKey, i));
-      const validData = data.filter(v => v !== null);
-      const latestVal = data[latestIdx];
-      const firstValidIdx = data.findIndex(v => v !== null);
-      const firstVal = firstValidIdx >= 0 ? data[firstValidIdx] : null;
-      const delta = (latestVal !== null && firstVal !== null) ? (latestVal - firstVal) : 0;
+      const statesList = [...fiscalData.states];
+      const labels = statesList.map(s => s.name);
+      const data = statesList.map(s => getMetricValue(s.id, metricKey, yearIdx));
+
+      // Opacity styling: selected state is fully opaque, others are semi-transparent
+      const bgColors = statesList.map(s => {
+        if (s.id === stateId) return s.color;
+        return s.color + '55'; // 33% opacity
+      });
+
+      const borderColors = statesList.map(s => {
+        if (s.id === stateId) return '#ffffff'; // White border to highlight active state
+        return s.color;
+      });
+
+      const borderWidths = statesList.map(s => {
+        if (s.id === stateId) return 3;
+        return 1;
+      });
 
       const datasets = [{
-        label: `${state.name} — ${label}`,
+        label: `${label} (${selectedYearName})`,
         data: data,
-        borderColor: accentColor,
-        backgroundColor: accentColor + '22',
-        borderWidth: 2.5,
-        pointBackgroundColor: accentColor,
-        pointBorderColor: '#fff',
-        pointBorderWidth: 1.5,
-        pointRadius: 3,
-        pointHoverRadius: 6,
-        fill: true,
-        tension: 0.3,
-        spanGaps: true
+        backgroundColor: bgColors,
+        borderColor: borderColors,
+        borderWidth: borderWidths,
+        borderRadius: 4,
+        order: 1
       }];
 
       // Optional reference / target line
       if (refLine) {
         datasets.push({
+          type: 'line',
           label: refLine.label,
-          data: years.map(() => refLine.value),
-          borderColor: refLine.color || 'rgba(99,102,241,0.5)',
+          data: statesList.map(() => refLine.value),
+          borderColor: refLine.color || 'rgba(99,102,241,0.6)',
           borderWidth: 2,
-          borderDash: [8, 4],
+          borderDash: [6, 4],
           pointRadius: 0,
-          fill: false
+          fill: false,
+          order: 0
         });
       }
 
       charts[chartKey] = new Chart(ctx.getContext('2d'), {
-        type: 'line',
-        data: { labels: years, datasets: datasets },
+        type: 'bar',
+        data: { labels: labels, datasets: datasets },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           scales: {
             x: {
-              grid: { color: t.gridColor },
-              ticks: { color: t.textSecondary, font: { size: 10, weight: 500 }, maxRotation: 45 }
+              grid: { display: false },
+              ticks: { color: t.textSecondary, font: { size: 10, weight: 500 } }
             },
             y: {
               grid: { color: t.gridColor },
@@ -2605,9 +2613,14 @@ document.addEventListener("DOMContentLoaded", () => {
           },
           plugins: {
             legend: {
-              display: true,
+              display: refLine ? true : false,
               position: 'top',
-              labels: { color: t.textColor, font: { family: "'Outfit', sans-serif", size: 10 }, usePointStyle: true, pointStyle: 'circle' }
+              labels: {
+                color: t.textColor,
+                font: { family: "'Outfit', sans-serif", size: 10 },
+                // Only show legend for line target datasets to keep clean
+                filter: (item) => item.text && (item.text.includes('Target') || item.text.includes('Line') || item.text.includes('Norm'))
+              }
             },
             tooltip: {
               backgroundColor: t.tooltipBg,
@@ -2618,81 +2631,58 @@ document.addEventListener("DOMContentLoaded", () => {
               callbacks: {
                 label: (ctx) => {
                   if (ctx.raw === null) return '';
-                  if (unit.includes('Index') || unit.includes('Ratio')) return `${ctx.dataset.label}: ${ctx.raw.toFixed(2)}`;
-                  return `${ctx.dataset.label}: ${ctx.raw.toFixed(1)}${unit.includes('%') ? '%' : ''}`;
+                  if (ctx.dataset.type === 'line') return `${ctx.dataset.label}: ${ctx.raw}`;
+                  const stateName = ctx.label;
+                  const val = ctx.raw;
+                  if (unit.includes('Index') || unit.includes('Ratio')) return `${stateName}: ${val.toFixed(2)}`;
+                  return `${stateName}: ${val.toFixed(1)}${unit.includes('%') ? '%' : ''}`;
                 }
               }
             }
           }
-        },
-        plugins: [{
-          id: 'eduTrendAnnotation_' + chartKey,
-          afterDraw(chart) {
-            if (latestVal === null) return;
-            const { ctx: c, chartArea: { right, top } } = chart;
-            c.save();
-            c.font = "bold 11px 'Outfit', sans-serif";
-            const sign = delta >= 0 ? '+' : '';
-            const arrow = delta >= 0 ? '▲' : '▼';
-            const trendText = `${arrow} ${sign}${delta.toFixed(1)} since FY11`;
-            // Color: for dropout & PTR lower is better so negative delta is green
-            let isGood;
-            if (metricKey === 'edu_dropout_secondary' || metricKey === 'edu_ptr_secondary') {
-              isGood = delta <= 0;
-            } else if (metricKey === 'edu_gpi_secondary') {
-              isGood = Math.abs(latestVal - 1.0) < Math.abs(firstVal - 1.0);
-            } else {
-              isGood = delta >= 0;
-            }
-            c.fillStyle = isGood ? '#10b981' : '#ef4444';
-            c.textAlign = 'right';
-            c.fillText(trendText, right - 8, top + 16);
-            c.restore();
-          }
-        }]
+        }
       });
     }
 
     // --- Chart 1: Secondary School Dropout Rate ---
-    createEduLineChart(
+    createEduCompareChart(
       'chart-edu-dropout', 'eduDropout', 'edu_dropout_secondary',
-      'Secondary Dropout Rate', 'Dropout Rate (%)', '#ef4444', null
+      'Secondary Dropout Rate', 'Dropout Rate (%)', null
     );
 
     // --- Chart 2: Gross Enrolment Ratio ---
-    createEduLineChart(
+    createEduCompareChart(
       'chart-edu-ger', 'eduGer', 'edu_ger_secondary',
-      'Gross Enrolment Ratio (GER)', 'GER (%)', '#3b82f6',
-      { value: 100, label: '100% Universal Target', color: 'rgba(16,185,129,0.4)' }
+      'Gross Enrolment Ratio (GER)', 'GER (%)',
+      { value: 100, label: '100% Universal Target', color: 'rgba(16,185,129,0.5)' }
     );
 
     // --- Chart 3: Pupil-Teacher Ratio ---
-    createEduLineChart(
+    createEduCompareChart(
       'chart-edu-ptr', 'eduPtr', 'edu_ptr_secondary',
-      'Pupil-Teacher Ratio', 'Pupils per Teacher', '#f59e0b',
+      'Pupil-Teacher Ratio', 'Pupils per Teacher',
       { value: 20, label: 'NEP 2020 Norm (20:1)', color: 'rgba(99,102,241,0.5)' }
     );
 
     // --- Chart 4: Net Enrolment Rate ---
-    createEduLineChart(
+    createEduCompareChart(
       'chart-edu-ner', 'eduNer', 'edu_ner_secondary',
-      'Net Enrolment Rate (NER)', 'NER (%)', '#10b981',
-      { value: 100, label: '100% Universal Target', color: 'rgba(16,185,129,0.4)' }
+      'Net Enrolment Rate (NER)', 'NER (%)',
+      { value: 100, label: '100% Universal Target', color: 'rgba(16,185,129,0.5)' }
     );
 
     // --- Chart 5: Gender Parity Index ---
-    createEduLineChart(
+    createEduCompareChart(
       'chart-edu-gpi', 'eduGpi', 'edu_gpi_secondary',
-      'Gender Parity Index', 'GPI (Index)', '#a855f7',
+      'Gender Parity Index', 'GPI (Index)',
       { value: 1.0, label: 'Parity Line (1.0)', color: 'rgba(168,85,247,0.5)' }
     );
 
-    // --- Chart 6: Social Spending vs Dropout Bubble (All States, latest year) ---
+    // --- Chart 6: Social Spending vs Dropout Bubble (All States for the selected year) ---
     const ctxMatrix = document.getElementById("chart-education-matrix");
     if (!ctxMatrix) return;
     if (charts["educationMatrix"]) charts["educationMatrix"].destroy();
 
-    const yearIdx = latestIdx;
     const bubbleDatasets = [];
     fiscalData.states.forEach(st => {
       const socialExp = getMetricValue(st.id, "edu_social_exp_gsdp", yearIdx);
@@ -2725,7 +2715,7 @@ document.addEventListener("DOMContentLoaded", () => {
             grid: { color: t.gridColor },
             title: {
               display: true,
-              text: "Social Sector Expenditure (% of GSDP)",
+              text: `Social Sector Expenditure (% of GSDP) - ${selectedYearName}`,
               color: t.textSecondary,
               font: { weight: 600, family: "'Outfit', sans-serif" }
             },
@@ -2735,7 +2725,7 @@ document.addEventListener("DOMContentLoaded", () => {
             grid: { color: t.gridColor },
             title: {
               display: true,
-              text: "Secondary School Dropout Rate (%)",
+              text: `Secondary School Dropout Rate (%) - ${selectedYearName}`,
               color: t.textSecondary,
               font: { weight: 600, family: "'Outfit', sans-serif" }
             },

@@ -487,9 +487,18 @@
           <!-- Education Efficacy & Retention Metrics Tab View -->
           <div class="tab-view" id="tab-education">
             
-            <div class="analysis-narrative" style="margin-bottom: 1rem;">
+            <div class="comparison-filters">
+              <div class="filter-group">
+                <label for="education-year-select">Select Year:</label>
+                <select id="education-year-select" class="custom-select compare-select">
+                  <!-- Populated via JS -->
+                </select>
+              </div>
+            </div>
+
+            <div class="analysis-narrative" style="margin-bottom: 1rem; margin-top: 1rem;">
               <h3><i class="fa-solid fa-graduation-cap"></i> Education Efficacy &amp; Retention Metrics</h3>
-              <p>This tab tracks key public education indicators sourced from <strong>UDISE+</strong> to evaluate whether state-level social spending translates into tangible human capital outcomes. Each chart shows the <strong>selected state's time-series trend</strong> across FY11–FY25 BE.</p>
+              <p>This tab tracks key public education indicators sourced from <strong>UDISE+</strong> to evaluate whether state-level social spending translates into tangible human capital outcomes. Each chart shows a <strong>state-wise comparison for the selected year</strong>.</p>
             </div>
 
             <!-- Row 1: Dropout Rate & Gross Enrolment Ratio -->
@@ -800,6 +809,6 @@
 
   <!-- Script Files -->
   <script src="data.js"></script>
-  <script src="app.js?v=2.8"></script>
+  <script src="app.js?v=2.9"></script>
 </body>
 </html>
