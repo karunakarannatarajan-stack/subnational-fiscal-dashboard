@@ -484,22 +484,72 @@
             </div>
           </div>
 
-          <!-- Education Efficacy & Social Investment Tab View -->
+          <!-- Education Efficacy & Retention Metrics Tab View -->
           <div class="tab-view" id="tab-education">
             
-            <div class="comparison-filters">
-              <div class="filter-group">
-                <label for="education-year-select">Select Year:</label>
-                <select id="education-year-select" class="custom-select compare-select">
-                  <!-- Populated via JS -->
-                </select>
-              </div>
+            <div class="analysis-narrative" style="margin-bottom: 1rem;">
+              <h3><i class="fa-solid fa-graduation-cap"></i> Education Efficacy &amp; Retention Metrics</h3>
+              <p>This tab tracks key public education indicators sourced from <strong>UDISE+</strong> to evaluate whether state-level social spending translates into tangible human capital outcomes. Each chart shows the <strong>selected state's time-series trend</strong> across FY11–FY25 BE.</p>
             </div>
 
+            <!-- Row 1: Dropout Rate & Gross Enrolment Ratio -->
             <div class="double-charts-row">
               <div class="chart-main-card flex-1">
                 <div class="card-header-bar">
-                  <h3>Social Sector Investment vs. Secondary School Dropout Rate</h3>
+                  <h3><i class="fa-solid fa-person-walking-arrow-right" style="color:#ef4444;"></i> Secondary School Dropout Rate</h3>
+                  <span class="badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Lower is Better</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-edu-dropout"></canvas>
+                </div>
+              </div>
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3><i class="fa-solid fa-users-between-lines" style="color:#3b82f6;"></i> Gross Enrolment Ratio (GER)</h3>
+                  <span class="badge" style="background:rgba(59,130,246,0.15); color:#3b82f6;">Higher is Better</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-edu-ger"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 2: Pupil-Teacher Ratio & Net Enrolment Rate -->
+            <div class="double-charts-row">
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3><i class="fa-solid fa-chalkboard-user" style="color:#f59e0b;"></i> Pupil-Teacher Ratio (PTR)</h3>
+                  <span class="badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">Lower is Better</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-edu-ptr"></canvas>
+                </div>
+              </div>
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3><i class="fa-solid fa-school" style="color:#10b981;"></i> Net Enrolment Rate (NER)</h3>
+                  <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981;">Higher is Better</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-edu-ner"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 3: Gender Parity Index & Summary Bubble -->
+            <div class="double-charts-row">
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3><i class="fa-solid fa-venus-mars" style="color:#a855f7;"></i> Gender Parity Index (GPI)</h3>
+                  <span class="badge" style="background:rgba(168,85,247,0.15); color:#a855f7;">Target: 1.0</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-edu-gpi"></canvas>
+                </div>
+              </div>
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3><i class="fa-solid fa-chart-bubble" style="color:#6366f1;"></i> Social Spending vs. Dropout (All States)</h3>
                   <span class="badge info">Bubble Chart</span>
                 </div>
                 <div class="chart-body">
@@ -508,29 +558,22 @@
                   <div class="good-dir y-dir" style="position:absolute; bottom: 35px; left: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;"><i class="fa-solid fa-arrow-down"></i> Better</div>
                 </div>
               </div>
-              <div class="chart-main-card flex-1">
-                <div class="card-header-bar">
-                  <h3>Secondary School Gross Enrolment (GER) vs. Pupil-Teacher Ratio (PTR)</h3>
-                  <span class="badge info">Bar & Line</span>
-                </div>
-                <div class="chart-body">
-                  <canvas id="chart-education-outcomes"></canvas>
-                  <div class="good-dir y-dir" style="position:absolute; top: 10px; left: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;">Better <i class="fa-solid fa-arrow-up"></i></div>
-                </div>
-              </div>
             </div>
 
             <div class="analysis-narrative">
-              <h3><i class="fa-solid fa-graduation-cap"></i> UDISE+ Education Outcomes & Spending Efficacy</h3>
-              <p>This tab evaluates the efficacy of state-level social and welfare expenditures by tracking key public education indicators. Under traditional fiscal metrics, high revenue expenditure is often discouraged. However, allocation to the **Social Sector (education, health, nutrition)** builds critical human capital.</p>
-              <div class="narrative-highlights" style="grid-template-columns: 1fr 1fr; margin-top: 0.5rem;">
+              <h3><i class="fa-solid fa-lightbulb"></i> How to Read These Charts</h3>
+              <div class="narrative-highlights" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 0.5rem;">
                 <div class="highlight-item" style="padding: 0.8rem;">
-                  <i class="fa-solid fa-circle-check text-emerald" style="font-size: 1rem;"></i>
-                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Top-Left (Efficient Spending):</strong> States in the upper-left quadrant (in the scatter chart) achieve low dropout rates with moderate/efficient social expenditure, indicating high administrative and scheme efficacy.</p>
+                  <i class="fa-solid fa-arrow-trend-down text-emerald" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Dropout &amp; PTR:</strong> A declining trend is positive — fewer students leaving and better teacher density.</p>
                 </div>
                 <div class="highlight-item" style="padding: 0.8rem;">
-                  <i class="fa-solid fa-circle-xmark text-amber" style="font-size: 1rem;"></i>
-                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Bottom-Right (High Cost / Low Retention):</strong> States spending a high percentage of GSDP on social sectors but still suffering from elevated dropout rates need to evaluate implementation bottlenecks.</p>
+                  <i class="fa-solid fa-arrow-trend-up text-emerald" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>GER &amp; NER:</strong> A rising trend is positive — more age-appropriate children are enrolled and attending school.</p>
+                </div>
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-equals text-emerald" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>GPI ≈ 1.0:</strong> Gender parity is achieved when the index is at or near 1.0. Below 1.0 indicates under-representation of girls.</p>
                 </div>
               </div>
             </div>

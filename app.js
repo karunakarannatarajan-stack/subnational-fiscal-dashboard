@@ -2531,37 +2531,190 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Render Education Efficacy & Social Investment Tab ---
+  // --- Render Education Efficacy & Retention Metrics Tab ---
   function renderEducationTab(t) {
-    const yearIdxStr = document.getElementById("education-year-select").value;
-    if(!yearIdxStr) return;
-    const yearIdx = parseInt(yearIdxStr);
+    const stateId = currentState;
+    const state = fiscalData.states.find(s => s.id === stateId);
+    if (!state) return;
+    const years = fiscalData.years;
+    const latestIdx = years.length - 1;
 
-    // Chart 1: Social Spending vs. Secondary Dropout (Bubble Chart)
-    const ctxMatrix = document.getElementById("chart-education-matrix").getContext("2d");
+    // Helper: create a time-series line chart for one education metric
+    function createEduLineChart(canvasId, chartKey, metricKey, label, unit, accentColor, refLine) {
+      const ctx = document.getElementById(canvasId);
+      if (!ctx) return;
+      if (charts[chartKey]) charts[chartKey].destroy();
+
+      const data = years.map((_, i) => getMetricValue(stateId, metricKey, i));
+      const validData = data.filter(v => v !== null);
+      const latestVal = data[latestIdx];
+      const firstValidIdx = data.findIndex(v => v !== null);
+      const firstVal = firstValidIdx >= 0 ? data[firstValidIdx] : null;
+      const delta = (latestVal !== null && firstVal !== null) ? (latestVal - firstVal) : 0;
+
+      const datasets = [{
+        label: `${state.name} — ${label}`,
+        data: data,
+        borderColor: accentColor,
+        backgroundColor: accentColor + '22',
+        borderWidth: 2.5,
+        pointBackgroundColor: accentColor,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 1.5,
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        fill: true,
+        tension: 0.3,
+        spanGaps: true
+      }];
+
+      // Optional reference / target line
+      if (refLine) {
+        datasets.push({
+          label: refLine.label,
+          data: years.map(() => refLine.value),
+          borderColor: refLine.color || 'rgba(99,102,241,0.5)',
+          borderWidth: 2,
+          borderDash: [8, 4],
+          pointRadius: 0,
+          fill: false
+        });
+      }
+
+      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+        type: 'line',
+        data: { labels: years, datasets: datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              grid: { color: t.gridColor },
+              ticks: { color: t.textSecondary, font: { size: 10, weight: 500 }, maxRotation: 45 }
+            },
+            y: {
+              grid: { color: t.gridColor },
+              title: {
+                display: true,
+                text: unit,
+                color: t.textSecondary,
+                font: { weight: 600, family: "'Outfit', sans-serif" }
+              },
+              ticks: { color: t.textSecondary }
+            }
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: { color: t.textColor, font: { family: "'Outfit', sans-serif", size: 10 }, usePointStyle: true, pointStyle: 'circle' }
+            },
+            tooltip: {
+              backgroundColor: t.tooltipBg,
+              titleColor: t.tooltipText,
+              bodyColor: t.textColor,
+              borderColor: t.tooltipBorder,
+              borderWidth: 1,
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.raw === null) return '';
+                  if (unit.includes('Index') || unit.includes('Ratio')) return `${ctx.dataset.label}: ${ctx.raw.toFixed(2)}`;
+                  return `${ctx.dataset.label}: ${ctx.raw.toFixed(1)}${unit.includes('%') ? '%' : ''}`;
+                }
+              }
+            }
+          }
+        },
+        plugins: [{
+          id: 'eduTrendAnnotation_' + chartKey,
+          afterDraw(chart) {
+            if (latestVal === null) return;
+            const { ctx: c, chartArea: { right, top } } = chart;
+            c.save();
+            c.font = "bold 11px 'Outfit', sans-serif";
+            const sign = delta >= 0 ? '+' : '';
+            const arrow = delta >= 0 ? '▲' : '▼';
+            const trendText = `${arrow} ${sign}${delta.toFixed(1)} since FY11`;
+            // Color: for dropout & PTR lower is better so negative delta is green
+            let isGood;
+            if (metricKey === 'edu_dropout_secondary' || metricKey === 'edu_ptr_secondary') {
+              isGood = delta <= 0;
+            } else if (metricKey === 'edu_gpi_secondary') {
+              isGood = Math.abs(latestVal - 1.0) < Math.abs(firstVal - 1.0);
+            } else {
+              isGood = delta >= 0;
+            }
+            c.fillStyle = isGood ? '#10b981' : '#ef4444';
+            c.textAlign = 'right';
+            c.fillText(trendText, right - 8, top + 16);
+            c.restore();
+          }
+        }]
+      });
+    }
+
+    // --- Chart 1: Secondary School Dropout Rate ---
+    createEduLineChart(
+      'chart-edu-dropout', 'eduDropout', 'edu_dropout_secondary',
+      'Secondary Dropout Rate', 'Dropout Rate (%)', '#ef4444', null
+    );
+
+    // --- Chart 2: Gross Enrolment Ratio ---
+    createEduLineChart(
+      'chart-edu-ger', 'eduGer', 'edu_ger_secondary',
+      'Gross Enrolment Ratio (GER)', 'GER (%)', '#3b82f6',
+      { value: 100, label: '100% Universal Target', color: 'rgba(16,185,129,0.4)' }
+    );
+
+    // --- Chart 3: Pupil-Teacher Ratio ---
+    createEduLineChart(
+      'chart-edu-ptr', 'eduPtr', 'edu_ptr_secondary',
+      'Pupil-Teacher Ratio', 'Pupils per Teacher', '#f59e0b',
+      { value: 20, label: 'NEP 2020 Norm (20:1)', color: 'rgba(99,102,241,0.5)' }
+    );
+
+    // --- Chart 4: Net Enrolment Rate ---
+    createEduLineChart(
+      'chart-edu-ner', 'eduNer', 'edu_ner_secondary',
+      'Net Enrolment Rate (NER)', 'NER (%)', '#10b981',
+      { value: 100, label: '100% Universal Target', color: 'rgba(16,185,129,0.4)' }
+    );
+
+    // --- Chart 5: Gender Parity Index ---
+    createEduLineChart(
+      'chart-edu-gpi', 'eduGpi', 'edu_gpi_secondary',
+      'Gender Parity Index', 'GPI (Index)', '#a855f7',
+      { value: 1.0, label: 'Parity Line (1.0)', color: 'rgba(168,85,247,0.5)' }
+    );
+
+    // --- Chart 6: Social Spending vs Dropout Bubble (All States, latest year) ---
+    const ctxMatrix = document.getElementById("chart-education-matrix");
+    if (!ctxMatrix) return;
     if (charts["educationMatrix"]) charts["educationMatrix"].destroy();
 
+    const yearIdx = latestIdx;
     const bubbleDatasets = [];
-    fiscalData.states.forEach(state => {
-      const socialExp = getMetricValue(state.id, "edu_social_exp_gsdp", yearIdx);
-      const dropout = getMetricValue(state.id, "edu_dropout_secondary", yearIdx);
-      const gsdp = getMetricValue(state.id, "gsdp_absolute", yearIdx) || 0;
+    fiscalData.states.forEach(st => {
+      const socialExp = getMetricValue(st.id, "edu_social_exp_gsdp", yearIdx);
+      const dropout = getMetricValue(st.id, "edu_dropout_secondary", yearIdx);
+      const gsdp = getMetricValue(st.id, "gsdp_absolute", yearIdx) || 0;
       if (socialExp === null || dropout === null) return;
-      
+
       const r = Math.max(8, Math.min(30, (gsdp / 1000) * 1.5 + 6));
+      const isSelected = st.id === stateId;
       bubbleDatasets.push({
-        label: state.name,
-        data: [{ x: socialExp, y: dropout, r: r }],
-        backgroundColor: state.color + 'CC',
-        borderColor: state.color,
-        borderWidth: 1.5,
-        hoverBackgroundColor: state.color,
+        label: st.name,
+        data: [{ x: socialExp, y: dropout, r: isSelected ? r * 1.3 : r }],
+        backgroundColor: isSelected ? st.color : st.color + '88',
+        borderColor: isSelected ? '#fff' : st.color,
+        borderWidth: isSelected ? 3 : 1.5,
+        hoverBackgroundColor: st.color,
         hoverBorderWidth: 2.5,
-        stateId: state.id
+        stateId: st.id
       });
     });
 
-    charts["educationMatrix"] = new Chart(ctxMatrix, {
+    charts["educationMatrix"] = new Chart(ctxMatrix.getContext('2d'), {
       type: "bubble",
       data: { datasets: bubbleDatasets },
       options: {
@@ -2615,10 +2768,10 @@ document.addEventListener("DOMContentLoaded", () => {
         afterDraw(chart) {
           const { ctx, chartArea: { top, bottom, left, right }, scales: { x, y } } = chart;
           if (!x || !y) return;
-          const xMidVal = 8.5; // Spending threshold
-          const yMidVal = 10.0; // Dropout threshold
+          const xMidVal = 8.5;
+          const yMidVal = 10.0;
           if (x.min === undefined || x.max === undefined || y.min === undefined || y.max === undefined) return;
-          
+
           const xPx = x.getPixelForValue(xMidVal);
           const yPx = y.getPixelForValue(yMidVal);
 
@@ -2627,15 +2780,12 @@ document.addEventListener("DOMContentLoaded", () => {
           ctx.lineWidth = 1.5;
           ctx.strokeStyle = "rgba(99, 102, 241, 0.4)";
 
-          // Vertical spending divider
           if (xPx >= left && xPx <= right) {
             ctx.beginPath();
             ctx.moveTo(xPx, top);
             ctx.lineTo(xPx, bottom);
             ctx.stroke();
           }
-
-          // Horizontal dropout divider
           if (yPx >= top && yPx <= bottom) {
             ctx.beginPath();
             ctx.moveTo(left, yPx);
@@ -2643,19 +2793,15 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx.stroke();
           }
 
-          // Quadrant Labels
           ctx.font = "bold 9px 'Outfit', sans-serif";
           ctx.fillStyle = "rgba(16, 185, 129, 0.7)";
           ctx.textAlign = "left";
           ctx.fillText("✓ Efficient Low-Dropout", left + 10, bottom - 10);
-
           ctx.textAlign = "right";
           ctx.fillText("✓ Prudent High-Spending", right - 10, bottom - 10);
-
           ctx.fillStyle = "rgba(239, 68, 68, 0.7)";
           ctx.textAlign = "left";
           ctx.fillText("✗ Vulnerable Low-Spending", left + 10, top + 15);
-
           ctx.textAlign = "right";
           ctx.fillText("⚠ Low Efficacy High-Spending", right - 10, top + 15);
 
@@ -2663,107 +2809,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }]
     });
-
-    // Chart 2: Secondary GER and PTR (Grouped Bar/Line Chart with Dual Y-Axes)
-    const ctxOutcomes = document.getElementById("chart-education-outcomes").getContext("2d");
-    if (charts["educationOutcomes"]) charts["educationOutcomes"].destroy();
-
-    const statesList = [...fiscalData.states];
-    const labels = statesList.map(s => s.name);
-    const gerData = statesList.map(s => getMetricValue(s.id, "edu_ger_secondary", yearIdx));
-    const ptrData = statesList.map(s => getMetricValue(s.id, "edu_ptr_secondary", yearIdx));
-
-    charts["educationOutcomes"] = new Chart(ctxOutcomes, {
-      type: "bar",
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            type: "bar",
-            label: "Gross Enrolment Ratio (GER) (%)",
-            data: gerData,
-            backgroundColor: statesList.map(s => s.color + "BB"),
-            borderColor: statesList.map(s => s.color),
-            borderWidth: 1.5,
-            borderRadius: 4,
-            yAxisID: "yGer"
-          },
-          {
-            type: "line",
-            label: "Pupil-Teacher Ratio (PTR)",
-            data: ptrData,
-            borderColor: t.textSecondary === "#94a3b8" ? "#818cf8" : "#4f46e5",
-            borderWidth: 3,
-            pointBackgroundColor: "#f59e0b",
-            pointBorderColor: "#fff",
-            pointBorderWidth: 2,
-            pointRadius: 6,
-            pointHoverRadius: 8,
-            fill: false,
-            yAxisID: "yPtr"
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: { font: { weight: 500, size: 10 }, color: t.textSecondary }
-          },
-          yGer: {
-            type: "linear",
-            position: "left",
-            grid: { color: t.gridColor },
-            title: {
-              display: true,
-              text: "Gross Enrolment Ratio (%)",
-              color: t.textSecondary,
-              font: { weight: 600, family: "'Outfit', sans-serif" }
-            },
-            ticks: { color: t.textSecondary }
-          },
-          yPtr: {
-            type: "linear",
-            position: "right",
-            grid: { drawOnChartArea: false },
-            title: {
-              display: true,
-              text: "Pupil-Teacher Ratio (PTR)",
-              color: t.textSecondary,
-              font: { weight: 600, family: "'Outfit', sans-serif" }
-            },
-            ticks: { color: t.textSecondary }
-          }
-        },
-        plugins: {
-          legend: {
-            display: true,
-            position: "top",
-            labels: { color: t.textColor, font: { family: "'Outfit', sans-serif", size: 10 } }
-          },
-          tooltip: {
-            backgroundColor: t.tooltipBg,
-            titleColor: t.tooltipText,
-            bodyColor: t.textColor,
-            borderColor: t.tooltipBorder,
-            borderWidth: 1,
-            callbacks: {
-              label: (ctx) => {
-                const label = ctx.dataset.label;
-                const val = ctx.raw;
-                if (label.includes("GER")) return `${label}: ${val.toFixed(1)}%`;
-                return `${label}: ${val.toFixed(1)}:1`;
-              }
-            }
-          }
-        }
-      }
-    });
   }
 
-  // --- Render 3D Fiscal Space Analysis Tab ---
   function renderThreeDTab() {
     const yearIdx = parseInt(document.getElementById("3d-year-select").value);
     const xKey = document.getElementById("3d-x-select").value;
@@ -3021,7 +3068,9 @@ document.addEventListener("DOMContentLoaded", () => {
       edu_dropout_secondary: "Secondary Dropout",
       edu_ger_secondary: "Secondary GER",
       edu_ptr_secondary: "Secondary PTR",
-      edu_social_exp_gsdp: "Social Spend (% GSDP)"
+      edu_social_exp_gsdp: "Social Spend (% GSDP)",
+      edu_ner_secondary: "Secondary NER",
+      edu_gpi_secondary: "Gender Parity Index"
     };
     return {
       name: fiscalData.metrics[key] ? fiscalData.metrics[key].name : (names[key] || "Metric"),
@@ -3039,8 +3088,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (key === "edu_ptr_secondary") {
       return `${value.toFixed(1)}:1`;
     }
-    if (key === "edu_dropout_secondary" || key === "edu_ger_secondary" || key === "edu_social_exp_gsdp") {
+    if (key === "edu_dropout_secondary" || key === "edu_ger_secondary" || key === "edu_social_exp_gsdp" || key === "edu_ner_secondary") {
       return `${value.toFixed(1)}%`;
+    }
+    if (key === "edu_gpi_secondary") {
+      return value.toFixed(2);
     }
     if (key === "pc_gsdp" || key === "pc_debt") {
       return `₹${Math.round(value).toLocaleString('en-US')}`;
