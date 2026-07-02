@@ -96,6 +96,10 @@
               <i class="fa-solid fa-wheat-awn"></i>
               <span>Safety Nets &amp; Nutrition</span>
             </button>
+            <button class="nav-item" data-tab="fiscal_input">
+              <i class="fa-solid fa-scale-balanced"></i>
+              <span>Fiscal Input Quality</span>
+            </button>
             <button class="nav-item" data-tab="comparison">
               <i class="fa-solid fa-code-compare"></i>
               <span>Cross-State Rankings</span>
@@ -802,6 +806,76 @@
 
           </div>
 
+          <!-- Fiscal Input Quality Tab View -->
+          <div class="tab-view" id="tab-fiscal_input">
+            
+            <div class="comparison-filters">
+              <div class="filter-group">
+                <label for="fiscal-input-year-select">Select Year:</label>
+                <select id="fiscal-input-year-select" class="custom-select compare-select">
+                  <!-- Populated via JS -->
+                </select>
+              </div>
+            </div>
+
+            <div class="analysis-narrative" style="margin-bottom: 1rem; margin-top: 1rem;">
+              <h3><i class="fa-solid fa-scale-balanced"></i> Fiscal Input Quality</h3>
+              <p>This tab evaluates the composition of state expenditure to analyze if state governments prioritize developmental and human capital investments over administrative overhead. Each chart shows a <strong>state-wise comparison for the selected year</strong>.</p>
+            </div>
+
+            <!-- Row 1: Developmental Exp % & Social Sector Exp % GSDP -->
+            <div class="double-charts-row">
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3><i class="fa-solid fa-screwdriver-wrench" style="color:#10b981;"></i> Developmental Expenditure (% of Total Exp)</h3>
+                  <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981;">Higher is Better</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-fiscal-input-dev"></canvas>
+                </div>
+              </div>
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3><i class="fa-solid fa-users" style="color:#3b82f6;"></i> Social Sector Expenditure (% of GSDP)</h3>
+                  <span class="badge" style="background:rgba(59,130,246,0.15); color:#3b82f6;">Higher is Better</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-fiscal-input-social"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 2: Spend Priority Matrix Bubble Chart -->
+            <div class="double-charts-row">
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3><i class="fa-solid fa-chart-bubble" style="color:#6366f1;"></i> Public Spending Priority &amp; Commitments Matrix</h3>
+                  <span class="badge info">Bubble Chart</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-fiscal-input-matrix"></canvas>
+                  <div class="good-dir x-dir" style="position:absolute; bottom: 5px; right: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;">Better <i class="fa-solid fa-arrow-right"></i></div>
+                  <div class="good-dir y-dir" style="position:absolute; bottom: 35px; left: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;"><i class="fa-solid fa-arrow-up"></i> Better</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="analysis-narrative">
+              <h3><i class="fa-solid fa-circle-question"></i> Understanding Fiscal Input Quality</h3>
+              <div class="narrative-highlights" style="grid-template-columns: 1fr 1fr; margin-top: 0.5rem;">
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-briefcase text-emerald" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Developmental Expenditure:</strong> Represents spending on social and economic services. A high ratio indicates that borrowing and revenues are funneled into assets, education, healthcare, and infrastructure rather than servicing administrative debt or general overhead.</p>
+                </div>
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-heart text-indigo" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Social Expenditure % GSDP:</strong> Measures the state's true resource commitment to standard of living upgrades relative to its economic scale. Higher ratios reflect more proactive investments in human capital.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
           <!-- Cross-State Comparison Tab View -->
           <div class="tab-view" id="tab-comparison">
             
@@ -842,6 +916,8 @@
                   <option value="social_lfpr">Labor Force Participation Rate (LFPR) (%)</option>
                   <option value="social_lfpr_female">Female LFPR (%)</option>
                   <option value="social_spend_gsdp">Welfare &amp; Social Safety Net Spend (% of GSDP)</option>
+                  <option value="input_dev_to_total">Developmental Expenditure (% of Total Exp)</option>
+                  <option value="input_social_gsdp">Social Sector Expenditure (% of GSDP)</option>
                 </select>
               </div>
               <div class="filter-group">
@@ -953,10 +1029,12 @@
                     <option value="social_stunting">Child Stunting Prevalence (%)</option>
                     <option value="social_wasting">Child Wasting Prevalence (%)</option>
                     <option value="social_mpi">Multidimensional Poverty Index (%)</option>
-                    <option value="social_lfpr">Labor Force Participation Rate (LFPR) (%)</option>
-                    <option value="social_lfpr_female">Female LFPR (%)</option>
-                    <option value="social_spend_gsdp">Welfare &amp; Social Safety Net Spend (% of GSDP)</option>
-                  </select>
+                     <option value="social_lfpr">Labor Force Participation Rate (LFPR) (%)</option>
+                     <option value="social_lfpr_female">Female LFPR (%)</option>
+                     <option value="social_spend_gsdp">Welfare &amp; Social Safety Net Spend (% of GSDP)</option>
+                     <option value="input_dev_to_total">Developmental Expenditure (% of Total Exp)</option>
+                     <option value="input_social_gsdp">Social Sector Expenditure (% of GSDP)</option>
+                   </select>
                 </div>
                 <div class="filter-group" style="flex-direction: column; align-items: flex-start; gap: 0.3rem;">
                   <label for="3d-y-select" style="font-size: 0.8rem;">Y-Axis (Asset Creation):</label>
@@ -989,10 +1067,12 @@
                     <option value="social_stunting">Child Stunting Prevalence (%)</option>
                     <option value="social_wasting">Child Wasting Prevalence (%)</option>
                     <option value="social_mpi">Multidimensional Poverty Index (%)</option>
-                    <option value="social_lfpr">Labor Force Participation Rate (LFPR) (%)</option>
-                    <option value="social_lfpr_female">Female LFPR (%)</option>
-                    <option value="social_spend_gsdp">Welfare &amp; Social Safety Net Spend (% of GSDP)</option>
-                  </select>
+                     <option value="social_lfpr">Labor Force Participation Rate (LFPR) (%)</option>
+                     <option value="social_lfpr_female">Female LFPR (%)</option>
+                     <option value="social_spend_gsdp">Welfare &amp; Social Safety Net Spend (% of GSDP)</option>
+                     <option value="input_dev_to_total">Developmental Expenditure (% of Total Exp)</option>
+                     <option value="input_social_gsdp">Social Sector Expenditure (% of GSDP)</option>
+                   </select>
                 </div>
                 <div class="filter-group" style="flex-direction: column; align-items: flex-start; gap: 0.3rem;">
                   <label for="3d-z-select" style="font-size: 0.8rem;">Z-Axis (Accumulated Leverage):</label>
@@ -1025,10 +1105,12 @@
                     <option value="social_stunting">Child Stunting Prevalence (%)</option>
                     <option value="social_wasting">Child Wasting Prevalence (%)</option>
                     <option value="social_mpi">Multidimensional Poverty Index (%)</option>
-                    <option value="social_lfpr">Labor Force Participation Rate (LFPR) (%)</option>
-                    <option value="social_lfpr_female">Female LFPR (%)</option>
-                    <option value="social_spend_gsdp">Welfare &amp; Social Safety Net Spend (% of GSDP)</option>
-                  </select>
+                     <option value="social_lfpr">Labor Force Participation Rate (LFPR) (%)</option>
+                     <option value="social_lfpr_female">Female LFPR (%)</option>
+                     <option value="social_spend_gsdp">Welfare &amp; Social Safety Net Spend (% of GSDP)</option>
+                     <option value="input_dev_to_total">Developmental Expenditure (% of Total Exp)</option>
+                     <option value="input_social_gsdp">Social Sector Expenditure (% of GSDP)</option>
+                   </select>
                 </div>
               </div>
 
@@ -1070,6 +1152,6 @@
 
   <!-- Script Files -->
   <script src="data.js"></script>
-  <script src="app.js?v=3.2"></script>
+  <script src="app.js?v=3.3"></script>
 </body>
 </html>

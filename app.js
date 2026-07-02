@@ -195,6 +195,18 @@ document.addEventListener("DOMContentLoaded", () => {
       socialYearSelect.value = fiscalData.years.length - 1;
     }
 
+    // Populate Fiscal Input Quality Matrix Year Selector
+    const fiscalInputYearSelect = document.getElementById("fiscal-input-year-select");
+    if(fiscalInputYearSelect) {
+      fiscalData.years.forEach((yr, idx) => {
+        const option = document.createElement("option");
+        option.value = idx;
+        option.textContent = yr;
+        fiscalInputYearSelect.appendChild(option);
+      });
+      fiscalInputYearSelect.value = fiscalData.years.length - 1;
+    }
+
     // Populate Deficit Quality Matrix Year Selector
     const deficitYearSelect = document.getElementById("deficit-year-select");
     fiscalData.years.forEach((yr, idx) => {
@@ -298,6 +310,16 @@ document.addEventListener("DOMContentLoaded", () => {
       socialYearSelect2.addEventListener("change", () => {
         if (activeTab === "social") {
           renderSocialTab(getThemeColors());
+        }
+      });
+    }
+
+    // Fiscal Input Quality Tab Year Selection Changed
+    const fiscalInputYearSelect2 = document.getElementById("fiscal-input-year-select");
+    if(fiscalInputYearSelect2) {
+      fiscalInputYearSelect2.addEventListener("change", () => {
+        if (activeTab === "fiscal_input") {
+          renderFiscalInputTab(getThemeColors());
         }
       });
     }
@@ -574,6 +596,8 @@ document.addEventListener("DOMContentLoaded", () => {
       renderHealthcareTab(t);
     } else if (activeTab === "social") {
       renderSocialTab(t);
+    } else if (activeTab === "fiscal_input") {
+      renderFiscalInputTab(t);
     } else if (activeTab === "comparison") {
       renderComparisonTab();
       // Use setTimeout so canvas has been laid out with correct dimensions
@@ -3384,6 +3408,254 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- Render Fiscal Input Quality Tab ---
+  function renderFiscalInputTab(t) {
+    const stateId = activeStateId;
+    const yearSelect = document.getElementById("fiscal-input-year-select");
+    const yearIdx = yearSelect ? parseInt(yearSelect.value) : (fiscalData.years.length - 1);
+    const selectedYearName = fiscalData.years[yearIdx];
+
+    // Helper: create a comparative bar chart for one fiscal input metric
+    function createFiscalInputCompareChart(canvasId, chartKey, metricKey, label, unit, refLine) {
+      const ctx = document.getElementById(canvasId);
+      if (!ctx) return;
+      if (charts[chartKey]) charts[chartKey].destroy();
+
+      const statesList = [...fiscalData.states];
+      const labels = statesList.map(s => s.name);
+      const data = statesList.map(s => getMetricValue(s.id, metricKey, yearIdx));
+
+      // Opacity styling: selected state is fully opaque, others are semi-transparent
+      const bgColors = statesList.map(s => {
+        if (s.id === stateId) return s.color;
+        return s.color + '55'; // 33% opacity
+      });
+
+      const borderColors = statesList.map(s => {
+        if (s.id === stateId) return '#ffffff'; // White border to highlight active state
+        return s.color;
+      });
+
+      const borderWidths = statesList.map(s => {
+        if (s.id === stateId) return 3;
+        return 1;
+      });
+
+      const datasets = [{
+        label: `${label} (${selectedYearName})`,
+        data: data,
+        backgroundColor: bgColors,
+        borderColor: borderColors,
+        borderWidth: borderWidths,
+        borderRadius: 4,
+        order: 1
+      }];
+
+      // Optional reference / target line
+      if (refLine) {
+        datasets.push({
+          type: 'line',
+          label: refLine.label,
+          data: statesList.map(() => refLine.value),
+          borderColor: refLine.color || 'rgba(99,102,241,0.6)',
+          borderWidth: 2,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          fill: false,
+          order: 0
+        });
+      }
+
+      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: { labels: labels, datasets: datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: t.textSecondary, font: { size: 10, weight: 500 } }
+            },
+            y: {
+              grid: { color: t.gridColor },
+              title: {
+                display: true,
+                text: unit,
+                color: t.textSecondary,
+                font: { weight: 600, family: "'Outfit', sans-serif" }
+              },
+              ticks: { color: t.textSecondary }
+            }
+          },
+          plugins: {
+            legend: {
+              display: refLine ? true : false,
+              position: 'top',
+              labels: {
+                color: t.textColor,
+                font: { family: "'Outfit', sans-serif", size: 10 },
+                filter: (item) => item.text && (item.text.includes('Target') || item.text.includes('Line') || item.text.includes('Norm') || item.text.includes('Benchmark'))
+              }
+            },
+            tooltip: {
+              backgroundColor: t.tooltipBg,
+              titleColor: t.tooltipText,
+              bodyColor: t.textColor,
+              borderColor: t.tooltipBorder,
+              borderWidth: 1,
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.raw === null) return '';
+                  if (ctx.dataset.type === 'line') return `${ctx.dataset.label}: ${ctx.raw}`;
+                  const stateName = ctx.label;
+                  const val = ctx.raw;
+                  return `${stateName}: ${val.toFixed(1)}${unit.includes('%') ? '%' : ''}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // --- Chart 1: Developmental Expenditure to Total Expenditure ---
+    createFiscalInputCompareChart(
+      'chart-fiscal-input-dev', 'fiscalInputDev', 'input_dev_to_total',
+      'Developmental Expenditure (% of Total Exp)', 'Share (%)',
+      { value: 60, label: 'RBI Developmental Norm Benchmark (60%)', color: 'rgba(16,185,129,0.5)' }
+    );
+
+    // --- Chart 2: Social Sector Expenditure as a % of GSDP ---
+    createFiscalInputCompareChart(
+      'chart-fiscal-input-social', 'fiscalInputSocial', 'input_social_gsdp',
+      'Social Sector Expenditure (% of GSDP)', 'Share of GSDP (%)',
+      { value: 7.5, label: 'Social Expenditure Norm Benchmark (7.5%)', color: 'rgba(99,102,241,0.5)' }
+    );
+
+    // --- Chart 3: Public Spending priority matrix bubble chart ---
+    const ctxMatrix = document.getElementById("chart-fiscal-input-matrix");
+    if (!ctxMatrix) return;
+    if (charts["fiscalInputMatrix"]) charts["fiscalInputMatrix"].destroy();
+
+    const bubbleDatasets = [];
+    fiscalData.states.forEach(st => {
+      const devExp = getMetricValue(st.id, "input_dev_to_total", yearIdx);
+      const socialExp = getMetricValue(st.id, "input_social_gsdp", yearIdx);
+      const gsdp = getMetricValue(st.id, "gsdp_absolute", yearIdx) || 0;
+      if (devExp === null || socialExp === null) return;
+
+      const r = Math.max(8, Math.min(30, (gsdp / 1000) * 1.5 + 6));
+      const isSelected = st.id === stateId;
+      bubbleDatasets.push({
+        label: st.name,
+        data: [{ x: devExp, y: socialExp, r: isSelected ? r * 1.3 : r }],
+        backgroundColor: isSelected ? st.color : st.color + '88',
+        borderColor: isSelected ? '#fff' : st.color,
+        borderWidth: isSelected ? 3 : 1.5,
+        hoverBackgroundColor: st.color,
+        hoverBorderWidth: 2.5,
+        stateId: st.id
+      });
+    });
+
+    charts["fiscalInputMatrix"] = new Chart(ctxMatrix.getContext('2d'), {
+      type: "bubble",
+      data: { datasets: bubbleDatasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: `Developmental Expenditure (% of Total Exp) - ${selectedYearName}`,
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
+          },
+          y: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: `Social Sector Expenditure (% of GSDP) - ${selectedYearName}`,
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: t.tooltipBg,
+            titleColor: t.tooltipText,
+            bodyColor: t.textColor,
+            borderColor: t.tooltipBorder,
+            borderWidth: 1,
+            callbacks: {
+              label: (ctx) => {
+                const ds = ctx.dataset;
+                return [
+                  ds.label,
+                  `Developmental Spend: ${ctx.raw.x.toFixed(1)}% of Exp`,
+                  `Social Sector Spend: ${ctx.raw.y.toFixed(1)}% of GSDP`
+                ];
+              }
+            }
+          }
+        }
+      },
+      plugins: [{
+        id: "fiscalInputQuadrantLines",
+        afterDraw(chart) {
+          const { ctx, chartArea: { top, bottom, left, right }, scales: { x, y } } = chart;
+          if (!x || !y) return;
+          const xMidVal = 60.0; // 60% Developmental Spend
+          const yMidVal = 7.5;  // 7.5% Social Sector Spend
+          if (x.min === undefined || x.max === undefined || y.min === undefined || y.max === undefined) return;
+
+          const xPx = x.getPixelForValue(xMidVal);
+          const yPx = y.getPixelForValue(yMidVal);
+
+          ctx.save();
+          ctx.setLineDash([6, 6]);
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = "rgba(99, 102, 241, 0.4)";
+
+          if (xPx >= left && xPx <= right) {
+            ctx.beginPath();
+            ctx.moveTo(xPx, top);
+            ctx.lineTo(xPx, bottom);
+            ctx.stroke();
+          }
+          if (yPx >= top && yPx <= bottom) {
+            ctx.beginPath();
+            ctx.moveTo(left, yPx);
+            ctx.lineTo(right, yPx);
+            ctx.stroke();
+          }
+
+          ctx.font = "bold 9px 'Outfit', sans-serif";
+          ctx.fillStyle = "rgba(16, 185, 129, 0.7)";
+          ctx.textAlign = "left";
+          ctx.fillText("✓ Infrastructure Focus", left + 10, bottom - 10);
+          ctx.textAlign = "right";
+          ctx.fillText("✓ Human Capital Focus", right - 10, bottom - 10);
+          ctx.fillStyle = "rgba(239, 68, 68, 0.7)";
+          ctx.textAlign = "left";
+          ctx.fillText("✗ Administrative Overhead Heavy", left + 10, top + 15);
+          ctx.textAlign = "right";
+          ctx.fillText("⚠ Revenue Constrained Welfare", right - 10, top + 15);
+
+          ctx.restore();
+        }
+      }]
+    });
+  }
+
   function renderThreeDTab() {
     const yearIdx = parseInt(document.getElementById("3d-year-select").value);
     const xKey = document.getElementById("3d-x-select").value;
@@ -3655,7 +3927,9 @@ document.addEventListener("DOMContentLoaded", () => {
       social_mpi: "Multidimensional Poverty",
       social_lfpr: "Labor Participation (LFPR)",
       social_lfpr_female: "Female Labor Participation",
-      social_spend_gsdp: "Welfare Spend (% GSDP)"
+      social_spend_gsdp: "Welfare Spend (% GSDP)",
+      input_dev_to_total: "Developmental Exp (% Total)",
+      input_social_gsdp: "Social Sector Exp (% GSDP)"
     };
     return {
       name: fiscalData.metrics[key] ? fiscalData.metrics[key].name : (names[key] || "Metric"),
@@ -3673,7 +3947,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (key === "edu_ptr_secondary") {
       return `${value.toFixed(1)}:1`;
     }
-    if (key === "edu_dropout_secondary" || key === "edu_ger_secondary" || key === "edu_social_exp_gsdp" || key === "edu_ner_secondary" || key === "health_oope" || key === "health_inst_deliveries" || key === "health_spend_gsdp" || key === "social_stunting" || key === "social_wasting" || key === "social_mpi" || key === "social_lfpr" || key === "social_lfpr_female" || key === "social_spend_gsdp") {
+    if (key === "edu_dropout_secondary" || key === "edu_ger_secondary" || key === "edu_social_exp_gsdp" || key === "edu_ner_secondary" || key === "health_oope" || key === "health_inst_deliveries" || key === "health_spend_gsdp" || key === "social_stunting" || key === "social_wasting" || key === "social_mpi" || key === "social_lfpr" || key === "social_lfpr_female" || key === "social_spend_gsdp" || key === "input_dev_to_total" || key === "input_social_gsdp") {
       return `${value.toFixed(1)}%`;
     }
     if (key === "edu_gpi_secondary") {
