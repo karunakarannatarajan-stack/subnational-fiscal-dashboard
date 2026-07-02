@@ -172,6 +172,18 @@ document.addEventListener("DOMContentLoaded", () => {
       educationYearSelect.value = fiscalData.years.length - 1;
     }
 
+    // Populate Healthcare Matrix Year Selector
+    const healthcareYearSelect = document.getElementById("healthcare-year-select");
+    if(healthcareYearSelect) {
+      fiscalData.years.forEach((yr, idx) => {
+        const option = document.createElement("option");
+        option.value = idx;
+        option.textContent = yr;
+        healthcareYearSelect.appendChild(option);
+      });
+      healthcareYearSelect.value = fiscalData.years.length - 1;
+    }
+
     // Populate Deficit Quality Matrix Year Selector
     const deficitYearSelect = document.getElementById("deficit-year-select");
     fiscalData.years.forEach((yr, idx) => {
@@ -255,6 +267,16 @@ document.addEventListener("DOMContentLoaded", () => {
       educationYearSelect2.addEventListener("change", () => {
         if (activeTab === "education") {
           renderEducationTab(getThemeColors());
+        }
+      });
+    }
+
+    // Healthcare Tab Year Selection Changed
+    const healthcareYearSelect2 = document.getElementById("healthcare-year-select");
+    if(healthcareYearSelect2) {
+      healthcareYearSelect2.addEventListener("change", () => {
+        if (activeTab === "healthcare") {
+          renderHealthcareTab(getThemeColors());
         }
       });
     }
@@ -527,6 +549,8 @@ document.addEventListener("DOMContentLoaded", () => {
       renderTransfersTab(t);
     } else if (activeTab === "education") {
       renderEducationTab(t);
+    } else if (activeTab === "healthcare") {
+      renderHealthcareTab(t);
     } else if (activeTab === "comparison") {
       renderComparisonTab();
       // Use setTimeout so canvas has been laid out with correct dimensions
@@ -2801,6 +2825,275 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- Render Healthcare Efficacy & Life Quality Tab ---
+  function renderHealthcareTab(t) {
+    const stateId = activeStateId;
+    const yearSelect = document.getElementById("healthcare-year-select");
+    const yearIdx = yearSelect ? parseInt(yearSelect.value) : (fiscalData.years.length - 1);
+    const selectedYearName = fiscalData.years[yearIdx];
+
+    // Helper: create a comparative bar chart for one healthcare metric
+    function createHealthCompareChart(canvasId, chartKey, metricKey, label, unit, refLine) {
+      const ctx = document.getElementById(canvasId);
+      if (!ctx) return;
+      if (charts[chartKey]) charts[chartKey].destroy();
+
+      const statesList = [...fiscalData.states];
+      const labels = statesList.map(s => s.name);
+      const data = statesList.map(s => getMetricValue(s.id, metricKey, yearIdx));
+
+      // Opacity styling: selected state is fully opaque, others are semi-transparent
+      const bgColors = statesList.map(s => {
+        if (s.id === stateId) return s.color;
+        return s.color + '55'; // 33% opacity
+      });
+
+      const borderColors = statesList.map(s => {
+        if (s.id === stateId) return '#ffffff'; // White border to highlight active state
+        return s.color;
+      });
+
+      const borderWidths = statesList.map(s => {
+        if (s.id === stateId) return 3;
+        return 1;
+      });
+
+      const datasets = [{
+        label: `${label} (${selectedYearName})`,
+        data: data,
+        backgroundColor: bgColors,
+        borderColor: borderColors,
+        borderWidth: borderWidths,
+        borderRadius: 4,
+        order: 1
+      }];
+
+      // Optional reference / target line
+      if (refLine) {
+        datasets.push({
+          type: 'line',
+          label: refLine.label,
+          data: statesList.map(() => refLine.value),
+          borderColor: refLine.color || 'rgba(99,102,241,0.6)',
+          borderWidth: 2,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          fill: false,
+          order: 0
+        });
+      }
+
+      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: { labels: labels, datasets: datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: t.textSecondary, font: { size: 10, weight: 500 } }
+            },
+            y: {
+              grid: { color: t.gridColor },
+              title: {
+                display: true,
+                text: unit,
+                color: t.textSecondary,
+                font: { weight: 600, family: "'Outfit', sans-serif" }
+              },
+              ticks: { color: t.textSecondary }
+            }
+          },
+          plugins: {
+            legend: {
+              display: refLine ? true : false,
+              position: 'top',
+              labels: {
+                color: t.textColor,
+                font: { family: "'Outfit', sans-serif", size: 10 },
+                filter: (item) => item.text && (item.text.includes('Target') || item.text.includes('Line') || item.text.includes('Norm'))
+              }
+            },
+            tooltip: {
+              backgroundColor: t.tooltipBg,
+              titleColor: t.tooltipText,
+              bodyColor: t.textColor,
+              borderColor: t.tooltipBorder,
+              borderWidth: 1,
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.raw === null) return '';
+                  if (ctx.dataset.type === 'line') return `${ctx.dataset.label}: ${ctx.raw}`;
+                  const stateName = ctx.label;
+                  const val = ctx.raw;
+                  if (metricKey === "health_life_expectancy") return `${stateName}: ${val.toFixed(1)} Years`;
+                  if (metricKey === "health_mmr") return `${stateName}: ${Math.round(val)}`;
+                  if (unit.includes('Index') || unit.includes('Ratio')) return `${stateName}: ${val.toFixed(2)}`;
+                  return `${stateName}: ${val.toFixed(1)}${unit.includes('%') ? '%' : ''}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // --- Chart 1: Out-of-Pocket Expenditure (OOPE) ---
+    createHealthCompareChart(
+      'chart-health-oope', 'healthOope', 'health_oope',
+      'Out-of-Pocket Expenditure', 'Share of Health Spend (%)', null
+    );
+
+    // --- Chart 2: Infant Mortality Rate (IMR) ---
+    createHealthCompareChart(
+      'chart-health-imr', 'healthImr', 'health_imr',
+      'Infant Mortality Rate (IMR)', 'Deaths per 1,000 Live Births', null
+    );
+
+    // --- Chart 3: Maternal Mortality Ratio (MMR) ---
+    createHealthCompareChart(
+      'chart-health-mmr', 'healthMmr', 'health_mmr',
+      'Maternal Mortality Ratio (MMR)', 'Deaths per 100,000 Live Births', null
+    );
+
+    // --- Chart 4: Institutional Deliveries (%) ---
+    createHealthCompareChart(
+      'chart-health-inst-deliveries', 'healthInstDeliveries', 'health_inst_deliveries',
+      'Institutional Deliveries', 'Share of Deliveries (%)',
+      { value: 100, label: '100% Universal Deliveries Target', color: 'rgba(16,185,129,0.5)' }
+    );
+
+    // --- Chart 5: Life Expectancy ---
+    createHealthCompareChart(
+      'chart-health-life-expectancy', 'healthLifeExpectancy', 'health_life_expectancy',
+      'Life Expectancy at Birth', 'Years',
+      { value: 70, label: 'National Target (70 Years)', color: 'rgba(99,102,241,0.5)' }
+    );
+
+    // --- Chart 6: Health Spending vs. OOPE Bubble (All States for the selected year) ---
+    const ctxMatrix = document.getElementById("chart-health-matrix");
+    if (!ctxMatrix) return;
+    if (charts["healthMatrix"]) charts["healthMatrix"].destroy();
+
+    const bubbleDatasets = [];
+    fiscalData.states.forEach(st => {
+      const healthSpend = getMetricValue(st.id, "health_spend_gsdp", yearIdx);
+      const oope = getMetricValue(st.id, "health_oope", yearIdx);
+      const gsdp = getMetricValue(st.id, "gsdp_absolute", yearIdx) || 0;
+      if (healthSpend === null || oope === null) return;
+
+      const r = Math.max(8, Math.min(30, (gsdp / 1000) * 1.5 + 6));
+      const isSelected = st.id === stateId;
+      bubbleDatasets.push({
+        label: st.name,
+        data: [{ x: healthSpend, y: oope, r: isSelected ? r * 1.3 : r }],
+        backgroundColor: isSelected ? st.color : st.color + '88',
+        borderColor: isSelected ? '#fff' : st.color,
+        borderWidth: isSelected ? 3 : 1.5,
+        hoverBackgroundColor: st.color,
+        hoverBorderWidth: 2.5,
+        stateId: st.id
+      });
+    });
+
+    charts["healthMatrix"] = new Chart(ctxMatrix.getContext('2d'), {
+      type: "bubble",
+      data: { datasets: bubbleDatasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: `Public Health Spending (% of GSDP) - ${selectedYearName}`,
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
+          },
+          y: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: `Out-of-Pocket Expenditure (OOPE) (%) - ${selectedYearName}`,
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: t.tooltipBg,
+            titleColor: t.tooltipText,
+            bodyColor: t.textColor,
+            borderColor: t.tooltipBorder,
+            borderWidth: 1,
+            callbacks: {
+              label: (ctx) => {
+                const ds = ctx.dataset;
+                return [
+                  ds.label,
+                  `Public Spending: ${ctx.raw.x.toFixed(2)}% GSDP`,
+                  `Out-of-Pocket (OOPE): ${ctx.raw.y.toFixed(1)}%`
+                ];
+              }
+            }
+          }
+        }
+      },
+      plugins: [{
+        id: "healthQuadrantLines",
+        afterDraw(chart) {
+          const { ctx, chartArea: { top, bottom, left, right }, scales: { x, y } } = chart;
+          if (!x || !y) return;
+          const xMidVal = 1.25; // 1.25% GSDP Health Spending
+          const yMidVal = 50.0; // 50.0% OOPE
+          if (x.min === undefined || x.max === undefined || y.min === undefined || y.max === undefined) return;
+
+          const xPx = x.getPixelForValue(xMidVal);
+          const yPx = y.getPixelForValue(yMidVal);
+
+          ctx.save();
+          ctx.setLineDash([6, 6]);
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = "rgba(99, 102, 241, 0.4)";
+
+          if (xPx >= left && xPx <= right) {
+            ctx.beginPath();
+            ctx.moveTo(xPx, top);
+            ctx.lineTo(xPx, bottom);
+            ctx.stroke();
+          }
+          if (yPx >= top && yPx <= bottom) {
+            ctx.beginPath();
+            ctx.moveTo(left, yPx);
+            ctx.lineTo(right, yPx);
+            ctx.stroke();
+          }
+
+          ctx.font = "bold 9px 'Outfit', sans-serif";
+          ctx.fillStyle = "rgba(16, 185, 129, 0.7)";
+          ctx.textAlign = "left";
+          ctx.fillText("✓ High Efficiency (Low Cost)", left + 10, bottom - 10);
+          ctx.textAlign = "right";
+          ctx.fillText("✓ Strong Public Cover", right - 10, bottom - 10);
+          ctx.fillStyle = "rgba(239, 68, 68, 0.7)";
+          ctx.textAlign = "left";
+          ctx.fillText("✗ Underfunded (High OOPE)", left + 10, top + 15);
+          ctx.textAlign = "right";
+          ctx.fillText("⚠ Low Efficacy spending", right - 10, top + 15);
+
+          ctx.restore();
+        }
+      }]
+    });
+  }
+
   function renderThreeDTab() {
     const yearIdx = parseInt(document.getElementById("3d-year-select").value);
     const xKey = document.getElementById("3d-x-select").value;
@@ -3060,7 +3353,13 @@ document.addEventListener("DOMContentLoaded", () => {
       edu_ptr_secondary: "Secondary PTR",
       edu_social_exp_gsdp: "Social Spend (% GSDP)",
       edu_ner_secondary: "Secondary NER",
-      edu_gpi_secondary: "Gender Parity Index"
+      edu_gpi_secondary: "Gender Parity Index",
+      health_oope: "Out-of-Pocket Exp",
+      health_imr: "Infant Mortality Rate",
+      health_mmr: "Maternal Mortality Ratio",
+      health_inst_deliveries: "Inst. Deliveries",
+      health_life_expectancy: "Life Expectancy",
+      health_spend_gsdp: "Health Spend (% GSDP)"
     };
     return {
       name: fiscalData.metrics[key] ? fiscalData.metrics[key].name : (names[key] || "Metric"),
@@ -3078,11 +3377,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (key === "edu_ptr_secondary") {
       return `${value.toFixed(1)}:1`;
     }
-    if (key === "edu_dropout_secondary" || key === "edu_ger_secondary" || key === "edu_social_exp_gsdp" || key === "edu_ner_secondary") {
+    if (key === "edu_dropout_secondary" || key === "edu_ger_secondary" || key === "edu_social_exp_gsdp" || key === "edu_ner_secondary" || key === "health_oope" || key === "health_inst_deliveries" || key === "health_spend_gsdp") {
       return `${value.toFixed(1)}%`;
     }
     if (key === "edu_gpi_secondary") {
       return value.toFixed(2);
+    }
+    if (key === "health_imr") {
+      return `${value.toFixed(1)}`;
+    }
+    if (key === "health_mmr") {
+      return `${Math.round(value)}`;
+    }
+    if (key === "health_life_expectancy") {
+      return `${value.toFixed(1)} Years`;
     }
     if (key === "pc_gsdp" || key === "pc_debt") {
       return `₹${Math.round(value).toLocaleString('en-US')}`;

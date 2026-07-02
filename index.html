@@ -85,6 +85,10 @@
               <i class="fa-solid fa-graduation-cap"></i>
               <span>Education Efficacy</span>
             </button>
+            <button class="nav-item" data-tab="healthcare">
+              <i class="fa-solid fa-heart-pulse"></i>
+              <span>Healthcare Efficacy</span>
+            </button>
             <button class="nav-item" data-tab="comparison">
               <i class="fa-solid fa-code-compare"></i>
               <span>Cross-State Rankings</span>
@@ -589,6 +593,107 @@
 
           </div>
 
+          <!-- Healthcare Efficacy & Life Quality Tab View -->
+          <div class="tab-view" id="tab-healthcare">
+            
+            <div class="comparison-filters">
+              <div class="filter-group">
+                <label for="healthcare-year-select">Select Year:</label>
+                <select id="healthcare-year-select" class="custom-select compare-select">
+                  <!-- Populated via JS -->
+                </select>
+              </div>
+            </div>
+
+            <div class="analysis-narrative" style="margin-bottom: 1rem; margin-top: 1rem;">
+              <h3><i class="fa-solid fa-heart-pulse"></i> Healthcare Efficacy &amp; Life Quality Metrics</h3>
+              <p>This tab monitors critical healthcare and maternal delivery outcomes to analyze whether public health spending and sub-national health insurance/medicine schemes protect citizens and improve life standards. Each chart shows a <strong>state-wise comparison for the selected year</strong>.</p>
+            </div>
+
+            <!-- Row 1: Out-of-Pocket Expenditure & Infant Mortality Rate -->
+            <div class="double-charts-row">
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3><i class="fa-solid fa-wallet" style="color:#ef4444;"></i> Out-of-Pocket Health Expenditure (OOPE)</h3>
+                  <span class="badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Lower is Better</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-health-oope"></canvas>
+                </div>
+              </div>
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3><i class="fa-solid fa-baby" style="color:#f59e0b;"></i> Infant Mortality Rate (IMR)</h3>
+                  <span class="badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">Lower is Better</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-health-imr"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 2: Maternal Mortality Ratio & Institutional Deliveries -->
+            <div class="double-charts-row">
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3><i class="fa-solid fa-person-breastfeeding" style="color:#a855f7;"></i> Maternal Mortality Ratio (MMR)</h3>
+                  <span class="badge" style="background:rgba(168,85,247,0.15); color:#a855f7;">Lower is Better</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-health-mmr"></canvas>
+                </div>
+              </div>
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3><i class="fa-solid fa-hospital-user" style="color:#10b981;"></i> Institutional Deliveries (%)</h3>
+                  <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981;">Higher is Better</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-health-inst-deliveries"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 3: Life Expectancy & Health Spending vs. OOPE Bubble Chart -->
+            <div class="double-charts-row">
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3><i class="fa-solid fa-heart" style="color:#ec4899;"></i> Life Expectancy at Birth</h3>
+                  <span class="badge" style="background:rgba(236,72,153,0.15); color:#ec4899;">Higher is Better</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-health-life-expectancy"></canvas>
+                </div>
+              </div>
+              <div class="chart-main-card flex-1">
+                <div class="card-header-bar">
+                  <h3><i class="fa-solid fa-chart-bubble" style="color:#6366f1;"></i> Health Spending vs. Out-of-Pocket Cost (OOPE)</h3>
+                  <span class="badge info">Bubble Chart</span>
+                </div>
+                <div class="chart-body">
+                  <canvas id="chart-health-matrix"></canvas>
+                  <div class="good-dir x-dir" style="position:absolute; bottom: 5px; right: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;">Better <i class="fa-solid fa-arrow-right"></i></div>
+                  <div class="good-dir y-dir" style="position:absolute; bottom: 35px; left: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;"><i class="fa-solid fa-arrow-down"></i> Better</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="analysis-narrative">
+              <h3><i class="fa-solid fa-circle-info"></i> How Public Expenditure Drives Health Quality</h3>
+              <div class="narrative-highlights" style="grid-template-columns: 1fr 1fr; margin-top: 0.5rem;">
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-circle-check text-emerald" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Out-of-Pocket Expenditure (OOPE):</strong> Reflects household vulnerability. States with higher public health spending (e.g. Tamil Nadu) typically see a drop in OOPE, saving citizens from medical bankruptcy.</p>
+                </div>
+                <div class="highlight-item" style="padding: 0.8rem;">
+                  <i class="fa-solid fa-shield text-indigo" style="font-size: 1rem;"></i>
+                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>IMR &amp; MMR Efficacy:</strong> Primary healthcare access, clean sanitation, and nutrition initiatives directly result in maternal and infant survival rates, paving the way for higher life expectancy.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
           <!-- Cross-State Comparison Tab View -->
           <div class="tab-view" id="tab-comparison">
             
@@ -809,6 +914,6 @@
 
   <!-- Script Files -->
   <script src="data.js"></script>
-  <script src="app.js?v=2.9"></script>
+  <script src="app.js?v=3.0"></script>
 </body>
 </html>
