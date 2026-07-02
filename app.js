@@ -2533,7 +2533,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Render Education Efficacy & Retention Metrics Tab ---
   function renderEducationTab(t) {
-    const stateId = currentState;
+    const stateId = activeStateId;
     const state = fiscalData.states.find(s => s.id === stateId);
     if (!state) return;
     const years = fiscalData.years;
