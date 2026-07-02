@@ -181,7 +181,18 @@ document.addEventListener("DOMContentLoaded", () => {
         option.textContent = yr;
         healthcareYearSelect.appendChild(option);
       });
-      healthcareYearSelect.value = fiscalData.years.length - 1;
+    }
+
+    // Populate Social Safety Net Matrix Year Selector
+    const socialYearSelect = document.getElementById("social-year-select");
+    if(socialYearSelect) {
+      fiscalData.years.forEach((yr, idx) => {
+        const option = document.createElement("option");
+        option.value = idx;
+        option.textContent = yr;
+        socialYearSelect.appendChild(option);
+      });
+      socialYearSelect.value = fiscalData.years.length - 1;
     }
 
     // Populate Deficit Quality Matrix Year Selector
@@ -277,6 +288,16 @@ document.addEventListener("DOMContentLoaded", () => {
       healthcareYearSelect2.addEventListener("change", () => {
         if (activeTab === "healthcare") {
           renderHealthcareTab(getThemeColors());
+        }
+      });
+    }
+
+    // Social Safety Net Tab Year Selection Changed
+    const socialYearSelect2 = document.getElementById("social-year-select");
+    if(socialYearSelect2) {
+      socialYearSelect2.addEventListener("change", () => {
+        if (activeTab === "social") {
+          renderSocialTab(getThemeColors());
         }
       });
     }
@@ -551,6 +572,8 @@ document.addEventListener("DOMContentLoaded", () => {
       renderEducationTab(t);
     } else if (activeTab === "healthcare") {
       renderHealthcareTab(t);
+    } else if (activeTab === "social") {
+      renderSocialTab(t);
     } else if (activeTab === "comparison") {
       renderComparisonTab();
       // Use setTimeout so canvas has been laid out with correct dimensions
@@ -3094,6 +3117,273 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- Render Nutrition & Social Safety Net Tab ---
+  function renderSocialTab(t) {
+    const stateId = activeStateId;
+    const yearSelect = document.getElementById("social-year-select");
+    const yearIdx = yearSelect ? parseInt(yearSelect.value) : (fiscalData.years.length - 1);
+    const selectedYearName = fiscalData.years[yearIdx];
+
+    // Helper: create a comparative bar chart for one social/nutrition metric
+    function createSocialCompareChart(canvasId, chartKey, metricKey, label, unit, refLine) {
+      const ctx = document.getElementById(canvasId);
+      if (!ctx) return;
+      if (charts[chartKey]) charts[chartKey].destroy();
+
+      const statesList = [...fiscalData.states];
+      const labels = statesList.map(s => s.name);
+      const data = statesList.map(s => getMetricValue(s.id, metricKey, yearIdx));
+
+      // Opacity styling: selected state is fully opaque, others are semi-transparent
+      const bgColors = statesList.map(s => {
+        if (s.id === stateId) return s.color;
+        return s.color + '55'; // 33% opacity
+      });
+
+      const borderColors = statesList.map(s => {
+        if (s.id === stateId) return '#ffffff'; // White border to highlight active state
+        return s.color;
+      });
+
+      const borderWidths = statesList.map(s => {
+        if (s.id === stateId) return 3;
+        return 1;
+      });
+
+      const datasets = [{
+        label: `${label} (${selectedYearName})`,
+        data: data,
+        backgroundColor: bgColors,
+        borderColor: borderColors,
+        borderWidth: borderWidths,
+        borderRadius: 4,
+        order: 1
+      }];
+
+      // Optional reference / target line
+      if (refLine) {
+        datasets.push({
+          type: 'line',
+          label: refLine.label,
+          data: statesList.map(() => refLine.value),
+          borderColor: refLine.color || 'rgba(99,102,241,0.6)',
+          borderWidth: 2,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          fill: false,
+          order: 0
+        });
+      }
+
+      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: { labels: labels, datasets: datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: t.textSecondary, font: { size: 10, weight: 500 } }
+            },
+            y: {
+              grid: { color: t.gridColor },
+              title: {
+                display: true,
+                text: unit,
+                color: t.textSecondary,
+                font: { weight: 600, family: "'Outfit', sans-serif" }
+              },
+              ticks: { color: t.textSecondary }
+            }
+          },
+          plugins: {
+            legend: {
+              display: refLine ? true : false,
+              position: 'top',
+              labels: {
+                color: t.textColor,
+                font: { family: "'Outfit', sans-serif", size: 10 },
+                filter: (item) => item.text && (item.text.includes('Target') || item.text.includes('Line') || item.text.includes('Norm') || item.text.includes('Threshold'))
+              }
+            },
+            tooltip: {
+              backgroundColor: t.tooltipBg,
+              titleColor: t.tooltipText,
+              bodyColor: t.textColor,
+              borderColor: t.tooltipBorder,
+              borderWidth: 1,
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.raw === null) return '';
+                  if (ctx.dataset.type === 'line') return `${ctx.dataset.label}: ${ctx.raw}`;
+                  const stateName = ctx.label;
+                  const val = ctx.raw;
+                  if (unit.includes('Index') || unit.includes('Ratio')) return `${stateName}: ${val.toFixed(2)}`;
+                  return `${stateName}: ${val.toFixed(1)}${unit.includes('%') ? '%' : ''}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // --- Chart 1: Child Stunting ---
+    createSocialCompareChart(
+      'chart-social-stunting', 'socialStunting', 'social_stunting',
+      'Child Stunting (< 5 Yrs)', 'Prevalence (%)',
+      { value: 20, label: 'WHO Target Threshold (< 20%)', color: 'rgba(16,185,129,0.5)' }
+    );
+
+    // --- Chart 2: Child Wasting ---
+    createSocialCompareChart(
+      'chart-social-wasting', 'socialWasting', 'social_wasting',
+      'Child Wasting (< 5 Yrs)', 'Prevalence (%)',
+      { value: 15, label: 'Worrying Severity Limit (> 15%)', color: 'rgba(239,68,68,0.5)' }
+    );
+
+    // --- Chart 3: Multidimensional Poverty (MPI) ---
+    createSocialCompareChart(
+      'chart-social-mpi', 'socialMpi', 'social_mpi',
+      'Multidimensional Poverty (MPI)', 'Population in Poverty (%)', null
+    );
+
+    // --- Chart 4: Labor Force Participation Rate (LFPR) ---
+    createSocialCompareChart(
+      'chart-social-lfpr', 'socialLfpr', 'social_lfpr',
+      'Labor Force Participation (LFPR)', 'Participation Rate (%)', null
+    );
+
+    // --- Chart 5: Female LFPR ---
+    createSocialCompareChart(
+      'chart-social-lfpr-female', 'socialLfprFemale', 'social_lfpr_female',
+      'Female Labor Force Participation', 'FLFPR (%)', null
+    );
+
+    // --- Chart 6: Welfare Spend vs. MPI Bubble (All States for the selected year) ---
+    const ctxMatrix = document.getElementById("chart-social-matrix");
+    if (!ctxMatrix) return;
+    if (charts["socialMatrix"]) charts["socialMatrix"].destroy();
+
+    const bubbleDatasets = [];
+    fiscalData.states.forEach(st => {
+      const socialSpend = getMetricValue(st.id, "social_spend_gsdp", yearIdx);
+      const mpi = getMetricValue(st.id, "social_mpi", yearIdx);
+      const gsdp = getMetricValue(st.id, "gsdp_absolute", yearIdx) || 0;
+      if (socialSpend === null || mpi === null) return;
+
+      const r = Math.max(8, Math.min(30, (gsdp / 1000) * 1.5 + 6));
+      const isSelected = st.id === stateId;
+      bubbleDatasets.push({
+        label: st.name,
+        data: [{ x: socialSpend, y: mpi, r: isSelected ? r * 1.3 : r }],
+        backgroundColor: isSelected ? st.color : st.color + '88',
+        borderColor: isSelected ? '#fff' : st.color,
+        borderWidth: isSelected ? 3 : 1.5,
+        hoverBackgroundColor: st.color,
+        hoverBorderWidth: 2.5,
+        stateId: st.id
+      });
+    });
+
+    charts["socialMatrix"] = new Chart(ctxMatrix.getContext('2d'), {
+      type: "bubble",
+      data: { datasets: bubbleDatasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: `Welfare & Social Safety Net Spend (% of GSDP) - ${selectedYearName}`,
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
+          },
+          y: {
+            grid: { color: t.gridColor },
+            title: {
+              display: true,
+              text: `Multidimensional Poverty Index (MPI) (%) - ${selectedYearName}`,
+              color: t.textSecondary,
+              font: { weight: 600, family: "'Outfit', sans-serif" }
+            },
+            ticks: { color: t.textSecondary }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: t.tooltipBg,
+            titleColor: t.tooltipText,
+            bodyColor: t.textColor,
+            borderColor: t.tooltipBorder,
+            borderWidth: 1,
+            callbacks: {
+              label: (ctx) => {
+                const ds = ctx.dataset;
+                return [
+                  ds.label,
+                  `Welfare Spend: ${ctx.raw.x.toFixed(2)}% GSDP`,
+                  `Poverty (MPI): ${ctx.raw.y.toFixed(1)}%`
+                ];
+              }
+            }
+          }
+        }
+      },
+      plugins: [{
+        id: "socialQuadrantLines",
+        afterDraw(chart) {
+          const { ctx, chartArea: { top, bottom, left, right }, scales: { x, y } } = chart;
+          if (!x || !y) return;
+          const xMidVal = 2.0; // 2.0% GSDP Welfare Spending
+          const yMidVal = 15.0; // 15.0% MPI
+          if (x.min === undefined || x.max === undefined || y.min === undefined || y.max === undefined) return;
+
+          const xPx = x.getPixelForValue(xMidVal);
+          const yPx = y.getPixelForValue(yMidVal);
+
+          ctx.save();
+          ctx.setLineDash([6, 6]);
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = "rgba(99, 102, 241, 0.4)";
+
+          if (xPx >= left && xPx <= right) {
+            ctx.beginPath();
+            ctx.moveTo(xPx, top);
+            ctx.lineTo(xPx, bottom);
+            ctx.stroke();
+          }
+          if (yPx >= top && yPx <= bottom) {
+            ctx.beginPath();
+            ctx.moveTo(left, yPx);
+            ctx.lineTo(right, yPx);
+            ctx.stroke();
+          }
+
+          ctx.font = "bold 9px 'Outfit', sans-serif";
+          ctx.fillStyle = "rgba(16, 185, 129, 0.7)";
+          ctx.textAlign = "left";
+          ctx.fillText("✓ High Efficiency (Low Poverty)", left + 10, bottom - 10);
+          ctx.textAlign = "right";
+          ctx.fillText("✓ Strong Social Safety Net", right - 10, bottom - 10);
+          ctx.fillStyle = "rgba(239, 68, 68, 0.7)";
+          ctx.textAlign = "left";
+          ctx.fillText("✗ Vulnerable (High Poverty)", left + 10, top + 15);
+          ctx.textAlign = "right";
+          ctx.fillText("⚠ Low Efficacy Spending", right - 10, top + 15);
+
+          ctx.restore();
+        }
+      }]
+    });
+  }
+
   function renderThreeDTab() {
     const yearIdx = parseInt(document.getElementById("3d-year-select").value);
     const xKey = document.getElementById("3d-x-select").value;
@@ -3359,7 +3649,13 @@ document.addEventListener("DOMContentLoaded", () => {
       health_mmr: "Maternal Mortality Ratio",
       health_inst_deliveries: "Inst. Deliveries",
       health_life_expectancy: "Life Expectancy",
-      health_spend_gsdp: "Health Spend (% GSDP)"
+      health_spend_gsdp: "Health Spend (% GSDP)",
+      social_stunting: "Child Stunting",
+      social_wasting: "Child Wasting",
+      social_mpi: "Multidimensional Poverty",
+      social_lfpr: "Labor Participation (LFPR)",
+      social_lfpr_female: "Female Labor Participation",
+      social_spend_gsdp: "Welfare Spend (% GSDP)"
     };
     return {
       name: fiscalData.metrics[key] ? fiscalData.metrics[key].name : (names[key] || "Metric"),
@@ -3377,7 +3673,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (key === "edu_ptr_secondary") {
       return `${value.toFixed(1)}:1`;
     }
-    if (key === "edu_dropout_secondary" || key === "edu_ger_secondary" || key === "edu_social_exp_gsdp" || key === "edu_ner_secondary" || key === "health_oope" || key === "health_inst_deliveries" || key === "health_spend_gsdp") {
+    if (key === "edu_dropout_secondary" || key === "edu_ger_secondary" || key === "edu_social_exp_gsdp" || key === "edu_ner_secondary" || key === "health_oope" || key === "health_inst_deliveries" || key === "health_spend_gsdp" || key === "social_stunting" || key === "social_wasting" || key === "social_mpi" || key === "social_lfpr" || key === "social_lfpr_female" || key === "social_spend_gsdp") {
       return `${value.toFixed(1)}%`;
     }
     if (key === "edu_gpi_secondary") {
