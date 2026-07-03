@@ -46,6 +46,7 @@
   --box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   --btn-bg: rgba(255, 255, 255, 0.05);
   --btn-hover: rgba(255, 255, 255, 0.1);
+  --bg-select-option: #1e293b;
 }
 
 /* Light Theme Variables */
@@ -77,6 +78,7 @@
   --box-shadow: 0 8px 32px 0 rgba(148, 163, 184, 0.15);
   --btn-bg: rgba(15, 23, 42, 0.05);
   --btn-hover: rgba(15, 23, 42, 0.1);
+  --bg-select-option: #ffffff;
 }
 
 /* Core Reset */
@@ -249,6 +251,11 @@ body {
 .custom-select:focus {
   border-color: var(--border-focus);
   box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.custom-select option {
+  background-color: var(--bg-select-option);
+  color: var(--text-primary);
 }
 
 /* Navigation tabs in sidebar */
