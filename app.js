@@ -88,7 +88,9 @@ document.addEventListener("DOMContentLoaded", () => {
     pc_debt: { label: "Per Capita Debt" },
     central_transfers: { label: "Central Transfers (% Revenue)" },
     central_transfers_abs: { label: "Central Transfers (₹ Bn)" },
-    borrowing_spread: { label: "SDL Spread (bps)" }
+    borrowing_spread: { label: "SDL Spread (bps)" },
+    deficit_to_sotr: { label: "Own Rev Deficit (% Own Rev)" },
+    direct_central_investment: { label: "Direct Central Inv (% GSDP)" }
   };
 
   // --- DOM Elements ---
@@ -467,6 +469,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return {
       gridColor: isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(15, 23, 42, 0.06)",
       textColor: isDark ? "#94a3b8" : "#475569",
+      textSecondary: isDark ? "#64748b" : "#94a3b8",
       tooltipBg: isDark ? "#1e293b" : "#ffffff",
       tooltipBorder: isDark ? "rgba(255,255,255,0.1)" : "rgba(15,23,42,0.1)",
       tooltipText: isDark ? "#f8fafc" : "#0f172a"
@@ -1840,6 +1843,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     columnOrder.forEach(key => {
       const meta = columnMetadata[key];
+      if (!meta) return; // Skip unknown keys gracefully to prevent crashes
       const th = document.createElement("th");
       th.className = "sortable-header draggable-header";
       th.setAttribute("data-sort-key", key);
