@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "fiscal_deficit_abs",
     "revenue_exp_abs",
     "revenue_exp_gsdp",
+    "revenue_exp_to_sotr",
     "capital_outlay",
     "capital_outlay_abs",
     "debt_gsdp",
@@ -57,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (Array.isArray(parsed) && parsed.length > 0) {
         columnOrder = parsed.filter(c => c !== "revenue_deficit" && c !== "revenue_deficit_abs");
         // Verify we have all columns (in case of updates)
-        const allCols = ["state", "gsdp_absolute", "total_budget", "budget_gsdp", "total_revenue", "revenue_gsdp", "revenue_exp_abs", "revenue_exp_gsdp", "gsdp_growth", "fiscal_deficit", "fiscal_deficit_abs", "deficit_to_sotr", "capital_outlay", "capital_outlay_abs", "debt_gsdp", "pc_gsdp", "pc_debt", "central_transfers", "central_transfers_abs", "borrowing_spread", "direct_central_investment"];
+        const allCols = ["state", "gsdp_absolute", "total_budget", "budget_gsdp", "total_revenue", "revenue_gsdp", "revenue_exp_abs", "revenue_exp_gsdp", "revenue_exp_to_sotr", "gsdp_growth", "fiscal_deficit", "fiscal_deficit_abs", "deficit_to_sotr", "capital_outlay", "capital_outlay_abs", "debt_gsdp", "pc_gsdp", "pc_debt", "central_transfers", "central_transfers_abs", "borrowing_spread", "direct_central_investment"];
         allCols.forEach(c => {
           if (!columnOrder.includes(c)) columnOrder.push(c);
         });
@@ -79,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fiscal_deficit_abs: { label: "Fiscal Deficit (₹ Bn)" },
     revenue_exp_abs: { label: "Revenue Exp (₹ Bn)" },
     revenue_exp_gsdp: { label: "Revenue Exp (% GSDP)" },
+    revenue_exp_to_sotr: { label: "Rev Exp (% SOTR)" },
     capital_outlay: { label: "Capital Outlay (% GSDP)" },
     capital_outlay_abs: { label: "Capital Outlay (₹ Bn)" },
     debt_gsdp: { label: "Outstanding Debt (% GSDP)" },
@@ -2036,6 +2038,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fiscal_deficit_abs: getMetricValue(s.id, 'fiscal_deficit_abs', yearIdx),
         revenue_exp_abs: getMetricValue(s.id, 'revenue_exp_abs', yearIdx),
         revenue_exp_gsdp: getMetricValue(s.id, 'revenue_exp_gsdp', yearIdx),
+        revenue_exp_to_sotr: getMetricValue(s.id, 'revenue_exp_to_sotr', yearIdx),
         capital_outlay: fiscalData.metrics.capital_outlay[s.id][yearIdx],
         capital_outlay_abs: getMetricValue(s.id, 'capital_outlay_abs', yearIdx),
         debt_gsdp: debt_pct,
@@ -2079,6 +2082,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "deficit_to_sotr",
       "revenue_exp_abs",
       "revenue_exp_gsdp",
+      "revenue_exp_to_sotr",
       "capital_outlay",
       "capital_outlay_abs",
       "debt_gsdp",
@@ -2099,6 +2103,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "fiscal_deficit_abs",
         "revenue_exp_abs",
         "revenue_exp_gsdp",
+        "revenue_exp_to_sotr",
         "debt_gsdp",
         "pc_debt",
         "central_transfers",
@@ -3792,6 +3797,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (gsdp === null || revExp === null || gsdp === 0) return null;
       return (revExp / gsdp) * 100;
     }
+    if (key === "revenue_exp_to_sotr") {
+      const revExp = getMetricValue(stateId, "revenue_exp_gsdp", yearIdx);
+      const ownTax = fiscalData.metrics.own_tax_gsdp[stateId][yearIdx];
+      if (revExp === null || ownTax === null || ownTax === 0) return null;
+      return (revExp / ownTax) * 100;
+    }
     if (key === "debt_own_tax") {
       const debt = fiscalData.metrics.debt_gsdp[stateId][yearIdx];
       const ownTax = fiscalData.metrics.own_tax_gsdp[stateId][yearIdx];
@@ -3868,6 +3879,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (key === "revenue_exp_gsdp") {
       return { name: "Revenue Expenditure (% of GSDP)", shortName: "Revenue Expenditure (%)" };
+    }
+    if (key === "revenue_exp_to_sotr") {
+      return { name: "Revenue Expenditure (% of State's Own Tax Revenue)", shortName: "Rev Exp to SOTR" };
     }
     if (key === "debt_own_tax") {
       return { name: "Debt to Own Tax Revenue (Ratio)", shortName: "Debt/Own Tax" };
@@ -3947,7 +3961,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (key === "edu_ptr_secondary") {
       return `${value.toFixed(1)}:1`;
     }
-    if (key === "edu_dropout_secondary" || key === "edu_ger_secondary" || key === "edu_social_exp_gsdp" || key === "edu_ner_secondary" || key === "health_oope" || key === "health_inst_deliveries" || key === "health_spend_gsdp" || key === "social_stunting" || key === "social_wasting" || key === "social_mpi" || key === "social_lfpr" || key === "social_lfpr_female" || key === "social_spend_gsdp" || key === "input_dev_to_total" || key === "input_social_gsdp") {
+    if (key === "edu_dropout_secondary" || key === "edu_ger_secondary" || key === "edu_social_exp_gsdp" || key === "edu_ner_secondary" || key === "health_oope" || key === "health_inst_deliveries" || key === "health_spend_gsdp" || key === "social_stunting" || key === "social_wasting" || key === "social_mpi" || key === "social_lfpr" || key === "social_lfpr_female" || key === "social_spend_gsdp" || key === "input_dev_to_total" || key === "input_social_gsdp" || key === "revenue_exp_to_sotr") {
       return `${value.toFixed(1)}%`;
     }
     if (key === "edu_gpi_secondary") {
