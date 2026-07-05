@@ -827,7 +827,18 @@ body {
 .draggable-header {
   cursor: grab;
   user-select: none;
+  transition: background 0.15s, opacity 0.15s, box-shadow 0.15s;
 }
 .draggable-header:active {
   cursor: grabbing;
+}
+/* Column being dragged — faded out */
+.draggable-header.dragging {
+  opacity: 0.35;
+  box-shadow: inset 0 0 0 2px var(--accent-color);
+}
+/* Target column the dragged header is hovering over */
+.draggable-header.drag-over {
+  background: rgba(99, 102, 241, 0.18) !important;
+  box-shadow: inset 0 0 0 2px var(--accent-color);
 }

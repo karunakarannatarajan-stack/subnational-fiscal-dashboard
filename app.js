@@ -50,8 +50,8 @@ document.addEventListener("DOMContentLoaded", () => {
     "borrowing_spread"
   ];
 
-  // Try to load column order from session storage
-  const savedOrder = sessionStorage.getItem("column_order");
+  // Try to load column order from local storage (persists across reloads)
+  const savedOrder = localStorage.getItem("column_order");
   if (savedOrder) {
     try {
       const parsed = JSON.parse(savedOrder);
@@ -427,6 +427,34 @@ document.addEventListener("DOMContentLoaded", () => {
         if (activeTab === "threed") renderThreeDTab();
       });
     });
+
+    // Reset Column Order button
+    const resetColBtn = document.getElementById("reset-column-order-btn");
+    if (resetColBtn) {
+      resetColBtn.addEventListener("click", () => {
+        localStorage.removeItem("column_order");
+        columnOrder = [
+          "state", "gsdp_absolute", "total_budget", "budget_gsdp",
+          "total_revenue", "revenue_gsdp", "gsdp_growth",
+          "fiscal_deficit", "fiscal_deficit_abs",
+          "revenue_exp_abs", "revenue_exp_gsdp", "revenue_exp_to_sotr",
+          "capital_outlay", "capital_outlay_abs",
+          "debt_gsdp", "pc_gsdp", "pc_debt",
+          "central_transfers", "central_transfers_abs", "borrowing_spread"
+        ];
+        renderTableHeader();
+        renderComparisonTab();
+        // Brief visual feedback on the button
+        resetColBtn.style.background = "var(--accent-color)";
+        resetColBtn.style.color = "#fff";
+        resetColBtn.style.borderColor = "var(--accent-color)";
+        setTimeout(() => {
+          resetColBtn.style.background = "";
+          resetColBtn.style.color = "";
+          resetColBtn.style.borderColor = "";
+        }, 800);
+      });
+    }
 
     // Sortable header click and drag bindings are now dynamically managed inside renderTableHeader()
   }
@@ -1823,28 +1851,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
       th.innerHTML = `${meta.label} <i class="fa-solid ${currentSortColumn === key ? (currentSortAsc ? "fa-caret-up" : "fa-caret-down") : "fa-sort"}"></i>`;
 
-      // Drag and Drop Listeners
       th.addEventListener("dragstart", (e) => {
         e.dataTransfer.setData("text/plain", key);
-        th.style.opacity = "0.4";
+        th.classList.add("dragging");
       });
 
       th.addEventListener("dragend", () => {
-        th.style.opacity = "1";
+        th.classList.remove("dragging");
+        // Remove all drag-over highlights
+        document.querySelectorAll(".draggable-header").forEach(h => h.classList.remove("drag-over"));
       });
 
       th.addEventListener("dragover", (e) => {
         e.preventDefault();
-        th.style.backgroundColor = "rgba(99, 102, 241, 0.15)";
+        document.querySelectorAll(".draggable-header").forEach(h => h.classList.remove("drag-over"));
+        th.classList.add("drag-over");
       });
 
       th.addEventListener("dragleave", () => {
-        th.style.backgroundColor = "";
+        th.classList.remove("drag-over");
       });
 
       th.addEventListener("drop", (e) => {
         e.preventDefault();
-        th.style.backgroundColor = "";
+        th.classList.remove("drag-over");
         const draggedKey = e.dataTransfer.getData("text/plain");
         if (draggedKey && draggedKey !== key) {
           const fromIdx = columnOrder.indexOf(draggedKey);
@@ -1852,7 +1882,8 @@ document.addEventListener("DOMContentLoaded", () => {
           if (fromIdx !== -1 && toIdx !== -1) {
             columnOrder.splice(fromIdx, 1);
             columnOrder.splice(toIdx, 0, draggedKey);
-            sessionStorage.setItem("column_order", JSON.stringify(columnOrder));
+            // Persist to localStorage so order survives page reloads
+            localStorage.setItem("column_order", JSON.stringify(columnOrder));
             renderTableHeader();
             renderComparisonTab();
           }

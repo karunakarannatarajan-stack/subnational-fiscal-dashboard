@@ -18,7 +18,7 @@
   <!-- FontAwesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=3.4">
+  <link rel="stylesheet" href="style.css?v=3.5">
 </head>
 <body>
   <!-- Dashboard Grid Layout -->
@@ -958,11 +958,16 @@
             </div>
 
             <div class="scorecard-header" style="margin-top: 2rem; margin-bottom: 0.8rem;">
-              <h3 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fa-solid fa-table-cells text-indigo" style="color: var(--accent-color);"></i> Consolidated State Fiscal Scorecard Matrix
-              </h3>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">
-                A comprehensive cross-state comparison matrix. Each state is shown in its <strong>own consistent color</strong>. Click column headers to sort ascending/descending. Drag headers to reorder columns.
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                  <i class="fa-solid fa-table-cells text-indigo" style="color: var(--accent-color);"></i> Consolidated State Fiscal Scorecard Matrix
+                </h3>
+                <button id="reset-column-order-btn" title="Reset to default column order" style="display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem; font-size: 0.78rem; font-weight: 600; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); color: var(--text-secondary); cursor: pointer; transition: all 0.2s;">
+                  <i class="fa-solid fa-rotate-left"></i> Reset Columns
+                </button>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.4rem;">
+                A comprehensive cross-state comparison matrix. Click column headers to <strong>sort</strong>. <i class="fa-solid fa-arrows-left-right" style="font-size:0.75rem;"></i> <strong>Drag headers</strong> to reorder columns — your layout is saved automatically.
               </p>
             </div>
 
@@ -1156,6 +1161,6 @@
 
   <!-- Script Files -->
   <script src="data.js"></script>
-  <script src="app.js?v=3.4"></script>
+  <script src="app.js?v=3.5"></script>
 </body>
 </html>
