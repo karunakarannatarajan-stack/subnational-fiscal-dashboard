@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let charts = {}; // Cache to hold Chart.js instances
   let currentSortColumn = "state"; // Default sort column for comparison table
   let currentSortAsc = true; // Default sort order
-  let isVibrantHeatmap = false; // Toggle for heatmap style
+  let isVibrantHeatmap = true; // Toggle for heatmap style
 
   // --- Dynamic Column Re-ordering State ---
   let columnOrder = [
@@ -2206,12 +2206,19 @@ document.addEventListener("DOMContentLoaded", () => {
         b = Math.round((1 - t) * 94 + t * 11);
       }
 
-      const minOpacity = isVibrantHeatmap ? 0.14 : 0.04;
-      const maxOpacity = isVibrantHeatmap ? 0.38 : 0.12;
+      const minOpacity = isVibrantHeatmap ? 0.25 : 0.10;
+      const maxOpacity = isVibrantHeatmap ? 0.65 : 0.30;
       const dist = Math.abs(p - 0.5) * 2;
       const opacity = minOpacity + dist * (maxOpacity - minOpacity);
 
-      return `style="background-color: rgba(${r}, ${g}, ${b}, ${opacity.toFixed(3)}); font-weight: 500;"`;
+      // Force high-contrast text color when cell opacity is high
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      let textColor = "var(--text-primary)";
+      if (opacity > 0.35) {
+        textColor = isDark ? "#ffffff" : "#0f172a";
+      }
+
+      return `style="background-color: rgba(${r}, ${g}, ${b}, ${opacity.toFixed(3)}); font-weight: 600; color: ${textColor};"`;
     }
 
     function formatCellText(val, metricType) {
