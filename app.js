@@ -527,12 +527,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const latestCT = getMetricValue(stateId, "central_transfers_abs", latestIdx);
     document.getElementById("profile-central-transfers-abs").textContent = formatMetricValue(latestCT, "central_transfers_abs");
+
+    // Dynamic title year updates
+    const latestYear = fiscalData.years[latestIdx];
+    const profileCard = document.querySelector(".state-profile-card");
+    if (profileCard) {
+      profileCard.querySelectorAll(".detail-row").forEach(row => {
+        const title = row.getAttribute("title");
+        if (title) {
+          row.setAttribute("title", title.replace(/\(FY\d{2}.*?\)/g, `(${latestYear})`));
+        }
+      });
+    }
   }
 
   // Update Summary Metrics Card Highlights
   function updateSummaryStrip(stateId) {
     const latestIdx = fiscalData.years.length - 1;
     const prevIdx = latestIdx - 1;
+
+    // Update summary strip labels dynamically
+    const latestYear = fiscalData.years[latestIdx];
+    document.querySelectorAll("#metrics-summary-strip .card-label").forEach(label => {
+      if (label.textContent.includes("Fiscal Deficit")) {
+        label.textContent = `Fiscal Deficit (${latestYear})`;
+      } else if (label.textContent.includes("Capital Outlay")) {
+        label.textContent = `Capital Outlay (${latestYear})`;
+      }
+    });
 
     // Get current and previous values
     const fdCurr = fiscalData.metrics.fiscal_deficit[stateId][latestIdx];

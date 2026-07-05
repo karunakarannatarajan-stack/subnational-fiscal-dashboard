@@ -18,7 +18,7 @@
   <!-- FontAwesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=3.6">
+  <link rel="stylesheet" href="style.css?v=3.7">
 </head>
 <body>
   <!-- Dashboard Grid Layout -->
@@ -30,7 +30,7 @@
         <i class="fa-solid fa-chart-line-up logo-icon"></i>
         <div>
           <h1>Sub-National Fiscal Analytics</h1>
-          <p class="subtitle">State Budgets & Debt Sustainability Dashboard (FY21 - FY25)</p>
+          <p class="subtitle">State Budgets & Debt Sustainability Dashboard (FY11 - FY26 BE)</p>
         </div>
       </div>
       <div class="header-controls">
@@ -216,6 +216,15 @@
 
         <!-- Dynamic Visualization Cards -->
         <div class="visualization-area">
+          
+          <!-- FY 2025-26 BE Disclaimer Banner -->
+          <div class="data-disclaimer-banner" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.82rem; line-height: 1.4; color: var(--text-secondary);">
+            <i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b; font-size: 1rem; margin-top: 0.1rem; flex-shrink: 0;"></i>
+            <div>
+              <span style="font-weight: 700; color: var(--text-primary); display: block; margin-bottom: 0.15rem;">FY 2025-26 Budget Estimate (BE) Notice</span>
+              Data for FY 2025-26 represents Budget Estimates (BE) and is subject to audit/revisions. Survey/developmental indicators (e.g., Health OOPE, School GER/NER, Child Nutrition, and LFPR) represent trend projections.
+            </div>
+          </div>
           
           <!-- Deficit Tab View -->
           <div class="tab-view active" id="tab-deficit">
@@ -1161,6 +1170,6 @@
 
   <!-- Script Files -->
   <script src="data.js"></script>
-  <script src="app.js?v=3.6"></script>
+  <script src="app.js?v=3.7"></script>
 </body>
 </html>
