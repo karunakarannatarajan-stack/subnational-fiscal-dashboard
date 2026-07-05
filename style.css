@@ -842,3 +842,28 @@ body {
   background: rgba(99, 102, 241, 0.18) !important;
   box-shadow: inset 0 0 0 2px var(--accent-color);
 }
+
+/* Efficacy Tabs: 3x2 grid layout to fit screen without scrollbars */
+.efficacy-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.efficacy-charts-grid .chart-main-card {
+  padding: 0.75rem 1rem;
+  gap: 0.5rem;
+  border-radius: var(--radius-md);
+}
+
+.efficacy-charts-grid .card-header-bar h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.efficacy-charts-grid .chart-body {
+  height: 175px;
+}
+

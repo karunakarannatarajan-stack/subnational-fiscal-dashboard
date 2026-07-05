@@ -18,7 +18,7 @@
   <!-- FontAwesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=3.9">
+  <link rel="stylesheet" href="style.css?v=3.10">
 </head>
 <body>
   <!-- Dashboard Grid Layout -->
@@ -511,102 +511,84 @@
           <!-- Education Efficacy & Retention Metrics Tab View -->
           <div class="tab-view" id="tab-education">
             
-            <div class="comparison-filters">
-              <div class="filter-group">
-                <label for="education-year-select">Select Year:</label>
-                <select id="education-year-select" class="custom-select compare-select">
+            <div class="comparison-filters" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color);">
+              <h2 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-graduation-cap" style="color: var(--accent-color);"></i> Education Efficacy &amp; Outcomes
+              </h2>
+              <div class="filter-group" style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <label for="education-year-select" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Select Year:</label>
+                <select id="education-year-select" class="custom-select compare-select" style="margin: 0; height: 32px; padding: 0 0.75rem; font-size: 0.85rem;">
                   <!-- Populated via JS -->
                 </select>
               </div>
             </div>
 
-            <div class="analysis-narrative" style="margin-bottom: 1rem; margin-top: 1rem;">
-              <h3><i class="fa-solid fa-graduation-cap"></i> Education Efficacy &amp; Retention Metrics</h3>
-              <p>This tab tracks key public education indicators sourced from <strong>UDISE+</strong> to evaluate whether state-level social spending translates into tangible human capital outcomes. Each chart shows a <strong>state-wise comparison for the selected year</strong>.</p>
-            </div>
-
-            <!-- Row 1: Dropout Rate & Gross Enrolment Ratio -->
-            <div class="double-charts-row">
-              <div class="chart-main-card flex-1">
+            <div class="efficacy-charts-grid">
+              <!-- Secondary School Dropout Rate -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-person-walking-arrow-right" style="color:#ef4444;"></i> Secondary School Dropout Rate</h3>
-                  <span class="badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Lower is Better</span>
+                  <h3><i class="fa-solid fa-person-walking-arrow-right" style="color:#ef4444;"></i> Dropout Rate</h3>
+                  <span class="badge" style="background:rgba(239,68,68,0.15); color:#ef4444; font-size: 0.65rem;">Lower is Better</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-edu-dropout"></canvas>
                 </div>
               </div>
-              <div class="chart-main-card flex-1">
+
+              <!-- Gross Enrolment Ratio (GER) -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-users-between-lines" style="color:#3b82f6;"></i> Gross Enrolment Ratio (GER)</h3>
-                  <span class="badge" style="background:rgba(59,130,246,0.15); color:#3b82f6;">Higher is Better</span>
+                  <h3><i class="fa-solid fa-users-between-lines" style="color:#3b82f6;"></i> GER (Secondary)</h3>
+                  <span class="badge" style="background:rgba(59,130,246,0.15); color:#3b82f6; font-size: 0.65rem;">Higher is Better</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-edu-ger"></canvas>
                 </div>
               </div>
-            </div>
 
-            <!-- Row 2: Pupil-Teacher Ratio & Net Enrolment Rate -->
-            <div class="double-charts-row">
-              <div class="chart-main-card flex-1">
+              <!-- Pupil-Teacher Ratio (PTR) -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-chalkboard-user" style="color:#f59e0b;"></i> Pupil-Teacher Ratio (PTR)</h3>
-                  <span class="badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">Lower is Better</span>
+                  <h3><i class="fa-solid fa-chalkboard-user" style="color:#f59e0b;"></i> Pupil-Teacher Ratio</h3>
+                  <span class="badge" style="background:rgba(245,158,11,0.15); color:#f59e0b; font-size: 0.65rem;">Lower is Better</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-edu-ptr"></canvas>
                 </div>
               </div>
-              <div class="chart-main-card flex-1">
+
+              <!-- Net Enrolment Rate (NER) -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-school" style="color:#10b981;"></i> Net Enrolment Rate (NER)</h3>
-                  <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981;">Higher is Better</span>
+                  <h3><i class="fa-solid fa-school" style="color:#10b981;"></i> NER (Secondary)</h3>
+                  <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; font-size: 0.65rem;">Higher is Better</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-edu-ner"></canvas>
                 </div>
               </div>
-            </div>
 
-            <!-- Row 3: Gender Parity Index & Summary Bubble -->
-            <div class="double-charts-row">
-              <div class="chart-main-card flex-1">
+              <!-- Gender Parity Index (GPI) -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-venus-mars" style="color:#a855f7;"></i> Gender Parity Index (GPI)</h3>
-                  <span class="badge" style="background:rgba(168,85,247,0.15); color:#a855f7;">Target: 1.0</span>
+                  <h3><i class="fa-solid fa-venus-mars" style="color:#a855f7;"></i> Gender Parity (GPI)</h3>
+                  <span class="badge" style="background:rgba(168,85,247,0.15); color:#a855f7; font-size: 0.65rem;">Target: 1.0</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-edu-gpi"></canvas>
                 </div>
               </div>
-              <div class="chart-main-card flex-1">
+
+              <!-- Spending vs Dropout Bubble -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-chart-bubble" style="color:#6366f1;"></i> Social Spending vs. Dropout (All States)</h3>
-                  <span class="badge info">Bubble Chart</span>
+                  <h3><i class="fa-solid fa-chart-bubble" style="color:#6366f1;"></i> Spending vs Dropout</h3>
+                  <span class="badge info" style="font-size: 0.65rem;">Bubble Chart</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-education-matrix"></canvas>
-                  <div class="good-dir x-dir" style="position:absolute; bottom: 5px; right: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;">Better <i class="fa-solid fa-arrow-right"></i></div>
-                  <div class="good-dir y-dir" style="position:absolute; bottom: 35px; left: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;"><i class="fa-solid fa-arrow-down"></i> Better</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="analysis-narrative">
-              <h3><i class="fa-solid fa-lightbulb"></i> How to Read These Charts</h3>
-              <div class="narrative-highlights" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 0.5rem;">
-                <div class="highlight-item" style="padding: 0.8rem;">
-                  <i class="fa-solid fa-arrow-trend-down text-emerald" style="font-size: 1rem;"></i>
-                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Dropout &amp; PTR:</strong> A declining trend is positive — fewer students leaving and better teacher density.</p>
-                </div>
-                <div class="highlight-item" style="padding: 0.8rem;">
-                  <i class="fa-solid fa-arrow-trend-up text-emerald" style="font-size: 1rem;"></i>
-                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>GER &amp; NER:</strong> A rising trend is positive — more age-appropriate children are enrolled and attending school.</p>
-                </div>
-                <div class="highlight-item" style="padding: 0.8rem;">
-                  <i class="fa-solid fa-equals text-emerald" style="font-size: 1rem;"></i>
-                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>GPI ≈ 1.0:</strong> Gender parity is achieved when the index is at or near 1.0. Below 1.0 indicates under-representation of girls.</p>
+                  <div class="good-dir x-dir" style="position:absolute; bottom: 5px; right: 20px; color: #10b981; font-weight: 700; font-size: 0.65rem; background: var(--bg-card); padding: 1px 4px; border-radius: 4px; z-index: 10;">Better <i class="fa-solid fa-arrow-right"></i></div>
+                  <div class="good-dir y-dir" style="position:absolute; bottom: 35px; left: 20px; color: #10b981; font-weight: 700; font-size: 0.65rem; background: var(--bg-card); padding: 1px 4px; border-radius: 4px; z-index: 10;"><i class="fa-solid fa-arrow-down"></i> Better</div>
                 </div>
               </div>
             </div>
@@ -616,98 +598,84 @@
           <!-- Healthcare Efficacy & Life Quality Tab View -->
           <div class="tab-view" id="tab-healthcare">
             
-            <div class="comparison-filters">
-              <div class="filter-group">
-                <label for="healthcare-year-select">Select Year:</label>
-                <select id="healthcare-year-select" class="custom-select compare-select">
+            <div class="comparison-filters" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color);">
+              <h2 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-heart-pulse" style="color: var(--accent-color);"></i> Healthcare Efficacy &amp; Outcomes
+              </h2>
+              <div class="filter-group" style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <label for="healthcare-year-select" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Select Year:</label>
+                <select id="healthcare-year-select" class="custom-select compare-select" style="margin: 0; height: 32px; padding: 0 0.75rem; font-size: 0.85rem;">
                   <!-- Populated via JS -->
                 </select>
               </div>
             </div>
 
-            <div class="analysis-narrative" style="margin-bottom: 1rem; margin-top: 1rem;">
-              <h3><i class="fa-solid fa-heart-pulse"></i> Healthcare Efficacy &amp; Life Quality Metrics</h3>
-              <p>This tab monitors critical healthcare and maternal delivery outcomes to analyze whether public health spending and sub-national health insurance/medicine schemes protect citizens and improve life standards. Each chart shows a <strong>state-wise comparison for the selected year</strong>.</p>
-            </div>
-
-            <!-- Row 1: Out-of-Pocket Expenditure & Infant Mortality Rate -->
-            <div class="double-charts-row">
-              <div class="chart-main-card flex-1">
+            <div class="efficacy-charts-grid">
+              <!-- Out-of-Pocket Health Expenditure (OOPE) -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-wallet" style="color:#ef4444;"></i> Out-of-Pocket Health Expenditure (OOPE)</h3>
-                  <span class="badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Lower is Better</span>
+                  <h3><i class="fa-solid fa-wallet" style="color:#ef4444;"></i> Out-of-Pocket Cost (OOPE)</h3>
+                  <span class="badge" style="background:rgba(239,68,68,0.15); color:#ef4444; font-size: 0.65rem;">Lower is Better</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-health-oope"></canvas>
                 </div>
               </div>
-              <div class="chart-main-card flex-1">
+
+              <!-- Infant Mortality Rate (IMR) -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-baby" style="color:#f59e0b;"></i> Infant Mortality Rate (IMR)</h3>
-                  <span class="badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">Lower is Better</span>
+                  <h3><i class="fa-solid fa-baby" style="color:#f59e0b;"></i> Infant Mortality (IMR)</h3>
+                  <span class="badge" style="background:rgba(245,158,11,0.15); color:#f59e0b; font-size: 0.65rem;">Lower is Better</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-health-imr"></canvas>
                 </div>
               </div>
-            </div>
 
-            <!-- Row 2: Maternal Mortality Ratio & Institutional Deliveries -->
-            <div class="double-charts-row">
-              <div class="chart-main-card flex-1">
+              <!-- Maternal Mortality Ratio (MMR) -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-person-breastfeeding" style="color:#a855f7;"></i> Maternal Mortality Ratio (MMR)</h3>
-                  <span class="badge" style="background:rgba(168,85,247,0.15); color:#a855f7;">Lower is Better</span>
+                  <h3><i class="fa-solid fa-person-breastfeeding" style="color:#a855f7;"></i> Maternal Mortality (MMR)</h3>
+                  <span class="badge" style="background:rgba(168,85,247,0.15); color:#a855f7; font-size: 0.65rem;">Lower is Better</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-health-mmr"></canvas>
                 </div>
               </div>
-              <div class="chart-main-card flex-1">
+
+              <!-- Institutional Deliveries -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-hospital-user" style="color:#10b981;"></i> Institutional Deliveries (%)</h3>
-                  <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981;">Higher is Better</span>
+                  <h3><i class="fa-solid fa-hospital-user" style="color:#10b981;"></i> Inst. Deliveries (%)</h3>
+                  <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; font-size: 0.65rem;">Higher is Better</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-health-inst-deliveries"></canvas>
                 </div>
               </div>
-            </div>
 
-            <!-- Row 3: Life Expectancy & Health Spending vs. OOPE Bubble Chart -->
-            <div class="double-charts-row">
-              <div class="chart-main-card flex-1">
+              <!-- Life Expectancy at Birth -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-heart" style="color:#ec4899;"></i> Life Expectancy at Birth</h3>
-                  <span class="badge" style="background:rgba(236,72,153,0.15); color:#ec4899;">Higher is Better</span>
+                  <h3><i class="fa-solid fa-heart" style="color:#ec4899;"></i> Life Expectancy</h3>
+                  <span class="badge" style="background:rgba(236,72,153,0.15); color:#ec4899; font-size: 0.65rem;">Higher is Better</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-health-life-expectancy"></canvas>
                 </div>
               </div>
-              <div class="chart-main-card flex-1">
+
+              <!-- Spending vs OOPE Bubble -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-chart-bubble" style="color:#6366f1;"></i> Health Spending vs. Out-of-Pocket Cost (OOPE)</h3>
-                  <span class="badge info">Bubble Chart</span>
+                  <h3><i class="fa-solid fa-chart-bubble" style="color:#6366f1;"></i> Spending vs OOPE</h3>
+                  <span class="badge info" style="font-size: 0.65rem;">Bubble Chart</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-health-matrix"></canvas>
-                  <div class="good-dir x-dir" style="position:absolute; bottom: 5px; right: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;">Better <i class="fa-solid fa-arrow-right"></i></div>
-                  <div class="good-dir y-dir" style="position:absolute; bottom: 35px; left: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;"><i class="fa-solid fa-arrow-down"></i> Better</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="analysis-narrative">
-              <h3><i class="fa-solid fa-circle-info"></i> How Public Expenditure Drives Health Quality</h3>
-              <div class="narrative-highlights" style="grid-template-columns: 1fr 1fr; margin-top: 0.5rem;">
-                <div class="highlight-item" style="padding: 0.8rem;">
-                  <i class="fa-solid fa-circle-check text-emerald" style="font-size: 1rem;"></i>
-                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>Out-of-Pocket Expenditure (OOPE):</strong> Reflects household vulnerability. States with higher public health spending (e.g. Tamil Nadu) typically see a drop in OOPE, saving citizens from medical bankruptcy.</p>
-                </div>
-                <div class="highlight-item" style="padding: 0.8rem;">
-                  <i class="fa-solid fa-shield text-indigo" style="font-size: 1rem;"></i>
-                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>IMR &amp; MMR Efficacy:</strong> Primary healthcare access, clean sanitation, and nutrition initiatives directly result in maternal and infant survival rates, paving the way for higher life expectancy.</p>
+                  <div class="good-dir x-dir" style="position:absolute; bottom: 5px; right: 20px; color: #10b981; font-weight: 700; font-size: 0.65rem; background: var(--bg-card); padding: 1px 4px; border-radius: 4px; z-index: 10;">Better <i class="fa-solid fa-arrow-right"></i></div>
+                  <div class="good-dir y-dir" style="position:absolute; bottom: 35px; left: 20px; color: #10b981; font-weight: 700; font-size: 0.65rem; background: var(--bg-card); padding: 1px 4px; border-radius: 4px; z-index: 10;"><i class="fa-solid fa-arrow-down"></i> Better</div>
                 </div>
               </div>
             </div>
@@ -717,98 +685,84 @@
           <!-- Nutrition & Social Safety Net Tab View -->
           <div class="tab-view" id="tab-social">
             
-            <div class="comparison-filters">
-              <div class="filter-group">
-                <label for="social-year-select">Select Year:</label>
-                <select id="social-year-select" class="custom-select compare-select">
+            <div class="comparison-filters" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color);">
+              <h2 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-wheat-awn" style="color: var(--accent-color);"></i> Nutrition &amp; Welfare Safety
+              </h2>
+              <div class="filter-group" style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <label for="social-year-select" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Select Year:</label>
+                <select id="social-year-select" class="custom-select compare-select" style="margin: 0; height: 32px; padding: 0 0.75rem; font-size: 0.85rem;">
                   <!-- Populated via JS -->
                 </select>
               </div>
             </div>
 
-            <div class="analysis-narrative" style="margin-bottom: 1rem; margin-top: 1rem;">
-              <h3><i class="fa-solid fa-wheat-awn"></i> Nutrition &amp; Social Safety Net Efficacy</h3>
-              <p>This tab evaluates nutrition delivery (ICDS/midday meals) and welfare transfers by tracking indicators of childhood malnutrition, multidimensional poverty, and overall labor participation. Each chart shows a <strong>state-wise comparison for the selected year</strong>.</p>
-            </div>
-
-            <!-- Row 1: Child Stunting & Child Wasting -->
-            <div class="double-charts-row">
-              <div class="chart-main-card flex-1">
+            <div class="efficacy-charts-grid">
+              <!-- Child Stunting (Under 5 Years) -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-child" style="color:#ef4444;"></i> Child Stunting (Under 5 Years)</h3>
-                  <span class="badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Lower is Better</span>
+                  <h3><i class="fa-solid fa-child" style="color:#ef4444;"></i> Child Stunting</h3>
+                  <span class="badge" style="background:rgba(239,68,68,0.15); color:#ef4444; font-size: 0.65rem;">Lower is Better</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-social-stunting"></canvas>
                 </div>
               </div>
-              <div class="chart-main-card flex-1">
+
+              <!-- Child Wasting (Under 5 Years) -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-child-reaching" style="color:#f59e0b;"></i> Child Wasting (Under 5 Years)</h3>
-                  <span class="badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">Lower is Better</span>
+                  <h3><i class="fa-solid fa-child-reaching" style="color:#f59e0b;"></i> Child Wasting</h3>
+                  <span class="badge" style="background:rgba(245,158,11,0.15); color:#f59e0b; font-size: 0.65rem;">Lower is Better</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-social-wasting"></canvas>
                 </div>
               </div>
-            </div>
 
-            <!-- Row 2: Multidimensional Poverty & Labor Force Participation Rate -->
-            <div class="double-charts-row">
-              <div class="chart-main-card flex-1">
+              <!-- Multidimensional Poverty Index (MPI) -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-people-roof" style="color:#a855f7;"></i> Multidimensional Poverty Index (MPI)</h3>
-                  <span class="badge" style="background:rgba(168,85,247,0.15); color:#a855f7;">Lower is Better</span>
+                  <h3><i class="fa-solid fa-people-roof" style="color:#a855f7;"></i> Poverty Index (MPI)</h3>
+                  <span class="badge" style="background:rgba(168,85,247,0.15); color:#a855f7; font-size: 0.65rem;">Lower is Better</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-social-mpi"></canvas>
                 </div>
               </div>
-              <div class="chart-main-card flex-1">
+
+              <!-- Labor Force Participation Rate (LFPR) -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-briefcase" style="color:#3b82f6;"></i> Labor Force Participation Rate (LFPR)</h3>
-                  <span class="badge" style="background:rgba(59,130,246,0.15); color:#3b82f6;">Higher is Better</span>
+                  <h3><i class="fa-solid fa-briefcase" style="color:#3b82f6;"></i> Labor Force (LFPR)</h3>
+                  <span class="badge" style="background:rgba(59,130,246,0.15); color:#3b82f6; font-size: 0.65rem;">Higher is Better</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-social-lfpr"></canvas>
                 </div>
               </div>
-            </div>
 
-            <!-- Row 3: Female LFPR & Welfare Spend vs. MPI Bubble Chart -->
-            <div class="double-charts-row">
-              <div class="chart-main-card flex-1">
+              <!-- Female Labor Force Participation (FLFPR) -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-person-dress" style="color:#ec4899;"></i> Female Labor Force Participation (FLFPR)</h3>
-                  <span class="badge" style="background:rgba(236,72,153,0.15); color:#ec4899;">Higher is Better</span>
+                  <h3><i class="fa-solid fa-person-dress" style="color:#ec4899;"></i> Female Labor Force</h3>
+                  <span class="badge" style="background:rgba(236,72,153,0.15); color:#ec4899; font-size: 0.65rem;">Higher is Better</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-social-lfpr-female"></canvas>
                 </div>
               </div>
-              <div class="chart-main-card flex-1">
+
+              <!-- Welfare Spend vs. MPI Bubble -->
+              <div class="chart-main-card">
                 <div class="card-header-bar">
-                  <h3><i class="fa-solid fa-chart-bubble" style="color:#6366f1;"></i> Welfare Spend vs. Multidimensional Poverty (MPI)</h3>
-                  <span class="badge info">Bubble Chart</span>
+                  <h3><i class="fa-solid fa-chart-bubble" style="color:#6366f1;"></i> Welfare Spend vs MPI</h3>
+                  <span class="badge info" style="font-size: 0.65rem;">Bubble Chart</span>
                 </div>
                 <div class="chart-body">
                   <canvas id="chart-social-matrix"></canvas>
-                  <div class="good-dir x-dir" style="position:absolute; bottom: 5px; right: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;">Better <i class="fa-solid fa-arrow-right"></i></div>
-                  <div class="good-dir y-dir" style="position:absolute; bottom: 35px; left: 20px; color: #10b981; font-weight: 700; font-size: 0.75rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;"><i class="fa-solid fa-arrow-down"></i> Better</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="analysis-narrative">
-              <h3><i class="fa-solid fa-circle-question"></i> Understanding Social Efficacy &amp; Development</h3>
-              <div class="narrative-highlights" style="grid-template-columns: 1fr 1fr; margin-top: 0.5rem;">
-                <div class="highlight-item" style="padding: 0.8rem;">
-                  <i class="fa-solid fa-seedling text-emerald" style="font-size: 1rem;"></i>
-                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>ICDS &amp; Nutritional Safeguards:</strong> High malnutrition rates (stunting/wasting) indicate the need for targeted nutritional interventions. Successful cover directly accelerates cognitive growth and long-term economic productivity.</p>
-                </div>
-                <div class="highlight-item" style="padding: 0.8rem;">
-                  <i class="fa-solid fa-venus text-indigo" style="font-size: 1rem;"></i>
-                  <p style="font-size: 0.8rem; line-height: 1.4;"><strong>FLFPR &amp; Welfare Support:</strong> Female workforce participation is highly responsive to family safety nets, childcare availability, and local safety standards, serving as a vital lever for household income escalation.</p>
+                  <div class="good-dir x-dir" style="position:absolute; bottom: 5px; right: 20px; color: #10b981; font-weight: 700; font-size: 0.65rem; background: var(--bg-card); padding: 1px 4px; border-radius: 4px; z-index: 10;">Better <i class="fa-solid fa-arrow-right"></i></div>
+                  <div class="good-dir y-dir" style="position:absolute; bottom: 35px; left: 20px; color: #10b981; font-weight: 700; font-size: 0.65rem; background: var(--bg-card); padding: 1px 4px; border-radius: 4px; z-index: 10;"><i class="fa-solid fa-arrow-down"></i> Better</div>
                 </div>
               </div>
             </div>
@@ -1169,7 +1123,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.9"></script>
-  <script src="app.js?v=3.9"></script>
+  <script src="data.js?v=3.10"></script>
+  <script src="app.js?v=3.10"></script>
 </body>
 </html>
