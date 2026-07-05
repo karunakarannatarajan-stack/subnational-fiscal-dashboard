@@ -2081,7 +2081,9 @@ document.addEventListener("DOMContentLoaded", () => {
         pc_debt: pc_debt_val,
         central_transfers: fiscalData.metrics.central_transfers[s.id][yearIdx],
         central_transfers_abs: getMetricValue(s.id, 'central_transfers_abs', yearIdx),
-        borrowing_spread: fiscalData.metrics.borrowing_spread[s.id][yearIdx]
+        borrowing_spread: fiscalData.metrics.borrowing_spread[s.id][yearIdx],
+        deficit_to_sotr: getMetricValue(s.id, 'deficit_to_sotr', yearIdx),
+        direct_central_investment: getMetricValue(s.id, 'direct_central_investment', yearIdx)
       };
     });
 
@@ -2125,7 +2127,8 @@ document.addEventListener("DOMContentLoaded", () => {
       "pc_debt",
       "central_transfers",
       "central_transfers_abs",
-      "borrowing_spread"
+      "borrowing_spread",
+      "direct_central_investment"
     ];
 
     metricsToRank.forEach(key => {
