@@ -2714,7 +2714,9 @@ document.addEventListener("DOMContentLoaded", () => {
         borderColor: borderColors,
         borderWidth: borderWidths,
         borderRadius: 4,
-        maxBarThickness: 35,
+        maxBarThickness: 70,
+        categoryPercentage: 1.0,
+        barPercentage: 1.0,
         order: 1
       }];
 
@@ -2985,7 +2987,9 @@ document.addEventListener("DOMContentLoaded", () => {
         borderColor: borderColors,
         borderWidth: borderWidths,
         borderRadius: 4,
-        maxBarThickness: 35,
+        maxBarThickness: 70,
+        categoryPercentage: 1.0,
+        barPercentage: 1.0,
         order: 1
       }];
 
@@ -3255,7 +3259,9 @@ document.addEventListener("DOMContentLoaded", () => {
         borderColor: borderColors,
         borderWidth: borderWidths,
         borderRadius: 4,
-        maxBarThickness: 35,
+        maxBarThickness: 70,
+        categoryPercentage: 1.0,
+        barPercentage: 1.0,
         order: 1
       }];
 
@@ -3523,7 +3529,9 @@ document.addEventListener("DOMContentLoaded", () => {
         borderColor: borderColors,
         borderWidth: borderWidths,
         borderRadius: 4,
-        maxBarThickness: 35,
+        maxBarThickness: 70,
+        categoryPercentage: 1.0,
+        barPercentage: 1.0,
         order: 1
       }];
 
