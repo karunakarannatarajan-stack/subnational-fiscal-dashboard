@@ -653,6 +653,8 @@ document.addEventListener("DOMContentLoaded", () => {
       renderExpenditureTrajectoryTab(t);
     } else if (activeTab === "transfers") {
       renderTransfersTab(t);
+    } else if (activeTab === "transfers_trajectory") {
+      renderTransfersTrajectoryTab(t);
     } else if (activeTab === "education") {
       renderEducationTab(t);
     } else if (activeTab === "healthcare") {
@@ -3391,6 +3393,83 @@ document.addEventListener("DOMContentLoaded", () => {
                 label: (ctx) => {
                   if (ctx.raw === null) return '';
                   return `Subsidies/Rev Receipts: ${ctx.raw.toFixed(2)}%`;
+                }
+              }
+            }
+          }
+        }
+      });
+    });
+  }
+
+  // --- Render Central Transfers Trajectory (Trellis/Facet Plots) ---
+  function renderTransfersTrajectoryTab(t) {
+    const states = fiscalData.states;
+
+    states.forEach(state => {
+      const canvasId = `chart-transfers-${state.id}`;
+      const ctx = document.getElementById(canvasId);
+      if (!ctx) return;
+
+      const chartKey = `transfers-trajectory-${state.id}`;
+      if (charts[chartKey]) charts[chartKey].destroy();
+
+      const labels = [...fiscalData.years];
+      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "central_transfers", yearIdx));
+
+      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
+          datasets: [
+            {
+              label: `${state.name} Central Transfers`,
+              data: data,
+              borderColor: state.color,
+              backgroundColor: state.color + '15',
+              borderWidth: 3,
+              pointBackgroundColor: state.color,
+              pointBorderColor: '#ffffff',
+              pointBorderWidth: 1.5,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              fill: true,
+              tension: 0.15
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 5, bottom: 5, left: 5, right: 5 } },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: t.textSecondary, font: { size: 8 }, maxRotation: 45, minRotation: 45 }
+            },
+            y: {
+              min: 0,
+              max: 70,
+              grid: { color: t.gridColor },
+              ticks: {
+                color: t.textSecondary,
+                font: { size: 8 },
+                callback: function(value) { return value.toFixed(0) + '%'; }
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: t.tooltipBg,
+              titleColor: t.tooltipText,
+              bodyColor: t.textColor,
+              borderColor: t.tooltipBorder,
+              borderWidth: 1,
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.raw === null) return '';
+                  return `Central Transfers/Rev Receipts: ${ctx.raw.toFixed(1)}%`;
                 }
               }
             }
