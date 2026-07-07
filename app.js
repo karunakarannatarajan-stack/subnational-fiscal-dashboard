@@ -1317,7 +1317,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     fiscalData.states.forEach(state => {
       const debt = fiscalData.metrics.debt_gsdp[state.id][yearIdx];
-      const interest = fiscalData.metrics.interest_revenue[state.id][yearIdx];
+      const interest = getMetricValue(state.id, "interest_to_own_revenue", yearIdx);
       
       const growth = fiscalData.metrics.gsdp_growth[state.id][yearIdx];
       const cost = fiscalData.metrics.effective_interest[state.id][yearIdx];
@@ -1385,7 +1385,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const stateName = context.dataset.label;
                 const x = context.raw.x.toFixed(2);
                 const y = context.raw.y.toFixed(2);
-                return `${stateName} | Interest/Rev: ${x}% | Debt/GSDP: ${y}%`;
+                return `${stateName} | Interest/Own Rev: ${x}% | Debt/GSDP: ${y}%`;
               }
             }
           }
@@ -1395,7 +1395,7 @@ document.addEventListener("DOMContentLoaded", () => {
             grid: { color: t.gridColor },
             title: {
               display: true,
-              text: "Interest to Revenue Receipts (%) (← Better)",
+              text: "Interest to Own Revenue Receipts (%) (← Better)",
               color: t.textSecondary,
               font: { weight: 600, family: "'Outfit', sans-serif" }
             },
@@ -2792,7 +2792,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (charts[chartKey]) charts[chartKey].destroy();
 
       const labels = [...fiscalData.years];
-      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "interest_revenue", yearIdx));
+      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "interest_to_own_revenue", yearIdx));
 
       charts[chartKey] = new Chart(ctx.getContext('2d'), {
         type: 'line',
@@ -2811,18 +2811,7 @@ document.addEventListener("DOMContentLoaded", () => {
               pointRadius: 4,
               pointHoverRadius: 6,
               fill: true,
-              tension: 0.15,
-              order: 1
-            },
-            {
-              label: '15th FC Target (10%)',
-              data: labels.map(() => 10),
-              borderColor: 'rgba(239, 68, 68, 0.65)',
-              borderWidth: 1.25,
-              borderDash: [5, 5],
-              pointRadius: 0,
-              fill: false,
-              order: 2
+              tension: 0.15
             }
           ]
         },
@@ -2867,8 +2856,7 @@ document.addEventListener("DOMContentLoaded", () => {
               callbacks: {
                 label: (ctx) => {
                   if (ctx.raw === null) return '';
-                  if (ctx.dataset.label.includes('FC Target')) return `${ctx.dataset.label}: 10%`;
-                  return `Interest/Revenue: ${ctx.raw.toFixed(1)}%`;
+                  return `Interest/Own Revenue: ${ctx.raw.toFixed(1)}%`;
                 }
               }
             }
@@ -4186,6 +4174,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const ownTax = fiscalData.metrics.own_tax_gsdp[stateId][yearIdx];
       return debt / ownTax;
     }
+    if (key === "interest_to_own_revenue") {
+      const interest_revenue_pct = fiscalData.metrics.interest_revenue[stateId][yearIdx];
+      const trr_abs = getMetricValue(stateId, "total_revenue", yearIdx);
+      const central_transfers_pct = fiscalData.metrics.central_transfers[stateId][yearIdx];
+      if (interest_revenue_pct === null || trr_abs === null || central_transfers_pct === null) return null;
+      const transfers_abs = (central_transfers_pct / 100) * trr_abs;
+      const orr_abs = trr_abs - transfers_abs; // Own Revenue Receipts
+      if (orr_abs === 0) return null;
+      const interest_payments_abs = (interest_revenue_pct / 100) * trr_abs;
+      return (interest_payments_abs / orr_abs) * 100;
+    }
+
     if (key === "pc_debt") {
       const debt = fiscalData.metrics.debt_gsdp[stateId][yearIdx];
       const pc_gsdp = fiscalData.metrics.pc_gsdp[stateId][yearIdx];
