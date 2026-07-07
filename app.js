@@ -649,6 +649,8 @@ document.addEventListener("DOMContentLoaded", () => {
       renderRevenueTrajectoryTab(t);
     } else if (activeTab === "expenditure") {
       renderExpenditureTab(t);
+    } else if (activeTab === "expenditure_trajectory") {
+      renderExpenditureTrajectoryTab(t);
     } else if (activeTab === "transfers") {
       renderTransfersTab(t);
     } else if (activeTab === "education") {
@@ -3165,6 +3167,227 @@ document.addEventListener("DOMContentLoaded", () => {
                 label: (ctx) => {
                   if (ctx.raw === null) return '';
                   return `Own Tax/GSDP: ${ctx.raw.toFixed(2)}%`;
+                }
+              }
+            }
+          }
+        }
+      });
+    });
+  }
+
+  // --- Render Expenditure Quality Trajectory (Trellis/Facet Plots) ---
+  function renderExpenditureTrajectoryTab(t) {
+    const states = fiscalData.states;
+
+    // 1. Capital Outlay
+    states.forEach(state => {
+      const canvasId = `chart-expcap-${state.id}`;
+      const ctx = document.getElementById(canvasId);
+      if (!ctx) return;
+
+      const chartKey = `expcap-trajectory-${state.id}`;
+      if (charts[chartKey]) charts[chartKey].destroy();
+
+      const labels = [...fiscalData.years];
+      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "capital_outlay", yearIdx));
+
+      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
+          datasets: [
+            {
+              label: `${state.name} Capital Outlay`,
+              data: data,
+              borderColor: state.color,
+              backgroundColor: state.color + '15',
+              borderWidth: 3,
+              pointBackgroundColor: state.color,
+              pointBorderColor: '#ffffff',
+              pointBorderWidth: 1.5,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              fill: true,
+              tension: 0.15
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 5, bottom: 5, left: 5, right: 5 } },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: t.textSecondary, font: { size: 8 }, maxRotation: 45, minRotation: 45 }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: t.gridColor },
+              ticks: {
+                color: t.textSecondary,
+                font: { size: 8 },
+                callback: function(value) { return value.toFixed(1) + '%'; }
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: t.tooltipBg,
+              titleColor: t.tooltipText,
+              bodyColor: t.textColor,
+              borderColor: t.tooltipBorder,
+              borderWidth: 1,
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.raw === null) return '';
+                  return `Capital Outlay/GSDP: ${ctx.raw.toFixed(2)}%`;
+                }
+              }
+            }
+          }
+        }
+      });
+    });
+
+    // 2. Committed Expenditure
+    states.forEach(state => {
+      const canvasId = `chart-expcommit-${state.id}`;
+      const ctx = document.getElementById(canvasId);
+      if (!ctx) return;
+
+      const chartKey = `expcommit-trajectory-${state.id}`;
+      if (charts[chartKey]) charts[chartKey].destroy();
+
+      const labels = [...fiscalData.years];
+      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "committed_exp", yearIdx));
+
+      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
+          datasets: [
+            {
+              label: `${state.name} Committed Exp`,
+              data: data,
+              borderColor: state.color,
+              backgroundColor: state.color + '15',
+              borderWidth: 3,
+              pointBackgroundColor: state.color,
+              pointBorderColor: '#ffffff',
+              pointBorderWidth: 1.5,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              fill: true,
+              tension: 0.15
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 5, bottom: 5, left: 5, right: 5 } },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: t.textSecondary, font: { size: 8 }, maxRotation: 45, minRotation: 45 }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: t.gridColor },
+              ticks: {
+                color: t.textSecondary,
+                font: { size: 8 },
+                callback: function(value) { return value.toFixed(0) + '%'; }
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: t.tooltipBg,
+              titleColor: t.tooltipText,
+              bodyColor: t.textColor,
+              borderColor: t.tooltipBorder,
+              borderWidth: 1,
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.raw === null) return '';
+                  return `Committed/Rev Receipts: ${ctx.raw.toFixed(1)}%`;
+                }
+              }
+            }
+          }
+        }
+      });
+    });
+
+    // 3. Subsidies
+    states.forEach(state => {
+      const canvasId = `chart-expsub-${state.id}`;
+      const ctx = document.getElementById(canvasId);
+      if (!ctx) return;
+
+      const chartKey = `expsub-trajectory-${state.id}`;
+      if (charts[chartKey]) charts[chartKey].destroy();
+
+      const labels = [...fiscalData.years];
+      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "subsidies", yearIdx));
+
+      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
+          datasets: [
+            {
+              label: `${state.name} Subsidies`,
+              data: data,
+              borderColor: state.color,
+              backgroundColor: state.color + '15',
+              borderWidth: 3,
+              pointBackgroundColor: state.color,
+              pointBorderColor: '#ffffff',
+              pointBorderWidth: 1.5,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              fill: true,
+              tension: 0.15
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 5, bottom: 5, left: 5, right: 5 } },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: t.textSecondary, font: { size: 8 }, maxRotation: 45, minRotation: 45 }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: t.gridColor },
+              ticks: {
+                color: t.textSecondary,
+                font: { size: 8 },
+                callback: function(value) { return value.toFixed(1) + '%'; }
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: t.tooltipBg,
+              titleColor: t.tooltipText,
+              bodyColor: t.textColor,
+              borderColor: t.tooltipBorder,
+              borderWidth: 1,
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.raw === null) return '';
+                  return `Subsidies/Rev Receipts: ${ctx.raw.toFixed(2)}%`;
                 }
               }
             }
