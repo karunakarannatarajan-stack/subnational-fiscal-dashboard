@@ -3223,7 +3223,8 @@ document.addEventListener("DOMContentLoaded", () => {
               ticks: { color: t.textSecondary, font: { size: 8 }, maxRotation: 45, minRotation: 45 }
             },
             y: {
-              beginAtZero: true,
+              min: 0,
+              max: 5,
               grid: { color: t.gridColor },
               ticks: {
                 color: t.textSecondary,
@@ -3295,7 +3296,8 @@ document.addEventListener("DOMContentLoaded", () => {
               ticks: { color: t.textSecondary, font: { size: 8 }, maxRotation: 45, minRotation: 45 }
             },
             y: {
-              beginAtZero: true,
+              min: 0,
+              max: 80,
               grid: { color: t.gridColor },
               ticks: {
                 color: t.textSecondary,
@@ -3367,7 +3369,8 @@ document.addEventListener("DOMContentLoaded", () => {
               ticks: { color: t.textSecondary, font: { size: 8 }, maxRotation: 45, minRotation: 45 }
             },
             y: {
-              beginAtZero: true,
+              min: 0,
+              max: 20,
               grid: { color: t.gridColor },
               ticks: {
                 color: t.textSecondary,
