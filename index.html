@@ -18,7 +18,7 @@
   <!-- FontAwesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=3.19">
+  <link rel="stylesheet" href="style.css?v=3.20">
 </head>
 <body>
   <!-- Dashboard Grid Layout -->
@@ -75,6 +75,10 @@
             <button class="nav-item" data-tab="sustainability">
               <i class="fa-solid fa-shield-halved"></i>
               <span>Debt Sustainability</span>
+            </button>
+            <button class="nav-item" data-tab="sustainability_trajectory">
+              <i class="fa-solid fa-chart-line"></i>
+              <span>Debt sustainability trajectory</span>
             </button>
             <button class="nav-item" data-tab="revenue">
               <i class="fa-solid fa-wallet"></i>
@@ -469,6 +473,196 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- Debt Sustainability Trajectory Tab View -->
+          <div class="tab-view" id="tab-sustainability_trajectory">
+            
+            <div class="comparison-filters" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem;">
+              <h2 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-chart-line" style="color: var(--accent-color);"></i> Debt Sustainability Trajectory (Interest to Revenue &amp; Debt to GSDP)
+              </h2>
+              <span class="badge info" style="font-size: 0.75rem;">Facet Plot</span>
+            </div>
+
+            <!-- Section 1: Interest Payments (% of Revenue Receipts) -->
+            <div style="margin-top: 1rem; margin-bottom: 0.5rem; padding: 0 0.25rem;">
+              <h3 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.4rem;">
+                <i class="fa-solid fa-hand-holding-dollar" style="color: var(--accent-color);"></i> Interest Payments (% of Revenue Receipts) — Target: &lt;10%
+              </h3>
+            </div>
+            <div class="trajectory-grid" style="margin-bottom: 2rem;">
+              <!-- MH -->
+              <div class="chart-main-card">
+                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #3b82f6; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Maharashtra</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">West</span>
+                </div>
+                <div class="chart-body" style="height: 240px;">
+                  <canvas id="chart-interest-MH"></canvas>
+                </div>
+              </div>
+              <!-- TN -->
+              <div class="chart-main-card">
+                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #10b981; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Tamil Nadu</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
+                </div>
+                <div class="chart-body" style="height: 240px;">
+                  <canvas id="chart-interest-TN"></canvas>
+                </div>
+              </div>
+              <!-- GJ -->
+              <div class="chart-main-card">
+                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #f59e0b; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Gujarat</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">West</span>
+                </div>
+                <div class="chart-body" style="height: 240px;">
+                  <canvas id="chart-interest-GJ"></canvas>
+                </div>
+              </div>
+              <!-- KA -->
+              <div class="chart-main-card">
+                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #ec4899; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Karnataka</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
+                </div>
+                <div class="chart-body" style="height: 240px;">
+                  <canvas id="chart-interest-KA"></canvas>
+                </div>
+              </div>
+              <!-- UP -->
+              <div class="chart-main-card">
+                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #8b5cf6; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Uttar Pradesh</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">North</span>
+                </div>
+                <div class="chart-body" style="height: 240px;">
+                  <canvas id="chart-interest-UP"></canvas>
+                </div>
+              </div>
+              <!-- AP -->
+              <div class="chart-main-card">
+                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #06b6d4; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Andhra Pradesh</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
+                </div>
+                <div class="chart-body" style="height: 240px;">
+                  <canvas id="chart-interest-AP"></canvas>
+                </div>
+              </div>
+              <!-- TS -->
+              <div class="chart-main-card">
+                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #f43f5e; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Telangana</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
+                </div>
+                <div class="chart-body" style="height: 240px;">
+                  <canvas id="chart-interest-TS"></canvas>
+                </div>
+              </div>
+              <!-- WB -->
+              <div class="chart-main-card">
+                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #6b7280; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> West Bengal</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">East</span>
+                </div>
+                <div class="chart-body" style="height: 240px;">
+                  <canvas id="chart-interest-WB"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 2: Outstanding Debt (% of GSDP) -->
+            <div style="margin-top: 1rem; margin-bottom: 0.5rem; padding: 0 0.25rem;">
+              <h3 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.4rem;">
+                <i class="fa-solid fa-building-columns" style="color: var(--accent-color);"></i> Outstanding Debt (% of GSDP) — Target: &lt;32.5%
+              </h3>
+            </div>
+            <div class="trajectory-grid">
+              <!-- MH -->
+              <div class="chart-main-card">
+                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #3b82f6; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Maharashtra</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">West</span>
+                </div>
+                <div class="chart-body" style="height: 240px;">
+                  <canvas id="chart-debt-MH"></canvas>
+                </div>
+              </div>
+              <!-- TN -->
+              <div class="chart-main-card">
+                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #10b981; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Tamil Nadu</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
+                </div>
+                <div class="chart-body" style="height: 240px;">
+                  <canvas id="chart-debt-TN"></canvas>
+                </div>
+              </div>
+              <!-- GJ -->
+              <div class="chart-main-card">
+                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #f59e0b; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Gujarat</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">West</span>
+                </div>
+                <div class="chart-body" style="height: 240px;">
+                  <canvas id="chart-debt-GJ"></canvas>
+                </div>
+              </div>
+              <!-- KA -->
+              <div class="chart-main-card">
+                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #ec4899; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Karnataka</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
+                </div>
+                <div class="chart-body" style="height: 240px;">
+                  <canvas id="chart-debt-KA"></canvas>
+                </div>
+              </div>
+              <!-- UP -->
+              <div class="chart-main-card">
+                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #8b5cf6; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Uttar Pradesh</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">North</span>
+                </div>
+                <div class="chart-body" style="height: 240px;">
+                  <canvas id="chart-debt-UP"></canvas>
+                </div>
+              </div>
+              <!-- AP -->
+              <div class="chart-main-card">
+                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #06b6d4; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Andhra Pradesh</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
+                </div>
+                <div class="chart-body" style="height: 240px;">
+                  <canvas id="chart-debt-AP"></canvas>
+                </div>
+              </div>
+              <!-- TS -->
+              <div class="chart-main-card">
+                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #f43f5e; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Telangana</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
+                </div>
+                <div class="chart-body" style="height: 240px;">
+                  <canvas id="chart-debt-TS"></canvas>
+                </div>
+              </div>
+              <!-- WB -->
+              <div class="chart-main-card">
+                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #6b7280; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> West Bengal</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">East</span>
+                </div>
+                <div class="chart-body" style="height: 240px;">
+                  <canvas id="chart-debt-WB"></canvas>
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <!-- Revenue Quality Tab View -->
@@ -1229,7 +1423,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.19"></script>
-  <script src="app.js?v=3.19"></script>
+  <script src="data.js?v=3.20"></script>
+  <script src="app.js?v=3.20"></script>
 </body>
 </html>

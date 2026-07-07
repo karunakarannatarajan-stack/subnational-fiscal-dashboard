@@ -641,6 +641,8 @@ document.addEventListener("DOMContentLoaded", () => {
       renderDeficitTrajectoryTab(t);
     } else if (activeTab === "sustainability") {
       renderSustainabilityTab(t);
+    } else if (activeTab === "sustainability_trajectory") {
+      renderSustainabilityTrajectoryTab(t);
     } else if (activeTab === "revenue") {
       renderRevenueTab(t);
     } else if (activeTab === "expenditure") {
@@ -2767,6 +2769,201 @@ document.addEventListener("DOMContentLoaded", () => {
                   if (ctx.raw === null) return '';
                   if (ctx.dataset.label === 'Zero Line') return '';
                   return `Own Revenue Deficit: ${ctx.raw.toFixed(1)}%`;
+                }
+              }
+            }
+          }
+        }
+      });
+    });
+  }
+
+  // --- Render Debt Sustainability Trajectory (Trellis/Facet Plots) ---
+  function renderSustainabilityTrajectoryTab(t) {
+    const states = fiscalData.states;
+
+    // Draw Interest-to-Revenue charts
+    states.forEach(state => {
+      const canvasId = `chart-interest-${state.id}`;
+      const ctx = document.getElementById(canvasId);
+      if (!ctx) return;
+
+      const chartKey = `interest-trajectory-${state.id}`;
+      if (charts[chartKey]) charts[chartKey].destroy();
+
+      const labels = [...fiscalData.years];
+      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "interest_revenue", yearIdx));
+
+      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
+          datasets: [
+            {
+              label: `${state.name}`,
+              data: data,
+              borderColor: state.color,
+              backgroundColor: state.color + '15',
+              borderWidth: 3,
+              pointBackgroundColor: state.color,
+              pointBorderColor: '#ffffff',
+              pointBorderWidth: 1.5,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              fill: true,
+              tension: 0.15,
+              order: 1
+            },
+            {
+              label: '15th FC Target (10%)',
+              data: labels.map(() => 10),
+              borderColor: 'rgba(239, 68, 68, 0.65)',
+              borderWidth: 1.25,
+              borderDash: [5, 5],
+              pointRadius: 0,
+              fill: false,
+              order: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: {
+            padding: { top: 5, bottom: 5, left: 5, right: 5 }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                color: t.textSecondary,
+                font: { size: 8 },
+                maxRotation: 45,
+                minRotation: 45
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: t.gridColor },
+              ticks: {
+                color: t.textSecondary,
+                font: { size: 8 },
+                callback: function(value) {
+                  return value.toFixed(0) + '%';
+                }
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: t.tooltipBg,
+              titleColor: t.tooltipText,
+              bodyColor: t.textColor,
+              borderColor: t.tooltipBorder,
+              borderWidth: 1,
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.raw === null) return '';
+                  if (ctx.dataset.label.includes('FC Target')) return `${ctx.dataset.label}: 10%`;
+                  return `Interest/Revenue: ${ctx.raw.toFixed(1)}%`;
+                }
+              }
+            }
+          }
+        }
+      });
+    });
+
+    // Draw Debt-to-GSDP charts
+    states.forEach(state => {
+      const canvasId = `chart-debt-${state.id}`;
+      const ctx = document.getElementById(canvasId);
+      if (!ctx) return;
+
+      const chartKey = `debt-trajectory-${state.id}`;
+      if (charts[chartKey]) charts[chartKey].destroy();
+
+      const labels = [...fiscalData.years];
+      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "debt_gsdp", yearIdx));
+
+      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
+          datasets: [
+            {
+              label: `${state.name}`,
+              data: data,
+              borderColor: state.color,
+              backgroundColor: state.color + '15',
+              borderWidth: 3,
+              pointBackgroundColor: state.color,
+              pointBorderColor: '#ffffff',
+              pointBorderWidth: 1.5,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              fill: true,
+              tension: 0.15,
+              order: 1
+            },
+            {
+              label: '15th FC Target (32.5%)',
+              data: labels.map(() => 32.5),
+              borderColor: 'rgba(239, 68, 68, 0.65)',
+              borderWidth: 1.25,
+              borderDash: [5, 5],
+              pointRadius: 0,
+              fill: false,
+              order: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: {
+            padding: { top: 5, bottom: 5, left: 5, right: 5 }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                color: t.textSecondary,
+                font: { size: 8 },
+                maxRotation: 45,
+                minRotation: 45
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: t.gridColor },
+              ticks: {
+                color: t.textSecondary,
+                font: { size: 8 },
+                callback: function(value) {
+                  return value.toFixed(0) + '%';
+                }
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: t.tooltipBg,
+              titleColor: t.tooltipText,
+              bodyColor: t.textColor,
+              borderColor: t.tooltipBorder,
+              borderWidth: 1,
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.raw === null) return '';
+                  if (ctx.dataset.label.includes('FC Target')) return `${ctx.dataset.label}: 32.5%`;
+                  return `Debt/GSDP: ${ctx.raw.toFixed(1)}%`;
                 }
               }
             }
