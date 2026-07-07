@@ -2687,7 +2687,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (charts[chartKey]) charts[chartKey].destroy();
 
       const labels = [...fiscalData.years];
-      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "deficit_to_sotr", yearIdx));
+      const data = fiscalData.years.map((_, yearIdx) => {
+        const val = getMetricValue(state.id, "deficit_to_sotr", yearIdx);
+        return val === null ? null : Math.max(0, -val);
+      });
 
       charts[chartKey] = new Chart(ctx.getContext('2d'), {
         type: 'line',
@@ -2763,7 +2766,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 label: (ctx) => {
                   if (ctx.raw === null) return '';
                   if (ctx.dataset.label === 'Zero Line') return '';
-                  return `Own Deficit/Surplus: ${ctx.raw.toFixed(1)}%`;
+                  return `Own Revenue Deficit: ${ctx.raw.toFixed(1)}%`;
                 }
               }
             }
