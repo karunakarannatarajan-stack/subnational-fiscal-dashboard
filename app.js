@@ -2989,6 +2989,101 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     });
+
+    // Draw Contingent Liabilities: Outstanding Guarantees (% of GSDP)
+    states.forEach(state => {
+      const canvasId = `chart-guar-${state.id}`;
+      const ctx = document.getElementById(canvasId);
+      if (!ctx) return;
+
+      const chartKey = `guar-trajectory-${state.id}`;
+      if (charts[chartKey]) charts[chartKey].destroy();
+
+      const labels = [...fiscalData.years];
+      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "outstanding_guarantees", yearIdx));
+
+      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
+          datasets: [
+            {
+              label: `${state.name} Guarantees`,
+              data: data,
+              borderColor: state.color,
+              backgroundColor: state.color + '15',
+              borderWidth: 3,
+              pointBackgroundColor: state.color,
+              pointBorderColor: '#ffffff',
+              pointBorderWidth: 1.5,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              fill: true,
+              tension: 0.15,
+              order: 1
+            },
+            {
+              label: 'Prudent Ceiling Limit (2.0% of GSDP)',
+              data: labels.map(() => 2.0),
+              borderColor: 'rgba(239, 68, 68, 0.75)',
+              borderWidth: 1.25,
+              borderDash: [3, 3],
+              pointRadius: 0,
+              fill: false,
+              order: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: {
+            padding: { top: 5, bottom: 5, left: 5, right: 5 }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                color: t.textSecondary,
+                font: { size: 8 },
+                maxRotation: 45,
+                minRotation: 45
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: t.gridColor },
+              ticks: {
+                color: t.textSecondary,
+                font: { size: 8 },
+                callback: function(value) {
+                  return value.toFixed(1) + '%';
+                }
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: t.tooltipBg,
+              titleColor: t.tooltipText,
+              bodyColor: t.textColor,
+              borderColor: t.tooltipBorder,
+              borderWidth: 1,
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.raw === null) return '';
+                  if (ctx.dataset.label.includes('Ceiling')) return `Ceiling: 2.0%`;
+                  return `Guarantees/GSDP: ${ctx.raw.toFixed(2)}%`;
+                }
+              }
+            }
+          }
+        }
+      });
+    });
   }
 
   // --- Render Revenue Quality Trajectory (Trellis/Facet Plots) ---
