@@ -18,7 +18,7 @@
   <!-- FontAwesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=3.21">
+  <link rel="stylesheet" href="style.css?v=3.22">
 </head>
 <body>
   <!-- Dashboard Grid Layout -->
@@ -486,10 +486,15 @@
             </div>
 
             <!-- Section 1: Interest Payments (% of Revenue Receipts) -->
-            <div style="margin-top: 1rem; margin-bottom: 0.5rem; padding: 0 0.25rem;">
+            <div style="margin-top: 1rem; margin-bottom: 0.5rem; padding: 0 0.25rem; display: flex; flex-direction: column; gap: 0.25rem;">
               <h3 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.4rem;">
-                <i class="fa-solid fa-hand-holding-dollar" style="color: var(--accent-color);"></i> Interest Payments (% of Own Revenue Receipts)
+                <i class="fa-solid fa-hand-holding-dollar" style="color: var(--accent-color);"></i> Interest Payments
               </h3>
+              <div style="font-size: 0.75rem; color: var(--text-secondary); display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center; margin-top: 0.1rem;">
+                <span><span style="border-bottom: 3px solid var(--accent-color); width: 16px; display: inline-block; margin-right: 4px; vertical-align: middle;"></span> Solid: % of Own Revenue Receipts</span>
+                <span><span style="border-bottom: 2px dashed var(--accent-color); width: 16px; display: inline-block; margin-right: 4px; vertical-align: middle;"></span> Dashed: % of Total Revenue Receipts</span>
+                <span><span style="border-bottom: 2px dotted #ef4444; width: 16px; display: inline-block; margin-right: 4px; vertical-align: middle;"></span> Red Dotted: 15th FC Limit (10% of Total Revenue)</span>
+              </div>
             </div>
             <div class="trajectory-grid" style="margin-bottom: 2rem;">
               <!-- MH -->
@@ -1423,7 +1428,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.21"></script>
-  <script src="app.js?v=3.21"></script>
+  <script src="data.js?v=3.22"></script>
+  <script src="app.js?v=3.22"></script>
 </body>
 </html>

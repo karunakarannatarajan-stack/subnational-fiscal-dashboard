@@ -2792,7 +2792,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (charts[chartKey]) charts[chartKey].destroy();
 
       const labels = [...fiscalData.years];
-      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "interest_to_own_revenue", yearIdx));
+      const dataOwn = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "interest_to_own_revenue", yearIdx));
+      const dataTotal = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "interest_revenue", yearIdx));
 
       charts[chartKey] = new Chart(ctx.getContext('2d'), {
         type: 'line',
@@ -2800,10 +2801,10 @@ document.addEventListener("DOMContentLoaded", () => {
           labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
           datasets: [
             {
-              label: `${state.name}`,
-              data: data,
+              label: `Interest / Own Revenue`,
+              data: dataOwn,
               borderColor: state.color,
-              backgroundColor: state.color + '15',
+              backgroundColor: state.color + '12',
               borderWidth: 3,
               pointBackgroundColor: state.color,
               pointBorderColor: '#ffffff',
@@ -2811,7 +2812,33 @@ document.addEventListener("DOMContentLoaded", () => {
               pointRadius: 4,
               pointHoverRadius: 6,
               fill: true,
-              tension: 0.15
+              tension: 0.15,
+              order: 1
+            },
+            {
+              label: `Interest / Total Revenue`,
+              data: dataTotal,
+              borderColor: state.color,
+              borderWidth: 2,
+              borderDash: [5, 5],
+              pointBackgroundColor: '#ffffff',
+              pointBorderColor: state.color,
+              pointBorderWidth: 1.5,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              fill: false,
+              tension: 0.15,
+              order: 2
+            },
+            {
+              label: '15th FC Limit (10% of Total Revenue)',
+              data: labels.map(() => 10),
+              borderColor: 'rgba(239, 68, 68, 0.75)',
+              borderWidth: 1.25,
+              borderDash: [3, 3],
+              pointRadius: 0,
+              fill: false,
+              order: 3
             }
           ]
         },
@@ -2856,7 +2883,8 @@ document.addEventListener("DOMContentLoaded", () => {
               callbacks: {
                 label: (ctx) => {
                   if (ctx.raw === null) return '';
-                  return `Interest/Own Revenue: ${ctx.raw.toFixed(1)}%`;
+                  if (ctx.dataset.label.includes('FC Limit')) return `FC Limit (Total Rev): 10%`;
+                  return `${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`;
                 }
               }
             }
