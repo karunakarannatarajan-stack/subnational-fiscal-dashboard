@@ -2738,6 +2738,7 @@ document.addEventListener("DOMContentLoaded", () => {
               }
             },
             y: {
+              beginAtZero: true,
               grid: { color: t.gridColor },
               ticks: {
                 color: t.textSecondary,
