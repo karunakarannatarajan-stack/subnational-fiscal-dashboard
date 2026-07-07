@@ -3044,13 +3044,14 @@ document.addEventListener("DOMContentLoaded", () => {
               }
             },
             y: {
-              beginAtZero: true,
+              min: 0,
+              max: 10,
               grid: { color: t.gridColor },
               ticks: {
                 color: t.textSecondary,
                 font: { size: 8 },
                 callback: function(value) {
-                  return value.toFixed(1) + '%';
+                  return value.toFixed(0) + '%';
                 }
               }
             }
