@@ -637,6 +637,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (activeTab === "deficit") {
       renderDeficitTab(t);
+    } else if (activeTab === "deficit_trajectory") {
+      renderDeficitTrajectoryTab(t);
     } else if (activeTab === "sustainability") {
       renderSustainabilityTab(t);
     } else if (activeTab === "revenue") {
@@ -2671,6 +2673,102 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       }
+    });
+  }
+
+  // --- Render Deficit & Quality Trajectory (Trellis/Facet Plot) ---
+  function renderDeficitTrajectoryTab(t) {
+    fiscalData.states.forEach(state => {
+      const canvasId = `chart-trajectory-${state.id}`;
+      const ctx = document.getElementById(canvasId);
+      if (!ctx) return;
+
+      const chartKey = `trajectory-${state.id}`;
+      if (charts[chartKey]) charts[chartKey].destroy();
+
+      const labels = [...fiscalData.years];
+      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "deficit_to_sotr", yearIdx));
+
+      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
+          datasets: [
+            {
+              label: `${state.name}`,
+              data: data,
+              borderColor: state.color,
+              backgroundColor: state.color + '15',
+              borderWidth: 2,
+              pointBackgroundColor: state.color,
+              pointBorderColor: '#ffffff',
+              pointBorderWidth: 1,
+              pointRadius: 2.5,
+              pointHoverRadius: 4,
+              fill: true,
+              tension: 0.15,
+              order: 1
+            },
+            {
+              label: 'Zero Line',
+              data: labels.map(() => 0),
+              borderColor: t.textSecondary + '66',
+              borderWidth: 1,
+              borderDash: [4, 4],
+              pointRadius: 0,
+              fill: false,
+              order: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: {
+            padding: { top: 5, bottom: 5, left: 5, right: 5 }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                color: t.textSecondary,
+                font: { size: 8 },
+                maxRotation: 45,
+                minRotation: 45
+              }
+            },
+            y: {
+              grid: { color: t.gridColor },
+              ticks: {
+                color: t.textSecondary,
+                font: { size: 8 },
+                callback: function(value) {
+                  return value.toFixed(0) + '%';
+                }
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: t.tooltipBg,
+              titleColor: t.tooltipText,
+              bodyColor: t.textColor,
+              borderColor: t.tooltipBorder,
+              borderWidth: 1,
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.raw === null) return '';
+                  if (ctx.dataset.label === 'Zero Line') return '';
+                  return `Own Deficit/Surplus: ${ctx.raw.toFixed(1)}%`;
+                }
+              }
+            }
+          }
+        }
+      });
     });
   }
 
