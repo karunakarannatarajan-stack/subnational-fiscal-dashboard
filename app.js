@@ -2739,7 +2739,7 @@ document.addEventListener("DOMContentLoaded", () => {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
+        layout: { padding: { top: 35, bottom: 5, left: 5, right: 10 } },
         scales: {
           x: {
             grid: { color: t.gridColor },
@@ -2852,7 +2852,7 @@ document.addEventListener("DOMContentLoaded", () => {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
+          layout: { padding: { top: 35, bottom: 5, left: 5, right: 10 } },
           scales: {
             x: {
               grid: { color: t.gridColor },
@@ -2949,7 +2949,7 @@ document.addEventListener("DOMContentLoaded", () => {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
+          layout: { padding: { top: 35, bottom: 5, left: 5, right: 10 } },
           scales: {
             x: {
               grid: { color: t.gridColor },
@@ -3047,7 +3047,7 @@ document.addEventListener("DOMContentLoaded", () => {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
+          layout: { padding: { top: 35, bottom: 5, left: 5, right: 10 } },
           scales: {
             x: {
               grid: { color: t.gridColor },
@@ -3145,7 +3145,7 @@ document.addEventListener("DOMContentLoaded", () => {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
+          layout: { padding: { top: 35, bottom: 5, left: 5, right: 10 } },
           scales: {
             x: {
               grid: { color: t.gridColor },
@@ -3238,7 +3238,7 @@ document.addEventListener("DOMContentLoaded", () => {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
+        layout: { padding: { top: 35, bottom: 5, left: 5, right: 10 } },
         scales: {
           x: {
             grid: { color: t.gridColor },
@@ -3331,7 +3331,7 @@ document.addEventListener("DOMContentLoaded", () => {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
+          layout: { padding: { top: 35, bottom: 5, left: 5, right: 10 } },
           scales: {
             x: {
               grid: { color: t.gridColor },
@@ -3398,7 +3398,7 @@ document.addEventListener("DOMContentLoaded", () => {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
+          layout: { padding: { top: 35, bottom: 5, left: 5, right: 10 } },
           scales: {
             x: {
               grid: { color: t.gridColor },
@@ -3465,7 +3465,7 @@ document.addEventListener("DOMContentLoaded", () => {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
+          layout: { padding: { top: 35, bottom: 5, left: 5, right: 10 } },
           scales: {
             x: {
               grid: { color: t.gridColor },
@@ -3556,7 +3556,7 @@ document.addEventListener("DOMContentLoaded", () => {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
+        layout: { padding: { top: 35, bottom: 5, left: 5, right: 10 } },
         scales: {
           x: {
             grid: { color: t.gridColor },
