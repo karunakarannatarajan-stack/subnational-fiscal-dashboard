@@ -2785,100 +2785,130 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Render Debt Sustainability Trajectory (Trellis/Facet Plots) ---
+  // --- Render Debt Sustainability Trajectory (Combined Single View) ---
   function renderSustainabilityTrajectoryTab(t) {
     const states = fiscalData.states;
+    const labels = [...fiscalData.years];
 
-    // Draw Interest-to-Revenue charts
-    states.forEach(state => {
-      const canvasId = `chart-interest-${state.id}`;
-      const ctx = document.getElementById(canvasId);
-      if (!ctx) return;
+    // Helper to generate simple combined datasets (one line per state)
+    function makeCombinedDataset(metricKey) {
+      return states.map(state => {
+        const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, metricKey, yearIdx));
+        return {
+          label: state.name,
+          data: data,
+          borderColor: state.color,
+          backgroundColor: state.color + '0C',
+          borderWidth: 2.5,
+          pointBackgroundColor: state.color,
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 1,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          fill: false,
+          tension: 0.15
+        };
+      });
+    }
 
-      const chartKey = `interest-trajectory-${state.id}`;
-      if (charts[chartKey]) charts[chartKey].destroy();
+    // 1. Interest-to-Revenue Charts
+    const interestCtx = document.getElementById('chart-interest-combined');
+    if (interestCtx) {
+      const interestKey = 'interest-trajectory-combined';
+      if (charts[interestKey]) charts[interestKey].destroy();
 
-      const labels = [...fiscalData.years];
-      const dataOwn = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "interest_to_own_revenue", yearIdx));
-      const dataTotal = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "interest_revenue", yearIdx));
+      // Build dual datasets (Own Revenue solid & Total Revenue dashed for each state)
+      const ownDatasets = states.map(state => {
+        const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "interest_to_own_revenue", yearIdx));
+        return {
+          label: `${state.name} (Own Rev)`,
+          data: data,
+          borderColor: state.color,
+          backgroundColor: state.color + '05',
+          borderWidth: 2.5,
+          pointBackgroundColor: state.color,
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 1,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          fill: false,
+          tension: 0.15,
+          order: 1
+        };
+      });
 
-      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+      const totalDatasets = states.map(state => {
+        const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "interest_revenue", yearIdx));
+        return {
+          label: `${state.name} (Total Rev)`,
+          data: data,
+          borderColor: state.color,
+          borderWidth: 1.75,
+          borderDash: [5, 5],
+          pointBackgroundColor: '#ffffff',
+          pointBorderColor: state.color,
+          pointBorderWidth: 1,
+          pointRadius: 2,
+          pointHoverRadius: 4,
+          fill: false,
+          tension: 0.15,
+          order: 2
+        };
+      });
+
+      const fcLimitDataset = {
+        label: '15th FC Limit (10%)',
+        data: labels.map(() => 10),
+        borderColor: 'rgba(239, 68, 68, 0.85)',
+        borderWidth: 1.5,
+        borderDash: [3, 3],
+        pointRadius: 0,
+        fill: false,
+        order: 3
+      };
+
+      charts[interestKey] = new Chart(interestCtx.getContext('2d'), {
         type: 'line',
         data: {
           labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
-          datasets: [
-            {
-              label: `Interest / Own Revenue`,
-              data: dataOwn,
-              borderColor: state.color,
-              backgroundColor: state.color + '12',
-              borderWidth: 3,
-              pointBackgroundColor: state.color,
-              pointBorderColor: '#ffffff',
-              pointBorderWidth: 1.5,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-              fill: true,
-              tension: 0.15,
-              order: 1
-            },
-            {
-              label: `Interest / Total Revenue`,
-              data: dataTotal,
-              borderColor: state.color,
-              borderWidth: 2,
-              borderDash: [5, 5],
-              pointBackgroundColor: '#ffffff',
-              pointBorderColor: state.color,
-              pointBorderWidth: 1.5,
-              pointRadius: 3,
-              pointHoverRadius: 5,
-              fill: false,
-              tension: 0.15,
-              order: 2
-            },
-            {
-              label: '15th FC Limit (10% of Total Revenue)',
-              data: labels.map(() => 10),
-              borderColor: 'rgba(239, 68, 68, 0.75)',
-              borderWidth: 1.25,
-              borderDash: [3, 3],
-              pointRadius: 0,
-              fill: false,
-              order: 3
-            }
-          ]
+          datasets: [...ownDatasets, ...totalDatasets, fcLimitDataset]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: {
-            padding: { top: 5, bottom: 5, left: 5, right: 5 }
-          },
+          layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
           scales: {
             x: {
-              grid: { display: false },
-              ticks: {
-                color: t.textSecondary,
-                font: { size: 8 },
-                maxRotation: 45,
-                minRotation: 45
-              }
+              grid: { color: t.gridColor },
+              ticks: { color: t.textSecondary, font: { size: 9, family: "'Outfit', sans-serif" } }
             },
             y: {
-              beginAtZero: true,
+              min: 0,
+              max: 40,
               grid: { color: t.gridColor },
               ticks: {
                 color: t.textSecondary,
-                font: { size: 8 },
-                callback: function(value) {
-                  return value.toFixed(0) + '%';
-                }
+                font: { size: 9, family: "'Outfit', sans-serif" },
+                callback: function(value) { return value.toFixed(0) + '%'; }
+              },
+              title: {
+                display: true,
+                text: "Interest Payments / Revenue Receipts",
+                color: t.textSecondary,
+                font: { size: 10, weight: 600, family: "'Outfit', sans-serif" }
               }
             }
           },
           plugins: {
             legend: {
-              display: false
+              display: true,
+              position: 'top',
+              labels: {
+                color: t.textColor,
+                font: { size: 10, family: "'Outfit', sans-serif" },
+                boxWidth: 12,
+                usePointStyle: true
+              }
             },
             tooltip: {
               backgroundColor: t.tooltipBg,
@@ -2889,7 +2919,7 @@ document.addEventListener("DOMContentLoaded", () => {
               callbacks: {
                 label: (ctx) => {
                   if (ctx.raw === null) return '';
-                  if (ctx.dataset.label.includes('FC Limit')) return `FC Limit (Total Rev): 10%`;
+                  if (ctx.dataset.label.includes('FC Limit')) return '15th FC Limit (Total Rev): 10.0%';
                   return `${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`;
                 }
               }
@@ -2897,83 +2927,86 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       });
-    });
+    }
 
-    // Draw Debt-to-GSDP charts
-    states.forEach(state => {
-      const canvasId = `chart-debt-${state.id}`;
-      const ctx = document.getElementById(canvasId);
-      if (!ctx) return;
+    // 2. Debt-to-GSDP Charts
+    const debtCtx = document.getElementById('chart-debt-combined');
+    if (debtCtx) {
+      const debtKey = 'debt-trajectory-combined';
+      if (charts[debtKey]) charts[debtKey].destroy();
 
-      const chartKey = `debt-trajectory-${state.id}`;
-      if (charts[chartKey]) charts[chartKey].destroy();
+      const fcTargetDataset = {
+        label: '15th FC Target (32.5%)',
+        data: labels.map(() => 32.5),
+        borderColor: 'rgba(239, 68, 68, 0.85)',
+        borderWidth: 1.5,
+        borderDash: [5, 5],
+        pointRadius: 0,
+        fill: false,
+        order: 2
+      };
 
-      const labels = [...fiscalData.years];
-      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "debt_gsdp", yearIdx));
+      const datasets = states.map(state => {
+        const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "debt_gsdp", yearIdx));
+        return {
+          label: state.name,
+          data: data,
+          borderColor: state.color,
+          backgroundColor: state.color + '0C',
+          borderWidth: 2.5,
+          pointBackgroundColor: state.color,
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 1,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          fill: false,
+          tension: 0.15,
+          order: 1
+        };
+      });
 
-      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+      charts[debtKey] = new Chart(debtCtx.getContext('2d'), {
         type: 'line',
         data: {
           labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
-          datasets: [
-            {
-              label: `${state.name}`,
-              data: data,
-              borderColor: state.color,
-              backgroundColor: state.color + '15',
-              borderWidth: 3,
-              pointBackgroundColor: state.color,
-              pointBorderColor: '#ffffff',
-              pointBorderWidth: 1.5,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-              fill: true,
-              tension: 0.15,
-              order: 1
-            },
-            {
-              label: '15th FC Target (32.5%)',
-              data: labels.map(() => 32.5),
-              borderColor: 'rgba(239, 68, 68, 0.65)',
-              borderWidth: 1.25,
-              borderDash: [5, 5],
-              pointRadius: 0,
-              fill: false,
-              order: 2
-            }
-          ]
+          datasets: [...datasets, fcTargetDataset]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: {
-            padding: { top: 5, bottom: 5, left: 5, right: 5 }
-          },
+          layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
           scales: {
             x: {
-              grid: { display: false },
-              ticks: {
-                color: t.textSecondary,
-                font: { size: 8 },
-                maxRotation: 45,
-                minRotation: 45
-              }
+              grid: { color: t.gridColor },
+              ticks: { color: t.textSecondary, font: { size: 9, family: "'Outfit', sans-serif" } }
             },
             y: {
-              beginAtZero: true,
+              min: 0,
+              max: 60,
               grid: { color: t.gridColor },
               ticks: {
                 color: t.textSecondary,
-                font: { size: 8 },
-                callback: function(value) {
-                  return value.toFixed(0) + '%';
-                }
+                font: { size: 9, family: "'Outfit', sans-serif" },
+                callback: function(value) { return value.toFixed(0) + '%'; }
+              },
+              title: {
+                display: true,
+                text: "Debt Outstanding (% of GSDP)",
+                color: t.textSecondary,
+                font: { size: 10, weight: 600, family: "'Outfit', sans-serif" }
               }
             }
           },
           plugins: {
             legend: {
-              display: false
+              display: true,
+              position: 'top',
+              labels: {
+                color: t.textColor,
+                font: { size: 11, family: "'Outfit', sans-serif" },
+                boxWidth: 12,
+                usePointStyle: true
+              }
             },
             tooltip: {
               backgroundColor: t.tooltipBg,
@@ -2984,91 +3017,94 @@ document.addEventListener("DOMContentLoaded", () => {
               callbacks: {
                 label: (ctx) => {
                   if (ctx.raw === null) return '';
-                  if (ctx.dataset.label.includes('FC Target')) return `${ctx.dataset.label}: 32.5%`;
-                  return `Debt/GSDP: ${ctx.raw.toFixed(1)}%`;
+                  if (ctx.dataset.label.includes('FC Target')) return '15th FC Target Ceiling: 32.5%';
+                  return `${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`;
                 }
               }
             }
           }
         }
       });
-    });
+    }
 
-    // Draw Contingent Liabilities: Outstanding Guarantees (% of GSDP)
-    states.forEach(state => {
-      const canvasId = `chart-guar-${state.id}`;
-      const ctx = document.getElementById(canvasId);
-      if (!ctx) return;
+    // 3. Contingent Liabilities (Outstanding Guarantees)
+    const guarCtx = document.getElementById('chart-guar-combined');
+    if (guarCtx) {
+      const guarKey = 'guar-trajectory-combined';
+      if (charts[guarKey]) charts[guarKey].destroy();
 
-      const chartKey = `guar-trajectory-${state.id}`;
-      if (charts[chartKey]) charts[chartKey].destroy();
+      const prudentCeilingDataset = {
+        label: 'Prudent Ceiling Limit (2.0%)',
+        data: labels.map(() => 2.0),
+        borderColor: 'rgba(239, 68, 68, 0.85)',
+        borderWidth: 1.5,
+        borderDash: [3, 3],
+        pointRadius: 0,
+        fill: false,
+        order: 2
+      };
 
-      const labels = [...fiscalData.years];
-      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "outstanding_guarantees", yearIdx));
+      const datasets = states.map(state => {
+        const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "outstanding_guarantees", yearIdx));
+        return {
+          label: state.name,
+          data: data,
+          borderColor: state.color,
+          backgroundColor: state.color + '0C',
+          borderWidth: 2.5,
+          pointBackgroundColor: state.color,
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 1,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          fill: false,
+          tension: 0.15,
+          order: 1
+        };
+      });
 
-      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+      charts[guarKey] = new Chart(guarCtx.getContext('2d'), {
         type: 'line',
         data: {
           labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
-          datasets: [
-            {
-              label: `${state.name} Guarantees`,
-              data: data,
-              borderColor: state.color,
-              backgroundColor: state.color + '15',
-              borderWidth: 3,
-              pointBackgroundColor: state.color,
-              pointBorderColor: '#ffffff',
-              pointBorderWidth: 1.5,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-              fill: true,
-              tension: 0.15,
-              order: 1
-            },
-            {
-              label: 'Prudent Ceiling Limit (2.0% of GSDP)',
-              data: labels.map(() => 2.0),
-              borderColor: 'rgba(239, 68, 68, 0.75)',
-              borderWidth: 1.25,
-              borderDash: [3, 3],
-              pointRadius: 0,
-              fill: false,
-              order: 2
-            }
-          ]
+          datasets: [...datasets, prudentCeilingDataset]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: {
-            padding: { top: 5, bottom: 5, left: 5, right: 5 }
-          },
+          layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
           scales: {
             x: {
-              grid: { display: false },
-              ticks: {
-                color: t.textSecondary,
-                font: { size: 8 },
-                maxRotation: 45,
-                minRotation: 45
-              }
+              grid: { color: t.gridColor },
+              ticks: { color: t.textSecondary, font: { size: 9, family: "'Outfit', sans-serif" } }
             },
             y: {
-              beginAtZero: true,
+              min: 0,
+              max: 20,
               grid: { color: t.gridColor },
               ticks: {
                 color: t.textSecondary,
-                font: { size: 8 },
-                callback: function(value) {
-                  return value.toFixed(1) + '%';
-                }
+                font: { size: 9, family: "'Outfit', sans-serif" },
+                callback: function(value) { return value.toFixed(1) + '%'; }
+              },
+              title: {
+                display: true,
+                text: "Outstanding Guarantees (% of GSDP)",
+                color: t.textSecondary,
+                font: { size: 10, weight: 600, family: "'Outfit', sans-serif" }
               }
             }
           },
           plugins: {
             legend: {
-              display: false
+              display: true,
+              position: 'top',
+              labels: {
+                color: t.textColor,
+                font: { size: 11, family: "'Outfit', sans-serif" },
+                boxWidth: 12,
+                usePointStyle: true
+              }
             },
             tooltip: {
               backgroundColor: t.tooltipBg,
@@ -3079,15 +3115,15 @@ document.addEventListener("DOMContentLoaded", () => {
               callbacks: {
                 label: (ctx) => {
                   if (ctx.raw === null) return '';
-                  if (ctx.dataset.label.includes('Ceiling')) return `Ceiling: 2.0%`;
-                  return `Guarantees/GSDP: ${ctx.raw.toFixed(2)}%`;
+                  if (ctx.dataset.label.includes('Ceiling')) return 'Prudent Ceiling Limit: 2.0%';
+                  return `${ctx.dataset.label}: ${ctx.raw.toFixed(2)}%`;
                 }
               }
             }
           }
         }
       });
-    });
+    }
   }
 
   // --- Render Revenue Quality Trajectory (Trellis/Facet Plots) ---
