@@ -2685,102 +2685,110 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Render Deficit & Quality Trajectory (Trellis/Facet Plot) ---
+  // --- Render Deficit & Quality Trajectory (Combined Single View) ---
   function renderDeficitTrajectoryTab(t) {
-    fiscalData.states.forEach(state => {
-      const canvasId = `chart-trajectory-${state.id}`;
-      const ctx = document.getElementById(canvasId);
-      if (!ctx) return;
+    const states = fiscalData.states;
+    const canvasId = 'chart-deficit-combined';
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
 
-      const chartKey = `trajectory-${state.id}`;
-      if (charts[chartKey]) charts[chartKey].destroy();
+    const chartKey = 'deficit-trajectory-combined';
+    if (charts[chartKey]) charts[chartKey].destroy();
 
-      const labels = [...fiscalData.years];
+    const labels = [...fiscalData.years];
+    const datasets = states.map(state => {
       const data = fiscalData.years.map((_, yearIdx) => {
         const val = getMetricValue(state.id, "deficit_to_sotr", yearIdx);
         return val === null ? null : Math.max(0, -val);
       });
 
-      charts[chartKey] = new Chart(ctx.getContext('2d'), {
-        type: 'line',
-        data: {
-          labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
-          datasets: [
-            {
-              label: `${state.name}`,
-              data: data,
-              borderColor: state.color,
-              backgroundColor: state.color + '15',
-              borderWidth: 3,
-              pointBackgroundColor: state.color,
-              pointBorderColor: '#ffffff',
-              pointBorderWidth: 1.5,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-              fill: true,
-              tension: 0.15,
-              order: 1
+      return {
+        label: state.name,
+        data: data,
+        borderColor: state.color,
+        backgroundColor: state.color + '0C',
+        borderWidth: 2.5,
+        pointBackgroundColor: state.color,
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 1,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        fill: false,
+        tension: 0.15,
+        order: 1
+      };
+    });
+
+    const zeroLineDataset = {
+      label: 'Zero Line',
+      data: labels.map(() => 0),
+      borderColor: t.textSecondary + '66',
+      borderWidth: 1.25,
+      borderDash: [4, 4],
+      pointRadius: 0,
+      fill: false,
+      order: 2
+    };
+
+    charts[chartKey] = new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
+        datasets: [...datasets, zeroLineDataset]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
+        scales: {
+          x: {
+            grid: { color: t.gridColor },
+            ticks: { color: t.textSecondary, font: { size: 9, family: "'Outfit', sans-serif" } }
+          },
+          y: {
+            min: 0,
+            max: 100,
+            grid: { color: t.gridColor },
+            ticks: {
+              color: t.textSecondary,
+              font: { size: 9, family: "'Outfit', sans-serif" },
+              callback: function(value) { return value.toFixed(0) + '%'; }
             },
-            {
-              label: 'Zero Line',
-              data: labels.map(() => 0),
-              borderColor: t.textSecondary + '66',
-              borderWidth: 1,
-              borderDash: [4, 4],
-              pointRadius: 0,
-              fill: false,
-              order: 2
+            title: {
+              display: true,
+              text: "Own Revenue Deficit (% of SOTR)",
+              color: t.textSecondary,
+              font: { size: 10, weight: 600, family: "'Outfit', sans-serif" }
             }
-          ]
+          }
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          layout: {
-            padding: { top: 5, bottom: 5, left: 5, right: 5 }
-          },
-          scales: {
-            x: {
-              grid: { display: false },
-              ticks: {
-                color: t.textSecondary,
-                font: { size: 8 },
-                maxRotation: 45,
-                minRotation: 45
-              }
-            },
-            y: {
-              beginAtZero: true,
-              grid: { color: t.gridColor },
-              ticks: {
-                color: t.textSecondary,
-                font: { size: 8 },
-                callback: function(value) {
-                  return value.toFixed(0) + '%';
-                }
-              }
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              color: t.textColor,
+              font: { size: 11, family: "'Outfit', sans-serif" },
+              boxWidth: 12,
+              usePointStyle: true
             }
           },
-          plugins: {
-            legend: {
-              display: false
-            },
-            tooltip: {
-              backgroundColor: t.tooltipBg,
-              titleColor: t.tooltipText,
-              bodyColor: t.textColor,
-              borderColor: t.tooltipBorder,
-              borderWidth: 1,
-              callbacks: {
-                label: (ctx) => {
-                  if (ctx.raw === null) return '';
-                  if (ctx.dataset.label === 'Zero Line') return '';
-                  return `Own Revenue Deficit: ${ctx.raw.toFixed(1)}%`;
-                }
+          tooltip: {
+            backgroundColor: t.tooltipBg,
+            titleColor: t.tooltipText,
+            bodyColor: t.textColor,
+            borderColor: t.tooltipBorder,
+            borderWidth: 1,
+            callbacks: {
+              label: (ctx) => {
+                if (ctx.raw === null) return '';
+                if (ctx.dataset.label === 'Zero Line') return '';
+                return `${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`;
               }
             }
           }
         }
-      });
+      }
     });
   }
 
