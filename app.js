@@ -2811,20 +2811,19 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // 1. Interest-to-Revenue Charts
-    const interestCtx = document.getElementById('chart-interest-combined');
-    if (interestCtx) {
-      const interestKey = 'interest-trajectory-combined';
-      if (charts[interestKey]) charts[interestKey].destroy();
+    // 1A. Interest-to-Own-Revenue Chart
+    const interestOwnCtx = document.getElementById('chart-interest-own-combined');
+    if (interestOwnCtx) {
+      const ownKey = 'interest-own-trajectory-combined';
+      if (charts[ownKey]) charts[ownKey].destroy();
 
-      // Build dual datasets (Own Revenue solid & Total Revenue dashed for each state)
-      const ownDatasets = states.map(state => {
+      const datasets = states.map(state => {
         const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "interest_to_own_revenue", yearIdx));
         return {
-          label: `${state.name} (Own Rev)`,
+          label: state.name,
           data: data,
           borderColor: state.color,
-          backgroundColor: state.color + '05',
+          backgroundColor: state.color + '0C',
           borderWidth: 2.5,
           pointBackgroundColor: state.color,
           pointBorderColor: '#ffffff',
@@ -2832,46 +2831,15 @@ document.addEventListener("DOMContentLoaded", () => {
           pointRadius: 3,
           pointHoverRadius: 5,
           fill: false,
-          tension: 0.15,
-          order: 1
+          tension: 0.15
         };
       });
 
-      const totalDatasets = states.map(state => {
-        const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "interest_revenue", yearIdx));
-        return {
-          label: `${state.name} (Total Rev)`,
-          data: data,
-          borderColor: state.color,
-          borderWidth: 1.75,
-          borderDash: [5, 5],
-          pointBackgroundColor: '#ffffff',
-          pointBorderColor: state.color,
-          pointBorderWidth: 1,
-          pointRadius: 2,
-          pointHoverRadius: 4,
-          fill: false,
-          tension: 0.15,
-          order: 2
-        };
-      });
-
-      const fcLimitDataset = {
-        label: '15th FC Limit (10%)',
-        data: labels.map(() => 10),
-        borderColor: 'rgba(239, 68, 68, 0.85)',
-        borderWidth: 1.5,
-        borderDash: [3, 3],
-        pointRadius: 0,
-        fill: false,
-        order: 3
-      };
-
-      charts[interestKey] = new Chart(interestCtx.getContext('2d'), {
+      charts[ownKey] = new Chart(interestOwnCtx.getContext('2d'), {
         type: 'line',
         data: {
           labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
-          datasets: [...ownDatasets, ...totalDatasets, fcLimitDataset]
+          datasets: datasets
         },
         options: {
           responsive: true,
@@ -2893,7 +2861,7 @@ document.addEventListener("DOMContentLoaded", () => {
               },
               title: {
                 display: true,
-                text: "Interest Payments / Revenue Receipts",
+                text: "Interest / Own Revenue Receipts",
                 color: t.textSecondary,
                 font: { size: 10, weight: 600, family: "'Outfit', sans-serif" }
               }
@@ -2905,7 +2873,104 @@ document.addEventListener("DOMContentLoaded", () => {
               position: 'top',
               labels: {
                 color: t.textColor,
-                font: { size: 10, family: "'Outfit', sans-serif" },
+                font: { size: 11, family: "'Outfit', sans-serif" },
+                boxWidth: 12,
+                usePointStyle: true
+              }
+            },
+            tooltip: {
+              backgroundColor: t.tooltipBg,
+              titleColor: t.tooltipText,
+              bodyColor: t.textColor,
+              borderColor: t.tooltipBorder,
+              borderWidth: 1,
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.raw === null) return '';
+                  return `${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 1B. Interest-to-Total-Revenue Chart
+    const interestTotalCtx = document.getElementById('chart-interest-total-combined');
+    if (interestTotalCtx) {
+      const totalKey = 'interest-total-trajectory-combined';
+      if (charts[totalKey]) charts[totalKey].destroy();
+
+      const fcLimitDataset = {
+        label: '15th FC Limit (10%)',
+        data: labels.map(() => 10),
+        borderColor: 'rgba(239, 68, 68, 0.85)',
+        borderWidth: 1.5,
+        borderDash: [3, 3],
+        pointRadius: 0,
+        fill: false,
+        order: 2
+      };
+
+      const datasets = states.map(state => {
+        const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "interest_revenue", yearIdx));
+        return {
+          label: state.name,
+          data: data,
+          borderColor: state.color,
+          backgroundColor: state.color + '0C',
+          borderWidth: 2.5,
+          pointBackgroundColor: state.color,
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 1,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          fill: false,
+          tension: 0.15,
+          order: 1
+        };
+      });
+
+      charts[totalKey] = new Chart(interestTotalCtx.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
+          datasets: [...datasets, fcLimitDataset]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
+          scales: {
+            x: {
+              grid: { color: t.gridColor },
+              ticks: { color: t.textSecondary, font: { size: 9, family: "'Outfit', sans-serif" } }
+            },
+            y: {
+              min: 0,
+              max: 20,
+              grid: { color: t.gridColor },
+              ticks: {
+                color: t.textSecondary,
+                font: { size: 9, family: "'Outfit', sans-serif" },
+                callback: function(value) { return value.toFixed(0) + '%'; }
+              },
+              title: {
+                display: true,
+                text: "Interest / Total Revenue Receipts",
+                color: t.textSecondary,
+                font: { size: 10, weight: 600, family: "'Outfit', sans-serif" }
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                color: t.textColor,
+                font: { size: 11, family: "'Outfit', sans-serif" },
                 boxWidth: 12,
                 usePointStyle: true
               }
