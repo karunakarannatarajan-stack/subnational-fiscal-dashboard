@@ -3178,51 +3178,52 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Render Expenditure Quality Trajectory (Trellis/Facet Plots) ---
+  // --- Render Expenditure Quality Trajectory (Combined Single View) ---
   function renderExpenditureTrajectoryTab(t) {
     const states = fiscalData.states;
+    const labels = [...fiscalData.years];
+
+    // Helper to generate combined dataset objects for Chart.js
+    function makeCombinedDataset(metricKey) {
+      return states.map(state => {
+        const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, metricKey, yearIdx));
+        return {
+          label: state.name,
+          data: data,
+          borderColor: state.color,
+          backgroundColor: state.color + '0C',
+          borderWidth: 2.5,
+          pointBackgroundColor: state.color,
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 1,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          fill: false,
+          tension: 0.15
+        };
+      });
+    }
 
     // 1. Capital Outlay
-    states.forEach(state => {
-      const canvasId = `chart-expcap-${state.id}`;
-      const ctx = document.getElementById(canvasId);
-      if (!ctx) return;
+    const capCtx = document.getElementById('chart-expcap-combined');
+    if (capCtx) {
+      const capKey = 'expcap-trajectory-combined';
+      if (charts[capKey]) charts[capKey].destroy();
 
-      const chartKey = `expcap-trajectory-${state.id}`;
-      if (charts[chartKey]) charts[chartKey].destroy();
-
-      const labels = [...fiscalData.years];
-      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "capital_outlay", yearIdx));
-
-      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+      charts[capKey] = new Chart(capCtx.getContext('2d'), {
         type: 'line',
         data: {
           labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
-          datasets: [
-            {
-              label: `${state.name} Capital Outlay`,
-              data: data,
-              borderColor: state.color,
-              backgroundColor: state.color + '15',
-              borderWidth: 3,
-              pointBackgroundColor: state.color,
-              pointBorderColor: '#ffffff',
-              pointBorderWidth: 1.5,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-              fill: true,
-              tension: 0.15
-            }
-          ]
+          datasets: makeCombinedDataset('capital_outlay')
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 5, bottom: 5, left: 5, right: 5 } },
+          layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
           scales: {
             x: {
-              grid: { display: false },
-              ticks: { color: t.textSecondary, font: { size: 8 }, maxRotation: 45, minRotation: 45 }
+              grid: { color: t.gridColor },
+              ticks: { color: t.textSecondary, font: { size: 9, family: "'Outfit', sans-serif" } }
             },
             y: {
               min: 0,
@@ -3230,13 +3231,28 @@ document.addEventListener("DOMContentLoaded", () => {
               grid: { color: t.gridColor },
               ticks: {
                 color: t.textSecondary,
-                font: { size: 8 },
+                font: { size: 9, family: "'Outfit', sans-serif" },
                 callback: function(value) { return value.toFixed(1) + '%'; }
+              },
+              title: {
+                display: true,
+                text: "Capital Outlay (% of GSDP)",
+                color: t.textSecondary,
+                font: { size: 10, weight: 600, family: "'Outfit', sans-serif" }
               }
             }
           },
           plugins: {
-            legend: { display: false },
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                color: t.textColor,
+                font: { size: 11, family: "'Outfit', sans-serif" },
+                boxWidth: 12,
+                usePointStyle: true
+              }
+            },
             tooltip: {
               backgroundColor: t.tooltipBg,
               titleColor: t.tooltipText,
@@ -3246,56 +3262,35 @@ document.addEventListener("DOMContentLoaded", () => {
               callbacks: {
                 label: (ctx) => {
                   if (ctx.raw === null) return '';
-                  return `Capital Outlay/GSDP: ${ctx.raw.toFixed(2)}%`;
+                  return `${ctx.dataset.label}: ${ctx.raw.toFixed(2)}%`;
                 }
               }
             }
           }
         }
       });
-    });
+    }
 
     // 2. Committed Expenditure
-    states.forEach(state => {
-      const canvasId = `chart-expcommit-${state.id}`;
-      const ctx = document.getElementById(canvasId);
-      if (!ctx) return;
+    const commitCtx = document.getElementById('chart-expcommit-combined');
+    if (commitCtx) {
+      const commitKey = 'expcommit-trajectory-combined';
+      if (charts[commitKey]) charts[commitKey].destroy();
 
-      const chartKey = `expcommit-trajectory-${state.id}`;
-      if (charts[chartKey]) charts[chartKey].destroy();
-
-      const labels = [...fiscalData.years];
-      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "committed_exp", yearIdx));
-
-      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+      charts[commitKey] = new Chart(commitCtx.getContext('2d'), {
         type: 'line',
         data: {
           labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
-          datasets: [
-            {
-              label: `${state.name} Committed Exp`,
-              data: data,
-              borderColor: state.color,
-              backgroundColor: state.color + '15',
-              borderWidth: 3,
-              pointBackgroundColor: state.color,
-              pointBorderColor: '#ffffff',
-              pointBorderWidth: 1.5,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-              fill: true,
-              tension: 0.15
-            }
-          ]
+          datasets: makeCombinedDataset('committed_exp')
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 5, bottom: 5, left: 5, right: 5 } },
+          layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
           scales: {
             x: {
-              grid: { display: false },
-              ticks: { color: t.textSecondary, font: { size: 8 }, maxRotation: 45, minRotation: 45 }
+              grid: { color: t.gridColor },
+              ticks: { color: t.textSecondary, font: { size: 9, family: "'Outfit', sans-serif" } }
             },
             y: {
               min: 0,
@@ -3303,13 +3298,28 @@ document.addEventListener("DOMContentLoaded", () => {
               grid: { color: t.gridColor },
               ticks: {
                 color: t.textSecondary,
-                font: { size: 8 },
+                font: { size: 9, family: "'Outfit', sans-serif" },
                 callback: function(value) { return value.toFixed(0) + '%'; }
+              },
+              title: {
+                display: true,
+                text: "Committed Expenditure (% of Revenue Receipts)",
+                color: t.textSecondary,
+                font: { size: 10, weight: 600, family: "'Outfit', sans-serif" }
               }
             }
           },
           plugins: {
-            legend: { display: false },
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                color: t.textColor,
+                font: { size: 11, family: "'Outfit', sans-serif" },
+                boxWidth: 12,
+                usePointStyle: true
+              }
+            },
             tooltip: {
               backgroundColor: t.tooltipBg,
               titleColor: t.tooltipText,
@@ -3319,56 +3329,35 @@ document.addEventListener("DOMContentLoaded", () => {
               callbacks: {
                 label: (ctx) => {
                   if (ctx.raw === null) return '';
-                  return `Committed/Rev Receipts: ${ctx.raw.toFixed(1)}%`;
+                  return `${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`;
                 }
               }
             }
           }
         }
       });
-    });
+    }
 
     // 3. Subsidies
-    states.forEach(state => {
-      const canvasId = `chart-expsub-${state.id}`;
-      const ctx = document.getElementById(canvasId);
-      if (!ctx) return;
+    const subCtx = document.getElementById('chart-expsub-combined');
+    if (subCtx) {
+      const subKey = 'expsub-trajectory-combined';
+      if (charts[subKey]) charts[subKey].destroy();
 
-      const chartKey = `expsub-trajectory-${state.id}`;
-      if (charts[chartKey]) charts[chartKey].destroy();
-
-      const labels = [...fiscalData.years];
-      const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "subsidies", yearIdx));
-
-      charts[chartKey] = new Chart(ctx.getContext('2d'), {
+      charts[subKey] = new Chart(subCtx.getContext('2d'), {
         type: 'line',
         data: {
           labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
-          datasets: [
-            {
-              label: `${state.name} Subsidies`,
-              data: data,
-              borderColor: state.color,
-              backgroundColor: state.color + '15',
-              borderWidth: 3,
-              pointBackgroundColor: state.color,
-              pointBorderColor: '#ffffff',
-              pointBorderWidth: 1.5,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-              fill: true,
-              tension: 0.15
-            }
-          ]
+          datasets: makeCombinedDataset('subsidies')
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 5, bottom: 5, left: 5, right: 5 } },
+          layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
           scales: {
             x: {
-              grid: { display: false },
-              ticks: { color: t.textSecondary, font: { size: 8 }, maxRotation: 45, minRotation: 45 }
+              grid: { color: t.gridColor },
+              ticks: { color: t.textSecondary, font: { size: 9, family: "'Outfit', sans-serif" } }
             },
             y: {
               min: 0,
@@ -3376,13 +3365,28 @@ document.addEventListener("DOMContentLoaded", () => {
               grid: { color: t.gridColor },
               ticks: {
                 color: t.textSecondary,
-                font: { size: 8 },
+                font: { size: 9, family: "'Outfit', sans-serif" },
                 callback: function(value) { return value.toFixed(1) + '%'; }
+              },
+              title: {
+                display: true,
+                text: "Subsidy Expenditure (% of Revenue Receipts)",
+                color: t.textSecondary,
+                font: { size: 10, weight: 600, family: "'Outfit', sans-serif" }
               }
             }
           },
           plugins: {
-            legend: { display: false },
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                color: t.textColor,
+                font: { size: 11, family: "'Outfit', sans-serif" },
+                boxWidth: 12,
+                usePointStyle: true
+              }
+            },
             tooltip: {
               backgroundColor: t.tooltipBg,
               titleColor: t.tooltipText,
@@ -3392,14 +3396,14 @@ document.addEventListener("DOMContentLoaded", () => {
               callbacks: {
                 label: (ctx) => {
                   if (ctx.raw === null) return '';
-                  return `Subsidies/Rev Receipts: ${ctx.raw.toFixed(2)}%`;
+                  return `${ctx.dataset.label}: ${ctx.raw.toFixed(2)}%`;
                 }
               }
             }
           }
         }
       });
-    });
+    }
   }
 
   // --- Render Central Transfers Trajectory (Combined Single View) ---

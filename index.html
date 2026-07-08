@@ -18,7 +18,7 @@
   <!-- FontAwesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=3.32">
+  <link rel="stylesheet" href="style.css?v=3.33">
 </head>
 <body>
   <!-- Dashboard Grid Layout -->
@@ -923,280 +923,49 @@
 
           </div>
 
-          <!-- Expenditure Quality Trajectory Tab View -->
+          <!-- Expenditure Quality Trajectory Tab -->
           <div class="tab-view" id="tab-expenditure_trajectory">
             
             <div class="comparison-filters" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem;">
               <h2 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fa-solid fa-chart-line" style="color: var(--accent-color);"></i> Expenditure Quality Trajectory
               </h2>
-              <span class="badge info" style="font-size: 0.75rem;">Facet Plot</span>
+              <span class="badge info" style="font-size: 0.75rem;">Combined View</span>
             </div>
 
             <!-- Section 1: Capital Outlay (% of GSDP) -->
-            <div style="margin-top: 1rem; margin-bottom: 0.5rem; padding: 0 0.25rem;">
-              <h3 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.4rem;">
-                <i class="fa-solid fa-industry" style="color: var(--accent-color);"></i> Capital Outlay (% of GSDP)
-              </h3>
-            </div>
-            <div class="trajectory-grid" style="margin-bottom: 2rem;">
-              <!-- MH -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #3b82f6; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Maharashtra</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">West</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expcap-MH"></canvas>
-                </div>
+            <div class="chart-main-card" style="width: 100%; height: 1125px; padding: 1.5rem; margin-top: 1rem; margin-bottom: 2rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;">
+                  <i class="fa-solid fa-industry" style="color: var(--accent-color); margin-right: 5px;"></i> Capital Outlay Comparison (% of GSDP)
+                </h3>
               </div>
-              <!-- TN -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #10b981; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Tamil Nadu</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expcap-TN"></canvas>
-                </div>
-              </div>
-              <!-- GJ -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #f59e0b; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Gujarat</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">West</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expcap-GJ"></canvas>
-                </div>
-              </div>
-              <!-- KA -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #c026d3; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Karnataka</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expcap-KA"></canvas>
-                </div>
-              </div>
-              <!-- UP -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #8b5cf6; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Uttar Pradesh</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">North</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expcap-UP"></canvas>
-                </div>
-              </div>
-              <!-- AP -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #06b6d4; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Andhra Pradesh</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expcap-AP"></canvas>
-                </div>
-              </div>
-              <!-- TS -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #dc2626; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Telangana</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expcap-TS"></canvas>
-                </div>
-              </div>
-              <!-- WB -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #6b7280; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> West Bengal</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">East</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expcap-WB"></canvas>
-                </div>
+              <div style="position: relative; height: 900px; width: 100%;">
+                <canvas id="chart-expcap-combined"></canvas>
               </div>
             </div>
 
             <!-- Section 2: Committed Expenditure (% of Revenue Receipts) -->
-            <div style="margin-top: 1rem; margin-bottom: 0.5rem; padding: 0 0.25rem;">
-              <h3 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.4rem;">
-                <i class="fa-solid fa-lock" style="color: var(--accent-color);"></i> Committed Expenditure (% of Revenue Receipts)
-              </h3>
-            </div>
-            <div class="trajectory-grid" style="margin-bottom: 2rem;">
-              <!-- MH -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #3b82f6; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Maharashtra</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">West</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expcommit-MH"></canvas>
-                </div>
+            <div class="chart-main-card" style="width: 100%; height: 1125px; padding: 1.5rem; margin-top: 1rem; margin-bottom: 2rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;">
+                  <i class="fa-solid fa-file-invoice-dollar" style="color: var(--accent-color); margin-right: 5px;"></i> Committed Expenditure Comparison (% of Revenue Receipts)
+                </h3>
               </div>
-              <!-- TN -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #10b981; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Tamil Nadu</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expcommit-TN"></canvas>
-                </div>
-              </div>
-              <!-- GJ -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #f59e0b; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Gujarat</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">West</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expcommit-GJ"></canvas>
-                </div>
-              </div>
-              <!-- KA -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #c026d3; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Karnataka</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expcommit-KA"></canvas>
-                </div>
-              </div>
-              <!-- UP -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #8b5cf6; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Uttar Pradesh</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">North</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expcommit-UP"></canvas>
-                </div>
-              </div>
-              <!-- AP -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #06b6d4; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Andhra Pradesh</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expcommit-AP"></canvas>
-                </div>
-              </div>
-              <!-- TS -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #dc2626; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Telangana</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expcommit-TS"></canvas>
-                </div>
-              </div>
-              <!-- WB -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #6b7280; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> West Bengal</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">East</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expcommit-WB"></canvas>
-                </div>
+              <div style="position: relative; height: 900px; width: 100%;">
+                <canvas id="chart-expcommit-combined"></canvas>
               </div>
             </div>
 
             <!-- Section 3: Subsidy Expenditure (% of Revenue Receipts) -->
-            <div style="margin-top: 1rem; margin-bottom: 0.5rem; padding: 0 0.25rem;">
-              <h3 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.4rem;">
-                <i class="fa-solid fa-gift" style="color: var(--accent-color);"></i> Subsidy Expenditure (% of Revenue Receipts)
-              </h3>
-            </div>
-            <div class="trajectory-grid">
-              <!-- MH -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #3b82f6; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Maharashtra</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">West</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expsub-MH"></canvas>
-                </div>
+            <div class="chart-main-card" style="width: 100%; height: 1125px; padding: 1.5rem; margin-top: 1rem; margin-bottom: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;">
+                  <i class="fa-solid fa-hand-holding-hand" style="color: var(--accent-color); margin-right: 5px;"></i> Subsidy Expenditure Comparison (% of Revenue Receipts)
+                </h3>
               </div>
-              <!-- TN -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #10b981; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Tamil Nadu</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expsub-TN"></canvas>
-                </div>
-              </div>
-              <!-- GJ -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #f59e0b; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Gujarat</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">West</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expsub-GJ"></canvas>
-                </div>
-              </div>
-              <!-- KA -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #c026d3; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Karnataka</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expsub-KA"></canvas>
-                </div>
-              </div>
-              <!-- UP -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #8b5cf6; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Uttar Pradesh</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">North</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expsub-UP"></canvas>
-                </div>
-              </div>
-              <!-- AP -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #06b6d4; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Andhra Pradesh</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expsub-AP"></canvas>
-                </div>
-              </div>
-              <!-- TS -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #dc2626; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Telangana</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">South</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expsub-TS"></canvas>
-                </div>
-              </div>
-              <!-- WB -->
-              <div class="chart-main-card">
-                <div class="card-header-bar" style="padding-bottom: 0.25rem;">
-                  <h3 style="font-size: 0.95rem; font-weight: 600;"><span style="background-color: #6b7280; width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> West Bengal</h3>
-                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--text-secondary); font-size: 0.65rem;">East</span>
-                </div>
-                <div class="chart-body" style="height: 240px;">
-                  <canvas id="chart-expsub-WB"></canvas>
-                </div>
+              <div style="position: relative; height: 900px; width: 100%;">
+                <canvas id="chart-expsub-combined"></canvas>
               </div>
             </div>
 
@@ -1933,7 +1702,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.32"></script>
-  <script src="app.js?v=3.32"></script>
+  <script src="data.js?v=3.33"></script>
+  <script src="app.js?v=3.33"></script>
 </body>
 </html>
