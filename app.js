@@ -2747,7 +2747,7 @@ document.addEventListener("DOMContentLoaded", () => {
           },
           y: {
             min: 0,
-            max: 150,
+            max: 200,
             grid: { color: t.gridColor },
             ticks: {
               color: t.textSecondary,
