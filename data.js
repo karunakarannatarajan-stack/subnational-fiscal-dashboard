@@ -29,7 +29,7 @@ const fiscalData = {
     "name": "Karnataka",
     "capital": "Bengaluru",
     "region": "South",
-    "color": "#ec4899"
+    "color": "#c026d3"
   },
   {
     "id": "UP",
@@ -50,7 +50,7 @@ const fiscalData = {
     "name": "Telangana",
     "capital": "Hyderabad",
     "region": "South",
-    "color": "#f43f5e"
+    "color": "#dc2626"
   },
   {
     "id": "WB",
