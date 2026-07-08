@@ -3402,80 +3402,93 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Render Central Transfers Trajectory (Trellis/Facet Plots) ---
+  // --- Render Central Transfers Trajectory (Combined Single View) ---
   function renderTransfersTrajectoryTab(t) {
     const states = fiscalData.states;
+    const canvasId = 'chart-transfers-combined';
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
 
-    states.forEach(state => {
-      const canvasId = `chart-transfers-${state.id}`;
-      const ctx = document.getElementById(canvasId);
-      if (!ctx) return;
+    const chartKey = 'transfers-trajectory-combined';
+    if (charts[chartKey]) charts[chartKey].destroy();
 
-      const chartKey = `transfers-trajectory-${state.id}`;
-      if (charts[chartKey]) charts[chartKey].destroy();
-
-      const labels = [...fiscalData.years];
+    const labels = [...fiscalData.years];
+    const datasets = states.map(state => {
       const data = fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, "central_transfers", yearIdx));
+      return {
+        label: state.name,
+        data: data,
+        borderColor: state.color,
+        backgroundColor: state.color + '0C', // Very light fill transparency or off
+        borderWidth: 2.5,
+        pointBackgroundColor: state.color,
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 1,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        fill: false,
+        tension: 0.15
+      };
+    });
 
-      charts[chartKey] = new Chart(ctx.getContext('2d'), {
-        type: 'line',
-        data: {
-          labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
-          datasets: [
-            {
-              label: `${state.name} Central Transfers`,
-              data: data,
-              borderColor: state.color,
-              backgroundColor: state.color + '15',
-              borderWidth: 3,
-              pointBackgroundColor: state.color,
-              pointBorderColor: '#ffffff',
-              pointBorderWidth: 1.5,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-              fill: true,
-              tension: 0.15
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          layout: { padding: { top: 5, bottom: 5, left: 5, right: 5 } },
-          scales: {
-            x: {
-              grid: { display: false },
-              ticks: { color: t.textSecondary, font: { size: 8 }, maxRotation: 45, minRotation: 45 }
+    charts[chartKey] = new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: labels.map(y => y.replace(" (RE)", "").replace(" (BE)", "")),
+        datasets: datasets
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { top: 10, bottom: 5, left: 5, right: 10 } },
+        scales: {
+          x: {
+            grid: { color: t.gridColor },
+            ticks: { color: t.textSecondary, font: { size: 9, family: "'Outfit', sans-serif" } }
+          },
+          y: {
+            min: 0,
+            max: 70,
+            grid: { color: t.gridColor },
+            ticks: {
+              color: t.textSecondary,
+              font: { size: 9, family: "'Outfit', sans-serif" },
+              callback: function(value) { return value.toFixed(0) + '%'; }
             },
-            y: {
-              min: 0,
-              max: 70,
-              grid: { color: t.gridColor },
-              ticks: {
-                color: t.textSecondary,
-                font: { size: 8 },
-                callback: function(value) { return value.toFixed(0) + '%'; }
-              }
+            title: {
+              display: true,
+              text: "Central Transfers (% of Revenue Receipts)",
+              color: t.textSecondary,
+              font: { size: 10, weight: 600, family: "'Outfit', sans-serif" }
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              color: t.textColor,
+              font: { size: 11, family: "'Outfit', sans-serif" },
+              boxWidth: 12,
+              usePointStyle: true
             }
           },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: t.tooltipBg,
-              titleColor: t.tooltipText,
-              bodyColor: t.textColor,
-              borderColor: t.tooltipBorder,
-              borderWidth: 1,
-              callbacks: {
-                label: (ctx) => {
-                  if (ctx.raw === null) return '';
-                  return `Central Transfers/Rev Receipts: ${ctx.raw.toFixed(1)}%`;
-                }
+          tooltip: {
+            backgroundColor: t.tooltipBg,
+            titleColor: t.tooltipText,
+            bodyColor: t.textColor,
+            borderColor: t.tooltipBorder,
+            borderWidth: 1,
+            callbacks: {
+              label: (ctx) => {
+                if (ctx.raw === null) return '';
+                return `${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`;
               }
             }
           }
         }
-      });
+      }
     });
   }
 
