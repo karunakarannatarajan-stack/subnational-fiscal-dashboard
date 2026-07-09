@@ -2860,7 +2860,7 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             y: {
               min: 10,
-              max: 60,
+              max: 50,
               grid: { color: t.gridColor },
               ticks: {
                 color: t.textSecondary,
