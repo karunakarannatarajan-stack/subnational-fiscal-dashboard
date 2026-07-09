@@ -92,5 +92,21 @@ if deficit_card_height != 1125 or deficit_wrapper_height != 900:
     sys.exit(1)
 print("PASS: Own Revenue Deficit chart heights are correct.")
 
+# Test Case 6: Validate Own Tax Revenue Mobilization Comparison (% of GSDP)
+print("\n--- Test Case 6: Own Tax Revenue Mobilization Comparison (% of GSDP) ---")
+revqual_card_regex = r"<!-- Section 1: Combined Own Tax Revenue \(% of GSDP\) -->\s*?<div class=\"chart-main-card\" style=\"[^\"]*?height:\s*(\d+)px;[^\"]*?\">[\s\S]*?<div style=\"position: relative; height: (\d+)px; width: 100%;\">[\s\S]*?<canvas id=\"chart-revqual-combined\""
+revqual_match = re.search(revqual_card_regex, html)
+if not revqual_match:
+    print("FAIL: Could not locate Own Tax Revenue Mobilization card/wrapper pattern.")
+    sys.exit(1)
+revqual_card_height = int(revqual_match.group(1))
+revqual_wrapper_height = int(revqual_match.group(2))
+print(f"Found card height: {revqual_card_height}px (Expected: 1125px)")
+print(f"Found wrapper height: {revqual_wrapper_height}px (Expected: 900px)")
+if revqual_card_height != 1125 or revqual_wrapper_height != 900:
+    print("FAIL: Heights do not match expected values!")
+    sys.exit(1)
+print("PASS: Own Tax Revenue Mobilization chart heights are correct.")
+
 print("\nSUCCESS: All Y-axis chart height test cases passed successfully!")
 sys.exit(0)
