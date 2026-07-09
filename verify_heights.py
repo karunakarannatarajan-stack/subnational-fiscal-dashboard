@@ -76,5 +76,21 @@ if guar_card_height != 975 or guar_wrapper_height != 780:
     sys.exit(1)
 print("PASS: Outstanding Guarantees chart heights are correct.")
 
+# Test Case 5: Validate Own Revenue Deficit Comparison (% of State's Own Tax Revenue)
+print("\n--- Test Case 5: Own Revenue Deficit Comparison (% of State's Own Tax Revenue) ---")
+deficit_card_regex = r"<!-- Section 1: Combined Own Revenue Deficit \(% of Own Tax Revenue\) -->\s*?<div class=\"chart-main-card\" style=\"[^\"]*?height:\s*(\d+)px;[^\"]*?\">[\s\S]*?<div style=\"position: relative; height: (\d+)px; width: 100%;\">[\s\S]*?<canvas id=\"chart-deficit-combined\""
+deficit_match = re.search(deficit_card_regex, html)
+if not deficit_match:
+    print("FAIL: Could not locate Deficit Combined card/wrapper pattern.")
+    sys.exit(1)
+deficit_card_height = int(deficit_match.group(1))
+deficit_wrapper_height = int(deficit_match.group(2))
+print(f"Found card height: {deficit_card_height}px (Expected: 1125px)")
+print(f"Found wrapper height: {deficit_wrapper_height}px (Expected: 900px)")
+if deficit_card_height != 1125 or deficit_wrapper_height != 900:
+    print("FAIL: Heights do not match expected values!")
+    sys.exit(1)
+print("PASS: Own Revenue Deficit chart heights are correct.")
+
 print("\nSUCCESS: All Y-axis chart height test cases passed successfully!")
 sys.exit(0)
