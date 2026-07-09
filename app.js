@@ -2859,8 +2859,8 @@ document.addEventListener("DOMContentLoaded", () => {
               ticks: { color: t.textSecondary, font: { size: 9, family: "'Outfit', sans-serif" } }
             },
             y: {
-              min: 0,
-              max: 40,
+              min: 10,
+              max: 60,
               grid: { color: t.gridColor },
               ticks: {
                 color: t.textSecondary,
