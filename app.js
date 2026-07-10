@@ -9,10 +9,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (h < 2 * r) r = h / 2;
       this.beginPath();
       this.moveTo(x + r, y);
-      this.arcTo(x + w, y,   x + w, y + h, r);
-      this.arcTo(x + w, y + h, x,   y + h, r);
-      this.arcTo(x,   y + h, x,   y,   r);
-      this.arcTo(x,   y,   x + w, y,   r);
+      this.arcTo(x + w, y, x + w, y + h, r);
+      this.arcTo(x + w, y + h, x, y + h, r);
+      this.arcTo(x, y + h, x, y, r);
+      this.arcTo(x, y, x + w, y, r);
       this.closePath();
       return this;
     };
@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const themeToggleBtn = document.getElementById("theme-toggle");
   const navItems = document.querySelectorAll(".nav-item");
   const tabViews = document.querySelectorAll(".tab-view");
-  
+
   // Profile Info Elements
   const profileStateName = document.getElementById("profile-state-name");
   const profileRegion = document.getElementById("profile-region");
@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Populate Transfers Matrix Year Selector
     const transfersYearSelect = document.getElementById("transfers-year-select");
-    if(transfersYearSelect) {
+    if (transfersYearSelect) {
       fiscalData.years.forEach((yr, idx) => {
         const option = document.createElement("option");
         option.value = idx;
@@ -166,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Populate Education Matrix Year Selector
     const educationYearSelect = document.getElementById("education-year-select");
-    if(educationYearSelect) {
+    if (educationYearSelect) {
       fiscalData.years.forEach((yr, idx) => {
         const option = document.createElement("option");
         option.value = idx;
@@ -178,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Populate Healthcare Matrix Year Selector
     const healthcareYearSelect = document.getElementById("healthcare-year-select");
-    if(healthcareYearSelect) {
+    if (healthcareYearSelect) {
       fiscalData.years.forEach((yr, idx) => {
         const option = document.createElement("option");
         option.value = idx;
@@ -189,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Populate Social Safety Net Matrix Year Selector
     const socialYearSelect = document.getElementById("social-year-select");
-    if(socialYearSelect) {
+    if (socialYearSelect) {
       fiscalData.years.forEach((yr, idx) => {
         const option = document.createElement("option");
         option.value = idx;
@@ -201,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Populate Fiscal Input Quality Matrix Year Selector
     const fiscalInputYearSelect = document.getElementById("fiscal-input-year-select");
-    if(fiscalInputYearSelect) {
+    if (fiscalInputYearSelect) {
       fiscalData.years.forEach((yr, idx) => {
         const option = document.createElement("option");
         option.value = idx;
@@ -280,7 +280,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Transfers Tab Year Selection Changed
     const transfersYearSelect2 = document.getElementById("transfers-year-select");
-    if(transfersYearSelect2) {
+    if (transfersYearSelect2) {
       transfersYearSelect2.addEventListener("change", () => {
         if (activeTab === "transfers") {
           renderTransfersTab(getThemeColors());
@@ -290,7 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Education Tab Year Selection Changed
     const educationYearSelect2 = document.getElementById("education-year-select");
-    if(educationYearSelect2) {
+    if (educationYearSelect2) {
       educationYearSelect2.addEventListener("change", () => {
         if (activeTab === "education") {
           renderEducationTab(getThemeColors());
@@ -300,7 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Healthcare Tab Year Selection Changed
     const healthcareYearSelect2 = document.getElementById("healthcare-year-select");
-    if(healthcareYearSelect2) {
+    if (healthcareYearSelect2) {
       healthcareYearSelect2.addEventListener("change", () => {
         if (activeTab === "healthcare") {
           renderHealthcareTab(getThemeColors());
@@ -310,7 +310,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Social Safety Net Tab Year Selection Changed
     const socialYearSelect2 = document.getElementById("social-year-select");
-    if(socialYearSelect2) {
+    if (socialYearSelect2) {
       socialYearSelect2.addEventListener("change", () => {
         if (activeTab === "social") {
           renderSocialTab(getThemeColors());
@@ -320,7 +320,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Fiscal Input Quality Tab Year Selection Changed
     const fiscalInputYearSelect2 = document.getElementById("fiscal-input-year-select");
-    if(fiscalInputYearSelect2) {
+    if (fiscalInputYearSelect2) {
       fiscalInputYearSelect2.addEventListener("change", () => {
         if (activeTab === "fiscal_input") {
           renderFiscalInputTab(getThemeColors());
@@ -365,9 +365,9 @@ document.addEventListener("DOMContentLoaded", () => {
       item.addEventListener("click", () => {
         navItems.forEach(nav => nav.classList.remove("active"));
         item.classList.add("active");
-        
+
         activeTab = item.getAttribute("data-tab");
-        
+
         tabViews.forEach(view => {
           view.classList.remove("active");
           if (view.id === `tab-${activeTab}`) {
@@ -384,7 +384,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const currentTheme = document.documentElement.getAttribute("data-theme");
       const newTheme = currentTheme === "light" ? "dark" : "light";
       document.documentElement.setAttribute("data-theme", newTheme);
-      
+
       // Re-render active charts with updated theme colors
       destroyAllCharts();
       renderActiveTabCharts();
@@ -483,13 +483,13 @@ document.addEventListener("DOMContentLoaded", () => {
     profileStateName.textContent = state.name;
     profileRegion.textContent = `${state.region} India`;
     profileCapital.textContent = state.capital;
-    
+
     const latestIdx = fiscalData.years.length - 1;
 
     // Borrow cost info
     const yieldCost = fiscalData.sdl_yields[stateId];
     const spreadBps = fiscalData.metrics.borrowing_spread[stateId][latestIdx]; // Latest year spread
-    
+
     profileBorrowCost.textContent = `${yieldCost.toFixed(2)}%`;
     profileSpread.textContent = `+${spreadBps} bps vs G-Sec`;
 
@@ -497,7 +497,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const latestDebt = fiscalData.metrics.debt_gsdp[stateId][latestIdx];
     const latestOwnTax = fiscalData.metrics.own_tax_gsdp[stateId][latestIdx];
     const debtOwnTaxRatio = latestDebt / latestOwnTax;
-    
+
     document.getElementById("profile-debt-own-revenue").textContent = `${debtOwnTaxRatio.toFixed(2)}x`;
 
     // Per Capita GSDP and Per Capita Debt (latest year FY25 BE)
@@ -559,13 +559,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Get current and previous values
     const fdCurr = fiscalData.metrics.fiscal_deficit[stateId][latestIdx];
     const fdPrev = fiscalData.metrics.fiscal_deficit[stateId][prevIdx];
-    
+
     const rdCurr = fiscalData.metrics.revenue_deficit[stateId][latestIdx];
     const rdPrev = fiscalData.metrics.revenue_deficit[stateId][prevIdx];
-    
+
     const coCurr = fiscalData.metrics.capital_outlay[stateId][latestIdx];
     const coPrev = fiscalData.metrics.capital_outlay[stateId][prevIdx];
-    
+
     const debtCurr = fiscalData.metrics.debt_gsdp[stateId][latestIdx];
     const debtPrev = fiscalData.metrics.debt_gsdp[stateId][prevIdx];
 
@@ -685,27 +685,27 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Render Deficit Tab Charts ---
   function renderDeficitTab(t) {
     const ctx = document.getElementById("chart-deficit-decomposition").getContext("2d");
-    
+
     // Destroy previous chart
     if (charts["deficit"]) charts["deficit"].destroy();
 
     const yearIdx = parseInt(document.getElementById("deficit-year-select").value);
-    
+
     const datasets = [];
     fiscalData.states.forEach(state => {
       const rd = fiscalData.metrics.revenue_deficit[state.id][yearIdx];
       const capex = fiscalData.metrics.capital_outlay[state.id][yearIdx];
       const gfd = fiscalData.metrics.fiscal_deficit[state.id][yearIdx];
-      
+
       if (rd !== null && capex !== null && gfd !== null) {
         // Calculate bubble radius scaling
         const radius = Math.max(gfd * 5, 4); // Example: 3% GFD -> 15px radius
-        
+
         datasets.push({
           label: state.name,
           data: [{
-            x: rd, 
-            y: capex, 
+            x: rd,
+            y: capex,
             r: radius,
             gfd: gfd // Store for tooltip
           }],
@@ -753,7 +753,7 @@ document.addEventListener("DOMContentLoaded", () => {
             borderColor: t.tooltipBorder,
             borderWidth: 1,
             callbacks: {
-              label: function(context) {
+              label: function (context) {
                 const stateName = context.dataset.label;
                 const rd = context.raw.x.toFixed(2);
                 const capex = context.raw.y.toFixed(2);
@@ -769,7 +769,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         scales: {
           x: {
-            grid: { 
+            grid: {
               color: context => context.tick.value === 0 ? t.textColor : t.gridColor,
               lineWidth: context => context.tick.value === 0 ? 2 : 1,
               z: 1 // Draw above background but below points
@@ -921,20 +921,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const defSotrLabels = [];
     const defSotrColors = [];
     const defSotrBorderColors = [];
-    
+
     // Sort states by deficit to sotr dependency
     const sortedStatesDef = [...fiscalData.states].sort((a, b) => {
-        return getMetricValue(b.id, "deficit_to_sotr", yearIdx) - getMetricValue(a.id, "deficit_to_sotr", yearIdx);
+      return getMetricValue(b.id, "deficit_to_sotr", yearIdx) - getMetricValue(a.id, "deficit_to_sotr", yearIdx);
     });
 
     sortedStatesDef.forEach(state => {
-        const val = getMetricValue(state.id, "deficit_to_sotr", yearIdx);
-        if (val !== null) {
-            defSotrData.push(val);
-            defSotrLabels.push(state.name);
-            defSotrColors.push(state.color + 'CC');
-            defSotrBorderColors.push(state.color);
-        }
+      const val = getMetricValue(state.id, "deficit_to_sotr", yearIdx);
+      if (val !== null) {
+        defSotrData.push(val);
+        defSotrLabels.push(state.name);
+        defSotrColors.push(state.color + 'CC');
+        defSotrBorderColors.push(state.color);
+      }
     });
 
     charts["deficitSotr"] = new Chart(ctxDefSotr, {
@@ -956,17 +956,17 @@ document.addEventListener("DOMContentLoaded", () => {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          x: { 
+          x: {
             grid: { display: false },
             ticks: { font: { weight: 500, size: 10 }, color: t.textSecondary }
           },
           y: {
             grid: { color: t.gridColor },
-            title: { 
-              display: true, 
-              text: "% of Own Tax Revenue", 
+            title: {
+              display: true,
+              text: "% of Own Tax Revenue",
               color: t.textSecondary,
-              font: { weight: 600, family: "'Outfit', sans-serif" } 
+              font: { weight: 600, family: "'Outfit', sans-serif" }
             },
             ticks: { color: t.textSecondary }
           }
@@ -1044,29 +1044,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const invColors = [];
     const invBorderColors = [];
     const invBreakdowns = []; // Per-bar breakdown details
-    
+
     // Sort states by highest direct investment
     const sortedStatesInv = [...fiscalData.states].sort((a, b) => {
-        return getMetricValue(b.id, "direct_central_investment", yearIdx) - getMetricValue(a.id, "direct_central_investment", yearIdx);
+      return getMetricValue(b.id, "direct_central_investment", yearIdx) - getMetricValue(a.id, "direct_central_investment", yearIdx);
     });
 
     sortedStatesInv.forEach(state => {
-        const val = getMetricValue(state.id, "direct_central_investment", yearIdx);
-        if (val !== null) {
-            invData.push(val);
-            invLabels.push(state.name);
-            invColors.push(state.color + 'CC');
-            invBorderColors.push(state.color);
-            // Store breakdown details for tooltip
-            const bd = (window.centralInvestmentBreakdown && window.centralInvestmentBreakdown[state.id]) || null;
-            invBreakdowns.push(bd ? {
-              railways: bd.railways[yearIdx],
-              nhai:     bd.nhai[yearIdx],
-              css:      bd.css[yearIdx],
-              grants:   bd.grants[yearIdx],
-              notes:    bd.notes
-            } : null);
-        }
+      const val = getMetricValue(state.id, "direct_central_investment", yearIdx);
+      if (val !== null) {
+        invData.push(val);
+        invLabels.push(state.name);
+        invColors.push(state.color + 'CC');
+        invBorderColors.push(state.color);
+        // Store breakdown details for tooltip
+        const bd = (window.centralInvestmentBreakdown && window.centralInvestmentBreakdown[state.id]) || null;
+        invBreakdowns.push(bd ? {
+          railways: bd.railways[yearIdx],
+          nhai: bd.nhai[yearIdx],
+          css: bd.css[yearIdx],
+          grants: bd.grants[yearIdx],
+          notes: bd.notes
+        } : null);
+      }
     });
 
     charts["centralInv"] = new Chart(ctxCentralInv, {
@@ -1088,17 +1088,17 @@ document.addEventListener("DOMContentLoaded", () => {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          x: { 
+          x: {
             grid: { display: false },
             ticks: { font: { weight: 500, size: 10 }, color: t.textSecondary }
           },
           y: {
             grid: { color: t.gridColor },
-            title: { 
-              display: true, 
-              text: "% of GSDP", 
+            title: {
+              display: true,
+              text: "% of GSDP",
               color: t.textSecondary,
-              font: { weight: 600, family: "'Outfit', sans-serif" } 
+              font: { weight: 600, family: "'Outfit', sans-serif" }
             },
             ticks: { color: t.textSecondary }
           }
@@ -1159,47 +1159,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const norms = [
       {
-        key:     "fiscal_deficit",
-        label:   "Fiscal Deficit",
-        unit:    "% of GSDP",
-        limit:   fdLimit,
-        note:    `≤${fdLimit}% GSDP (15th FC glide path)`,
+        key: "fiscal_deficit",
+        label: "Fiscal Deficit",
+        unit: "% of GSDP",
+        limit: fdLimit,
+        note: `≤${fdLimit}% GSDP (15th FC glide path)`,
         lowerBetter: true,
         noteExtra: "+0.5% allowed for power sector reforms"
       },
       {
-        key:     "revenue_deficit",
-        label:   "Revenue Deficit",
-        unit:    "% of GSDP",
-        limit:   0,
-        note:    "≤0% (FRBM: must be zero or surplus)",
+        key: "revenue_deficit",
+        label: "Revenue Deficit",
+        unit: "% of GSDP",
+        limit: 0,
+        note: "≤0% (FRBM: must be zero or surplus)",
         lowerBetter: true,
         noteExtra: "Revenue deficit = structural fiscal stress"
       },
       {
-        key:     "debt_gsdp",
-        label:   "Debt / GSDP",
-        unit:    "%",
-        limit:   32.5,
-        note:    "≤32.5% GSDP (15th FC aggregate target)",
+        key: "debt_gsdp",
+        label: "Debt / GSDP",
+        unit: "%",
+        limit: 32.5,
+        note: "≤32.5% GSDP (15th FC aggregate target)",
         lowerBetter: true,
         noteExtra: "NK Singh FRBM Review target: 20% long-run"
       },
       {
-        key:     "capital_outlay",
-        label:   "Capital Outlay",
-        unit:    "% of GSDP",
-        limit:   1.5,
-        note:    "≥1.5% GSDP (encouraged minimum for development)",
+        key: "capital_outlay",
+        label: "Capital Outlay",
+        unit: "% of GSDP",
+        limit: 1.5,
+        note: "≥1.5% GSDP (encouraged minimum for development)",
         lowerBetter: false,
         noteExtra: "15th FC incentivised incremental capex (+0.5% borrowing room)"
       },
       {
-        key:     "borrowing_spread",
-        label:   "SDL Spread over G-Sec",
-        unit:    "bps",
-        limit:   50,
-        note:    "≤50 bps (market stress signal threshold)",
+        key: "borrowing_spread",
+        label: "SDL Spread over G-Sec",
+        unit: "bps",
+        limit: 50,
+        note: "≤50 bps (market stress signal threshold)",
         lowerBetter: true,
         noteExtra: "Higher spreads signal market perception of fiscal risk"
       }
@@ -1221,7 +1221,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const statusColor = { ok: "#10b981", warn: "#f59e0b", breach: "#ef4444", na: "#6b7280" };
     const statusLabel = { ok: "✓", warn: "~", breach: "✗", na: "—" };
-    const statusBg    = { ok: "rgba(16,185,129,0.1)", warn: "rgba(245,158,11,0.1)", breach: "rgba(239,68,68,0.1)", na: "transparent" };
+    const statusBg = { ok: "rgba(16,185,129,0.1)", warn: "rgba(245,158,11,0.1)", breach: "rgba(239,68,68,0.1)", na: "transparent" };
 
     // Summary counts
     const summary = { ok: 0, warn: 0, breach: 0 };
@@ -1256,14 +1256,14 @@ document.addEventListener("DOMContentLoaded", () => {
       norms.forEach(norm => {
         const raw = getMetricValue(state.id, norm.key, yearIdx);
         const status = getStatus(raw, norm);
-        if (status === "ok")     { stateScore += 2; stateTotal += 2; }
-        else if (status === "warn")   { stateScore += 1; stateTotal += 2; }
+        if (status === "ok") { stateScore += 2; stateTotal += 2; }
+        else if (status === "warn") { stateScore += 1; stateTotal += 2; }
         else if (status === "breach") { stateTotal += 2; }
-        else if (status === "na")     { /* skip */ }
+        else if (status === "na") { /* skip */ }
 
         const displayVal = raw !== null ? (
           norm.unit === "bps" ? `${Math.round(raw)} bps`
-          : `${raw.toFixed(1)}%`
+            : `${raw.toFixed(1)}%`
         ) : "N/A";
         const limitStr = norm.lowerBetter ? `Limit: ${norm.limit}${norm.unit === "bps" ? " bps" : "%"}` : `Min: ${norm.limit}%`;
 
@@ -1278,16 +1278,16 @@ document.addEventListener("DOMContentLoaded", () => {
               <span style="font-weight:600; color:${statusColor[status]}; font-size:0.8rem;">${displayVal}</span>
               <div style="width:56px; height:5px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden; margin-top:2px;">
                 ${raw !== null ? (() => {
-                  let pct;
-                  if (norm.lowerBetter) {
-                    pct = norm.limit === 0
-                      ? Math.max(0, Math.min(100, 100 - (raw / 5) * 100))
-                      : Math.max(0, Math.min(100, (1 - (raw / (norm.limit * 2))) * 100));
-                  } else {
-                    pct = Math.max(0, Math.min(100, (raw / (norm.limit * 1.5)) * 100));
-                  }
-                  return `<div style="height:100%; width:${pct.toFixed(0)}%; background:${statusColor[status]}; border-radius:3px; transition:width 0.4s;"></div>`;
-                })() : ''}
+            let pct;
+            if (norm.lowerBetter) {
+              pct = norm.limit === 0
+                ? Math.max(0, Math.min(100, 100 - (raw / 5) * 100))
+                : Math.max(0, Math.min(100, (1 - (raw / (norm.limit * 2))) * 100));
+            } else {
+              pct = Math.max(0, Math.min(100, (raw / (norm.limit * 1.5)) * 100));
+            }
+            return `<div style="height:100%; width:${pct.toFixed(0)}%; background:${statusColor[status]}; border-radius:3px; transition:width 0.4s;"></div>`;
+          })() : ''}
               </div>
             </div>
           </td>`;
@@ -1334,7 +1334,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fiscalData.states.forEach(state => {
       const debt = fiscalData.metrics.debt_gsdp[state.id][yearIdx];
       const interest = getMetricValue(state.id, "interest_to_own_revenue", yearIdx);
-      
+
       const growth = fiscalData.metrics.gsdp_growth[state.id][yearIdx];
       const cost = fiscalData.metrics.effective_interest[state.id][yearIdx];
 
@@ -1343,11 +1343,11 @@ document.addEventListener("DOMContentLoaded", () => {
         bubbleDatasets.push({
           label: state.name,
           data: [{
-            x: interest, 
-            y: debt, 
+            x: interest,
+            y: debt,
             r: 8 // Uniform size for simplicity, or could map to per capita debt
           }],
-          backgroundColor: state.color + 'CC', 
+          backgroundColor: state.color + 'CC',
           borderColor: state.color,
           borderWidth: 2,
           hoverBackgroundColor: state.color,
@@ -1361,7 +1361,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const spread = growth - cost;
         spreadLabels.push(state.name);
         spreadData.push(spread);
-        
+
         // Green if sustainable (>0), Red if unsustainable (<0)
         if (spread >= 0) {
           spreadBgColors.push('rgba(16, 185, 129, 0.7)'); // Emerald
@@ -1397,7 +1397,7 @@ document.addEventListener("DOMContentLoaded", () => {
             borderColor: t.tooltipBorder,
             borderWidth: 1,
             callbacks: {
-              label: function(context) {
+              label: function (context) {
                 const stateName = context.dataset.label;
                 const x = context.raw.x.toFixed(2);
                 const y = context.raw.y.toFixed(2);
@@ -1545,12 +1545,12 @@ document.addEventListener("DOMContentLoaded", () => {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          x: { 
+          x: {
             grid: { display: false },
             ticks: { font: { weight: 500, size: 10 } }
           },
           y: {
-            grid: { 
+            grid: {
               color: context => context.tick.value === 0 ? t.textColor : t.gridColor,
               lineWidth: context => context.tick.value === 0 ? 2 : 1
             },
@@ -1566,7 +1566,7 @@ document.addEventListener("DOMContentLoaded", () => {
             borderColor: t.tooltipBorder,
             borderWidth: 1,
             callbacks: {
-              label: function(context) {
+              label: function (context) {
                 const val = context.raw.toFixed(2);
                 return `Spread: ${val}%`;
               }
@@ -1594,17 +1594,17 @@ document.addEventListener("DOMContentLoaded", () => {
     fiscalData.states.forEach(state => {
       const ownTax = fiscalData.metrics.own_tax_gsdp[state.id][yearIdx];
       const transfers = fiscalData.metrics.central_transfers[state.id][yearIdx];
-      
+
       // Bubble Chart
       if (ownTax !== null && transfers !== null) {
         bubbleDatasets.push({
           label: state.name,
           data: [{
-            x: ownTax, 
-            y: transfers, 
+            x: ownTax,
+            y: transfers,
             r: 8 // Uniform bubble size
           }],
-          backgroundColor: state.color + 'CC', 
+          backgroundColor: state.color + 'CC',
           borderColor: state.color,
           borderWidth: 2,
           hoverBackgroundColor: state.color,
@@ -1646,7 +1646,7 @@ document.addEventListener("DOMContentLoaded", () => {
             borderColor: t.tooltipBorder,
             borderWidth: 1,
             callbacks: {
-              label: function(context) {
+              label: function (context) {
                 const stateName = context.dataset.label;
                 const x = context.raw.x.toFixed(2);
                 const y = context.raw.y.toFixed(2);
@@ -1703,7 +1703,7 @@ document.addEventListener("DOMContentLoaded", () => {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          x: { 
+          x: {
             grid: { display: false },
             ticks: { font: { weight: 500, size: 10 } }
           },
@@ -1735,20 +1735,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const yearIdx = parseInt(document.getElementById("expenditure-year-select").value);
 
     const bubbleDatasets = [];
-    
+
     fiscalData.states.forEach(state => {
       const committed = fiscalData.metrics.committed_exp[state.id][yearIdx];
       const capex = fiscalData.metrics.capital_outlay[state.id][yearIdx];
-      
+
       if (committed !== null && capex !== null) {
         bubbleDatasets.push({
           label: state.name,
           data: [{
-            x: committed, 
-            y: capex, 
+            x: committed,
+            y: capex,
             r: 8 // Uniform bubble size
           }],
-          backgroundColor: state.color + 'CC', 
+          backgroundColor: state.color + 'CC',
           borderColor: state.color,
           borderWidth: 2,
           hoverBackgroundColor: state.color,
@@ -1782,7 +1782,7 @@ document.addEventListener("DOMContentLoaded", () => {
             borderColor: t.tooltipBorder,
             borderWidth: 1,
             callbacks: {
-              label: function(context) {
+              label: function (context) {
                 const stateName = context.dataset.label;
                 const x = context.raw.x.toFixed(2);
                 const y = context.raw.y.toFixed(2);
@@ -1847,7 +1847,7 @@ document.addEventListener("DOMContentLoaded", () => {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          x: { 
+          x: {
             grid: { display: false },
             ticks: { font: { weight: 500, size: 10 } }
           },
@@ -1865,7 +1865,7 @@ document.addEventListener("DOMContentLoaded", () => {
             borderColor: t.tooltipBorder,
             borderWidth: 1,
             callbacks: {
-              label: function(context) {
+              label: function (context) {
                 const val = context.raw.toFixed(1);
                 return `Guarantees: ${val}%`;
               }
@@ -2007,7 +2007,7 @@ document.addEventListener("DOMContentLoaded", () => {
               font: { weight: 600 }
             },
             ticks: {
-              callback: function(value) {
+              callback: function (value) {
                 return formatMetricValue(value, metricKey);
               }
             }
@@ -2026,7 +2026,7 @@ document.addEventListener("DOMContentLoaded", () => {
             borderColor: t.tooltipBorder,
             borderWidth: 1,
             callbacks: {
-              label: function(context) {
+              label: function (context) {
                 const val = context.raw;
                 return ` ${metricMeta.name}: ${formatMetricValue(val, metricKey)}`;
               }
@@ -2133,13 +2133,13 @@ document.addEventListener("DOMContentLoaded", () => {
     tableData.sort((a, b) => {
       let valA = currentSortColumn === "state" ? a.name : a[currentSortColumn];
       let valB = currentSortColumn === "state" ? b.name : b[currentSortColumn];
- 
+
       const aNull = valA === null || valA === undefined;
       const bNull = valB === null || valB === undefined;
       if (aNull && bNull) return 0;
       if (aNull) return 1;
       if (bNull) return -1;
- 
+
       if (typeof valA === "string") {
         return currentSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
       } else {
@@ -2204,7 +2204,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!vals || vals.length === 0) {
         return `style="background-color: transparent; font-weight: 500;"`;
       }
-      
+
       let p = 0.5;
       if (vals.length > 1) {
         const idx = vals.indexOf(value);
@@ -2284,24 +2284,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // All 18 scorecard columns as axes
     const axes = [
-      { key: "gsdp_absolute",        label: "GSDP\n(₹ Bn)",            higherBetter: true  },
-      { key: "total_budget",          label: "Total\nBudget (₹ Bn)",     higherBetter: true  },
-      { key: "budget_gsdp",           label: "Budget\n% GSDP",           higherBetter: false },
-      { key: "total_revenue",         label: "Revenue\n(₹ Bn)",           higherBetter: true  },
-      { key: "revenue_gsdp",          label: "Revenue\n% GSDP",           higherBetter: true  },
-      { key: "gsdp_growth",           label: "GSDP\nGrowth %",           higherBetter: true  },
-      { key: "fiscal_deficit",        label: "Fiscal\nDeficit %",         higherBetter: false },
-      { key: "fiscal_deficit_abs",    label: "Deficit\n(₹ Bn)",           higherBetter: false },
-      { key: "revenue_exp_gsdp",      label: "Rev Exp\n% GSDP",           higherBetter: false },
-      { key: "revenue_exp_abs",       label: "Rev Exp\n(₹ Bn)",           higherBetter: false },
-      { key: "capital_outlay",        label: "Capex\n% GSDP",            higherBetter: true  },
-      { key: "capital_outlay_abs",    label: "Capex\n(₹ Bn)",             higherBetter: true  },
-      { key: "debt_gsdp",             label: "Debt\n% GSDP",             higherBetter: false },
-      { key: "pc_gsdp",               label: "Per Cap\nGSDP (₹)",         higherBetter: true  },
-      { key: "pc_debt",               label: "Per Cap\nDebt (₹)",          higherBetter: false },
-      { key: "central_transfers",     label: "C.Transfers\n% Revenue",   higherBetter: false },
-      { key: "central_transfers_abs", label: "C.Transfers\n(₹ Bn)",      higherBetter: false },
-      { key: "borrowing_spread",      label: "SDL\nSpread bps",           higherBetter: false }
+      { key: "gsdp_absolute", label: "GSDP\n(₹ Bn)", higherBetter: true },
+      { key: "total_budget", label: "Total\nBudget (₹ Bn)", higherBetter: true },
+      { key: "budget_gsdp", label: "Budget\n% GSDP", higherBetter: false },
+      { key: "total_revenue", label: "Revenue\n(₹ Bn)", higherBetter: true },
+      { key: "revenue_gsdp", label: "Revenue\n% GSDP", higherBetter: true },
+      { key: "gsdp_growth", label: "GSDP\nGrowth %", higherBetter: true },
+      { key: "fiscal_deficit", label: "Fiscal\nDeficit %", higherBetter: false },
+      { key: "fiscal_deficit_abs", label: "Deficit\n(₹ Bn)", higherBetter: false },
+      { key: "revenue_exp_gsdp", label: "Rev Exp\n% GSDP", higherBetter: false },
+      { key: "revenue_exp_abs", label: "Rev Exp\n(₹ Bn)", higherBetter: false },
+      { key: "capital_outlay", label: "Capex\n% GSDP", higherBetter: true },
+      { key: "capital_outlay_abs", label: "Capex\n(₹ Bn)", higherBetter: true },
+      { key: "debt_gsdp", label: "Debt\n% GSDP", higherBetter: false },
+      { key: "pc_gsdp", label: "Per Cap\nGSDP (₹)", higherBetter: true },
+      { key: "pc_debt", label: "Per Cap\nDebt (₹)", higherBetter: false },
+      { key: "central_transfers", label: "C.Transfers\n% Revenue", higherBetter: false },
+      { key: "central_transfers_abs", label: "C.Transfers\n(₹ Bn)", higherBetter: false },
+      { key: "borrowing_spread", label: "SDL\nSpread bps", higherBetter: false }
     ];
 
     // Collect data — allow some axes to be null and fill forward for resilience
@@ -2337,9 +2337,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const innerDiv = canvas.parentElement;
     const W = innerDiv.offsetWidth || 1700;
     const H = innerDiv.offsetHeight || 380;
-    canvas.width  = W * dpr;
+    canvas.width = W * dpr;
     canvas.height = H * dpr;
-    canvas.style.width  = W + "px";
+    canvas.style.width = W + "px";
     canvas.style.height = H + "px";
     ctx2d.scale(dpr, dpr);
 
@@ -2426,8 +2426,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Line glow and style
         const lineWidth = isHighlighted ? 3 : (hasHighlight ? 1.2 : 2);
-        const alpha    = isHighlighted ? "FF" : (hasHighlight ? "30" : "CC");
-        const glow     = isHighlighted ? 18   : (hasHighlight ? 0    : 8);
+        const alpha = isHighlighted ? "FF" : (hasHighlight ? "30" : "CC");
+        const glow = isHighlighted ? 18 : (hasHighlight ? 0 : 8);
 
         drawStatePath(s, pts, lineWidth, alpha, glow);
 
@@ -2463,7 +2463,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // On hover: draw directional arrows along the highlighted state's path
         if (isHighlighted) {
           for (let i = 0; i < pts.length - 1; i++) {
-            const a = pts[i], b = pts[i+1];
+            const a = pts[i], b = pts[i + 1];
             if (!a || !b) continue;
             const midX = (a.x + b.x) / 2;
             const midY = (a.y + b.y) / 2;
@@ -2541,7 +2541,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Render Central Transfers Tab Charts ---
   function renderTransfersTab(t) {
     const yearIdxStr = document.getElementById("transfers-year-select").value;
-    if(!yearIdxStr) return;
+    if (!yearIdxStr) return;
     const yearIdx = parseInt(yearIdxStr);
 
     // Chart 1: Central Transfers Dependency Matrix (Bubble Scatter)
@@ -2552,9 +2552,9 @@ document.addEventListener("DOMContentLoaded", () => {
     fiscalData.states.forEach(state => {
       const ct_pct = fiscalData.metrics.central_transfers[state.id][yearIdx];
       const ct_abs = getMetricValue(state.id, "central_transfers_abs", yearIdx);
-      const gsdp = getMetricValue(state.id, "gsdp_absolute", yearIdx) || 0; 
+      const gsdp = getMetricValue(state.id, "gsdp_absolute", yearIdx) || 0;
       if (ct_pct === null || ct_abs === null) return;
-      
+
       const r = Math.max(8, Math.min(30, (gsdp / 1000) * 1.5));
       bubbleDatasets.push({
         label: state.name,
@@ -2593,7 +2593,7 @@ document.addEventListener("DOMContentLoaded", () => {
               color: t.textSecondary,
               font: { weight: 600, family: "'Outfit', sans-serif" }
             },
-            ticks: { color: t.textSecondary, callback: function(value) { return '\u20B9' + value; } }
+            ticks: { color: t.textSecondary, callback: function (value) { return '\u20B9' + value; } }
           }
         },
         plugins: {
@@ -2610,7 +2610,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return [
                   ds.label,
                   `Transfers (% Rev): ${ctx.raw.x.toFixed(2)}%`,
-                  `Transfers (Abs): \u20B9${ctx.raw.y.toLocaleString('en-US', {minimumFractionDigits: 2})} Bn`
+                  `Transfers (Abs): \u20B9${ctx.raw.y.toLocaleString('en-US', { minimumFractionDigits: 2 })} Bn`
                 ];
               }
             }
@@ -2627,20 +2627,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const barLabels = [];
     const barColors = [];
     const barBorderColors = [];
-    
+
     // Sort states by transfer dependency
     const sortedStates = [...fiscalData.states].sort((a, b) => {
-        return fiscalData.metrics.central_transfers[b.id][yearIdx] - fiscalData.metrics.central_transfers[a.id][yearIdx];
+      return fiscalData.metrics.central_transfers[b.id][yearIdx] - fiscalData.metrics.central_transfers[a.id][yearIdx];
     });
 
     sortedStates.forEach(state => {
-        const val = fiscalData.metrics.central_transfers[state.id][yearIdx];
-        if (val !== null) {
-            barData.push(val);
-            barLabels.push(state.name);
-            barColors.push(state.color + 'CC');
-            barBorderColors.push(state.color);
-        }
+      const val = fiscalData.metrics.central_transfers[state.id][yearIdx];
+      if (val !== null) {
+        barData.push(val);
+        barLabels.push(state.name);
+        barColors.push(state.color + 'CC');
+        barBorderColors.push(state.color);
+      }
     });
 
     charts["transfersBar"] = new Chart(ctxBar, {
@@ -2662,17 +2662,17 @@ document.addEventListener("DOMContentLoaded", () => {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          x: { 
+          x: {
             grid: { display: false },
             ticks: { font: { weight: 500, size: 10 }, color: t.textSecondary }
           },
           y: {
             grid: { color: t.gridColor },
-            title: { 
-              display: true, 
-              text: "% of Revenue Receipts", 
+            title: {
+              display: true,
+              text: "% of Revenue Receipts",
               color: t.textSecondary,
-              font: { weight: 600, family: "'Outfit', sans-serif" } 
+              font: { weight: 600, family: "'Outfit', sans-serif" }
             },
             ticks: { color: t.textSecondary }
           }
@@ -2762,7 +2762,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ticks: {
               color: t.textSecondary,
               font: { size: 9, family: "'Outfit', sans-serif" },
-              callback: function(value) { return value.toFixed(0) + '%'; }
+              callback: function (value) { return value.toFixed(0) + '%'; }
             },
             title: {
               display: true,
@@ -2884,7 +2884,7 @@ document.addEventListener("DOMContentLoaded", () => {
               ticks: {
                 color: t.textSecondary,
                 font: { size: 9, family: "'Outfit', sans-serif" },
-                callback: function(value) { return value.toFixed(0) + '%'; }
+                callback: function (value) { return value.toFixed(0) + '%'; }
               },
               title: {
                 display: true,
@@ -2981,7 +2981,7 @@ document.addEventListener("DOMContentLoaded", () => {
               ticks: {
                 color: t.textSecondary,
                 font: { size: 9, family: "'Outfit', sans-serif" },
-                callback: function(value) { return value.toFixed(0) + '%'; }
+                callback: function (value) { return value.toFixed(0) + '%'; }
               },
               title: {
                 display: true,
@@ -3079,7 +3079,7 @@ document.addEventListener("DOMContentLoaded", () => {
               ticks: {
                 color: t.textSecondary,
                 font: { size: 9, family: "'Outfit', sans-serif" },
-                callback: function(value) { return value.toFixed(0) + '%'; }
+                callback: function (value) { return value.toFixed(0) + '%'; }
               },
               title: {
                 display: true,
@@ -3177,7 +3177,7 @@ document.addEventListener("DOMContentLoaded", () => {
               ticks: {
                 color: t.textSecondary,
                 font: { size: 9, family: "'Outfit', sans-serif" },
-                callback: function(value) { return value.toFixed(1) + '%'; }
+                callback: function (value) { return value.toFixed(1) + '%'; }
               },
               title: {
                 display: true,
@@ -3270,7 +3270,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ticks: {
               color: t.textSecondary,
               font: { size: 9, family: "'Outfit', sans-serif" },
-              callback: function(value) { return value.toFixed(0) + '%'; }
+              callback: function (value) { return value.toFixed(0) + '%'; }
             },
             title: {
               display: true,
@@ -3363,7 +3363,7 @@ document.addEventListener("DOMContentLoaded", () => {
               ticks: {
                 color: t.textSecondary,
                 font: { size: 9, family: "'Outfit', sans-serif" },
-                callback: function(value) { return value.toFixed(1) + '%'; }
+                callback: function (value) { return value.toFixed(1) + '%'; }
               },
               title: {
                 display: true,
@@ -3430,7 +3430,7 @@ document.addEventListener("DOMContentLoaded", () => {
               ticks: {
                 color: t.textSecondary,
                 font: { size: 9, family: "'Outfit', sans-serif" },
-                callback: function(value) { return value.toFixed(0) + '%'; }
+                callback: function (value) { return value.toFixed(0) + '%'; }
               },
               title: {
                 display: true,
@@ -3497,7 +3497,7 @@ document.addEventListener("DOMContentLoaded", () => {
               ticks: {
                 color: t.textSecondary,
                 font: { size: 9, family: "'Outfit', sans-serif" },
-                callback: function(value) { return value.toFixed(1) + '%'; }
+                callback: function (value) { return value.toFixed(1) + '%'; }
               },
               title: {
                 display: true,
@@ -3588,7 +3588,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ticks: {
               color: t.textSecondary,
               font: { size: 9, family: "'Outfit', sans-serif" },
-              callback: function(value) { return value.toFixed(0) + '%'; }
+              callback: function (value) { return value.toFixed(0) + '%'; }
             },
             title: {
               display: true,
@@ -4980,24 +4980,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (key === "deficit_to_sotr") {
       const gsdp_abs = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
-      
+
       const trr_abs = getMetricValue(stateId, "total_revenue", yearIdx);
       const central_transfers_pct = fiscalData.metrics.central_transfers[stateId][yearIdx];
       const rd_pct = fiscalData.metrics.revenue_deficit[stateId][yearIdx];
-      
+
       if (gsdp_abs === null || trr_abs === null || trr_abs === 0 || rd_pct === null || central_transfers_pct === null) return null;
-      
+
       const transfers_abs = (central_transfers_pct / 100) * trr_abs;
       const orr_abs = trr_abs - transfers_abs; // Own Revenue Receipts
-      
+
       const headline_rd_abs = (rd_pct / 100) * gsdp_abs;
-      
+
       // Headline RD is positive for surplus, negative for deficit
       // Own RD = Headline RD - Transfers (transfers subsidize the deficit)
       const own_rd_abs = headline_rd_abs - transfers_abs;
-      
+
       if (orr_abs === 0) return null;
-      
+
       return (own_rd_abs / orr_abs) * 100;
     }
     if (key === "direct_central_investment") {
