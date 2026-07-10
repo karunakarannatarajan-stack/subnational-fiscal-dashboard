@@ -18,7 +18,7 @@
   <!-- FontAwesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=3.53">
+  <link rel="stylesheet" href="style.css?v=3.54">
 </head>
 <body>
   <!-- Dashboard Grid Layout -->
@@ -135,6 +135,10 @@
             <button class="nav-item" data-tab="fiscal_input_trajectory">
               <i class="fa-solid fa-chart-line"></i>
               <span>Fiscal Input trajectory</span>
+            </button>
+            <button class="nav-item" data-tab="demographics_trajectory">
+              <i class="fa-solid fa-people-group"></i>
+              <span>Demographics trajectory</span>
             </button>
             <button class="nav-item" data-tab="comparison">
               <i class="fa-solid fa-code-compare"></i>
@@ -1260,6 +1264,76 @@
             </div>
           </div>
 
+          <!-- Demographics Trajectory Tab -->
+          <div class="tab-view" id="tab-demographics_trajectory">
+            <div class="comparison-filters" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem;">
+              <h2 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-people-group" style="color: var(--accent-color);"></i> Demographics Trajectory
+              </h2>
+              <span class="badge info" style="font-size: 0.75rem;">All States Over Time</span>
+            </div>
+
+            <!-- Chart 1: Population Growth Rate -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-people-arrows" style="color: var(--accent-color); margin-right: 5px;"></i> Population Growth Rate (%) Trajectory</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-demo-traj-popgrowth"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 2: Urbanization Rate -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-city" style="color: var(--accent-color); margin-right: 5px;"></i> Urbanization Rate (% Urban Population) Trajectory</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-demo-traj-urban"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 3: Working-Age Population Ratio -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-person-digging" style="color: var(--accent-color); margin-right: 5px;"></i> Working-Age Population (15–64 yrs, %) Trajectory — Demographic Dividend</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-demo-traj-workingage"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 4: Old-Age Dependency Ratio -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-person-cane" style="color: var(--accent-color); margin-right: 5px;"></i> Old-Age Dependency Ratio (65+ per 100 working-age) Trajectory — Pension Pressure</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-demo-traj-oldagedep"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 5: Total Fertility Rate -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-baby-carriage" style="color: var(--accent-color); margin-right: 5px;"></i> Total Fertility Rate (TFR) Trajectory — Population Momentum</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-demo-traj-tfr"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 6: Literacy Rate -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-book-open" style="color: var(--accent-color); margin-right: 5px;"></i> Literacy Rate (%) Trajectory — Human Capital Base</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-demo-traj-literacy"></canvas>
+              </div>
+            </div>
+          </div>
+
           <div class="tab-view" id="tab-comparison">
             
             <div class="comparison-filters">
@@ -1543,7 +1617,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.53"></script>
-  <script src="app.js?v=3.53"></script>
+  <script src="data.js?v=3.54"></script>
+  <script src="app.js?v=3.54"></script>
 </body>
 </html>

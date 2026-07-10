@@ -671,6 +671,8 @@ document.addEventListener("DOMContentLoaded", () => {
       renderFiscalInputTab(t);
     } else if (activeTab === "fiscal_input_trajectory") {
       renderFiscalInputTrajectoryTab(t);
+    } else if (activeTab === "demographics_trajectory") {
+      renderDemographicsTrajectoryTab(t);
     } else if (activeTab === "comparison") {
       renderComparisonTab();
       // Use setTimeout so canvas has been laid out with correct dimensions
@@ -4779,6 +4781,22 @@ document.addEventListener("DOMContentLoaded", () => {
       'Developmental Expenditure (% of Total)', 50, 72, 1, t);
     buildTrajectoryChart('chart-fiscal-traj-social', 'fiscalTrajSocial', 'input_social_gsdp',
       'Social Sector Spend (% of GSDP)', 5, 10, 1, t);
+  }
+
+  // --- Render Demographics Trajectory Tab ---
+  function renderDemographicsTrajectoryTab(t) {
+    buildTrajectoryChart('chart-demo-traj-popgrowth', 'demoTrajPopGrowth', 'demo_pop_growth',
+      'Population Growth Rate (%)', 0, 3, 2, t);
+    buildTrajectoryChart('chart-demo-traj-urban', 'demoTrajUrban', 'demo_urbanization',
+      'Urban Population (%)', 20, 60, 1, t);
+    buildTrajectoryChart('chart-demo-traj-workingage', 'demoTrajWorkingAge', 'demo_working_age',
+      'Working-Age Population (15-64, %)', 55, 73, 1, t);
+    buildTrajectoryChart('chart-demo-traj-oldagedep', 'demoTrajOldAgeDep', 'demo_old_age_dep',
+      'Old-Age Dependency Ratio (per 100)', 6, 19, 1, t);
+    buildTrajectoryChart('chart-demo-traj-tfr', 'demoTrajTfr', 'demo_tfr',
+      'Total Fertility Rate (children per woman)', 1.2, 4.0, 2, t);
+    buildTrajectoryChart('chart-demo-traj-literacy', 'demoTrajLiteracy', 'demo_literacy',
+      'Literacy Rate (%)', 60, 92, 1, t);
   }
 
   function renderThreeDTab() {
