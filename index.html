@@ -18,7 +18,7 @@
   <!-- FontAwesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=3.51">
+  <link rel="stylesheet" href="style.css?v=3.52">
 </head>
 <body>
   <!-- Dashboard Grid Layout -->
@@ -108,17 +108,33 @@
               <i class="fa-solid fa-graduation-cap"></i>
               <span>Education Efficacy</span>
             </button>
+            <button class="nav-item" data-tab="education_trajectory">
+              <i class="fa-solid fa-chart-line"></i>
+              <span>Education trajectory</span>
+            </button>
             <button class="nav-item" data-tab="healthcare">
               <i class="fa-solid fa-heart-pulse"></i>
               <span>Healthcare Efficacy</span>
+            </button>
+            <button class="nav-item" data-tab="healthcare_trajectory">
+              <i class="fa-solid fa-chart-line"></i>
+              <span>Healthcare trajectory</span>
             </button>
             <button class="nav-item" data-tab="social">
               <i class="fa-solid fa-wheat-awn"></i>
               <span>Safety Nets &amp; Nutrition</span>
             </button>
+            <button class="nav-item" data-tab="social_trajectory">
+              <i class="fa-solid fa-chart-line"></i>
+              <span>Safety Nets trajectory</span>
+            </button>
             <button class="nav-item" data-tab="fiscal_input">
               <i class="fa-solid fa-scale-balanced"></i>
               <span>Fiscal Input Quality</span>
+            </button>
+            <button class="nav-item" data-tab="fiscal_input_trajectory">
+              <i class="fa-solid fa-chart-line"></i>
+              <span>Fiscal Input trajectory</span>
             </button>
             <button class="nav-item" data-tab="comparison">
               <i class="fa-solid fa-code-compare"></i>
@@ -1051,6 +1067,187 @@
           </div>
 
           <!-- Cross-State Comparison Tab View -->
+
+          <!-- Education Efficacy Trajectory Tab -->
+          <div class="tab-view" id="tab-education_trajectory">
+            <div class="comparison-filters" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem;">
+              <h2 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-graduation-cap" style="color: var(--accent-color);"></i> Education Efficacy Trajectory
+              </h2>
+              <span class="badge info" style="font-size: 0.75rem;">All States Over Time</span>
+            </div>
+
+            <!-- Chart 1: Dropout Rate Trajectory -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-person-walking-arrow-right" style="color: var(--accent-color); margin-right: 5px;"></i> Secondary School Dropout Rate Trajectory (%)</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-edu-traj-dropout"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 2: GER Trajectory -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-graduation-cap" style="color: var(--accent-color); margin-right: 5px;"></i> Gross Enrolment Ratio (GER) Trajectory (%)</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-edu-traj-ger"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 3: NER Trajectory -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-user-check" style="color: var(--accent-color); margin-right: 5px;"></i> Net Enrolment Rate (NER) Trajectory (%)</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-edu-traj-ner"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 4: GPI Trajectory -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-venus-mars" style="color: var(--accent-color); margin-right: 5px;"></i> Gender Parity Index (GPI) Trajectory (Index)</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-edu-traj-gpi"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Healthcare Efficacy Trajectory Tab -->
+          <div class="tab-view" id="tab-healthcare_trajectory">
+            <div class="comparison-filters" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem;">
+              <h2 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-heart-pulse" style="color: var(--accent-color);"></i> Healthcare Efficacy Trajectory
+              </h2>
+              <span class="badge info" style="font-size: 0.75rem;">All States Over Time</span>
+            </div>
+
+            <!-- Chart 1: IMR Trajectory -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-baby" style="color: var(--accent-color); margin-right: 5px;"></i> Infant Mortality Rate (per 1,000 live births) Trajectory</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-health-traj-imr"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 2: MMR Trajectory -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-person-pregnant" style="color: var(--accent-color); margin-right: 5px;"></i> Maternal Mortality Ratio (per 100,000 births) Trajectory</h3>
+              </div>
+              <div style="position: relative; height: 750px; width: 100%;">
+                <canvas id="chart-health-traj-mmr"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 3: Institutional Deliveries Trajectory -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-hospital" style="color: var(--accent-color); margin-right: 5px;"></i> Institutional Deliveries (%) Trajectory</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-health-traj-inst"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 4: Life Expectancy Trajectory -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-heartbeat" style="color: var(--accent-color); margin-right: 5px;"></i> Life Expectancy at Birth (Years) Trajectory</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-health-traj-life"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Safety Nets & Nutrition Trajectory Tab -->
+          <div class="tab-view" id="tab-social_trajectory">
+            <div class="comparison-filters" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem;">
+              <h2 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-wheat-awn" style="color: var(--accent-color);"></i> Safety Nets &amp; Nutrition Trajectory
+              </h2>
+              <span class="badge info" style="font-size: 0.75rem;">All States Over Time</span>
+            </div>
+
+            <!-- Chart 1: Stunting Trajectory -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-child" style="color: var(--accent-color); margin-right: 5px;"></i> Child Stunting Prevalence (Under-5) Trajectory (%)</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-social-traj-stunting"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 2: Wasting Trajectory -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-bowl-food" style="color: var(--accent-color); margin-right: 5px;"></i> Child Wasting Prevalence (Under-5) Trajectory (%)</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-social-traj-wasting"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 3: MPI Trajectory -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-scale-unbalanced" style="color: var(--accent-color); margin-right: 5px;"></i> Multidimensional Poverty Index (MPI) Trajectory (%)</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-social-traj-mpi"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 4: Social Safety Net Spend Trajectory -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-hand-holding-heart" style="color: var(--accent-color); margin-right: 5px;"></i> Welfare &amp; Social Safety Net Expenditure (% of GSDP) Trajectory</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-social-traj-spend"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fiscal Input Quality Trajectory Tab -->
+          <div class="tab-view" id="tab-fiscal_input_trajectory">
+            <div class="comparison-filters" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem;">
+              <h2 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-scale-balanced" style="color: var(--accent-color);"></i> Fiscal Input Quality Trajectory
+              </h2>
+              <span class="badge info" style="font-size: 0.75rem;">All States Over Time</span>
+            </div>
+
+            <!-- Chart 1: Developmental Expenditure Share Trajectory -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-chart-pie" style="color: var(--accent-color); margin-right: 5px;"></i> Developmental Expenditure (% of Total Expenditure) Trajectory</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-fiscal-traj-devexp"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 2: Social Sector Expenditure Trajectory -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600;"><i class="fa-solid fa-sack-dollar" style="color: var(--accent-color); margin-right: 5px;"></i> Social Sector Expenditure (% of GSDP) Trajectory</h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-fiscal-traj-social"></canvas>
+              </div>
+            </div>
+          </div>
+
           <div class="tab-view" id="tab-comparison">
             
             <div class="comparison-filters">
@@ -1334,7 +1531,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.51"></script>
-  <script src="app.js?v=3.51"></script>
+  <script src="data.js?v=3.52"></script>
+  <script src="app.js?v=3.52"></script>
 </body>
 </html>

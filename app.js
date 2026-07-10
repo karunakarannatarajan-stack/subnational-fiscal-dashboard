@@ -657,12 +657,20 @@ document.addEventListener("DOMContentLoaded", () => {
       renderTransfersTrajectoryTab(t);
     } else if (activeTab === "education") {
       renderEducationTab(t);
+    } else if (activeTab === "education_trajectory") {
+      renderEducationTrajectoryTab(t);
     } else if (activeTab === "healthcare") {
       renderHealthcareTab(t);
+    } else if (activeTab === "healthcare_trajectory") {
+      renderHealthcareTrajectoryTab(t);
     } else if (activeTab === "social") {
       renderSocialTab(t);
+    } else if (activeTab === "social_trajectory") {
+      renderSocialTrajectoryTab(t);
     } else if (activeTab === "fiscal_input") {
       renderFiscalInputTab(t);
+    } else if (activeTab === "fiscal_input_trajectory") {
+      renderFiscalInputTrajectoryTab(t);
     } else if (activeTab === "comparison") {
       renderComparisonTab();
       // Use setTimeout so canvas has been laid out with correct dimensions
@@ -4672,6 +4680,96 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }]
     });
+  }
+
+  // --- Helper: build a multi-state trajectory line chart ---
+  function buildTrajectoryChart(canvasId, chartKey, metricKey, yAxisLabel, yMin, yMax, decimals, t) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+    if (charts[chartKey]) charts[chartKey].destroy();
+
+    const labels = fiscalData.years.map(y => y.replace(" (RE)", "").replace(" (BE)", ""));
+    const datasets = fiscalData.states.map(state => ({
+      label: state.name,
+      data: fiscalData.years.map((_, yearIdx) => getMetricValue(state.id, metricKey, yearIdx)),
+      borderColor: state.color,
+      backgroundColor: state.color + '0C',
+      borderWidth: 2.5,
+      pointBackgroundColor: state.color,
+      pointBorderColor: '#ffffff',
+      pointBorderWidth: 1,
+      pointRadius: 3,
+      pointHoverRadius: 5,
+      fill: false,
+      tension: 0.15,
+      spanGaps: true
+    }));
+
+    const yScaleConfig = { grid: { color: t.gridColor }, ticks: { color: t.textSecondary, font: { size: 9, family: "'Outfit', sans-serif" }, callback: v => v.toFixed(decimals) + (yAxisLabel.includes('%') ? '' : '') }, title: { display: true, text: yAxisLabel, color: t.textSecondary, font: { size: 10, weight: 600, family: "'Outfit', sans-serif" } } };
+    if (yMin !== null) yScaleConfig.min = yMin;
+    if (yMax !== null) yScaleConfig.max = yMax;
+
+    charts[chartKey] = new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { top: 35, bottom: 30, left: 10, right: 10 } },
+        scales: {
+          x: { grid: { color: t.gridColor }, ticks: { color: t.textSecondary, font: { size: 9, family: "'Outfit', sans-serif" } } },
+          y: yScaleConfig
+        },
+        plugins: {
+          legend: { display: true, position: 'top', labels: { color: t.textColor, font: { size: 11, family: "'Outfit', sans-serif" }, boxWidth: 12, usePointStyle: true } },
+          tooltip: { backgroundColor: t.tooltipBg, titleColor: t.tooltipText, bodyColor: t.textColor, borderColor: t.tooltipBorder, borderWidth: 1, callbacks: { label: ctx => ctx.raw === null ? '' : `${ctx.dataset.label}: ${ctx.raw.toFixed(decimals)}` } }
+        }
+      }
+    });
+  }
+
+  // --- Render Education Efficacy Trajectory Tab ---
+  function renderEducationTrajectoryTab(t) {
+    buildTrajectoryChart('chart-edu-traj-dropout', 'eduTrajDropout', 'edu_dropout_secondary',
+      'Dropout Rate (%)', 0, 30, 1, t);
+    buildTrajectoryChart('chart-edu-traj-ger', 'eduTrajGer', 'edu_ger_secondary',
+      'GER (%)', 50, 100, 1, t);
+    buildTrajectoryChart('chart-edu-traj-ner', 'eduTrajNer', 'edu_ner_secondary',
+      'NER (%)', 35, 90, 1, t);
+    buildTrajectoryChart('chart-edu-traj-gpi', 'eduTrajGpi', 'edu_gpi_secondary',
+      'GPI (Index)', 0.7, 1.15, 2, t);
+  }
+
+  // --- Render Healthcare Efficacy Trajectory Tab ---
+  function renderHealthcareTrajectoryTab(t) {
+    buildTrajectoryChart('chart-health-traj-imr', 'healthTrajImr', 'health_imr',
+      'IMR (per 1,000 live births)', 0, 65, 1, t);
+    buildTrajectoryChart('chart-health-traj-mmr', 'healthTrajMmr', 'health_mmr',
+      'MMR (per 100,000 births)', 0, 300, 0, t);
+    buildTrajectoryChart('chart-health-traj-inst', 'healthTrajInst', 'health_inst_deliveries',
+      'Institutional Deliveries (%)', 40, 100, 1, t);
+    buildTrajectoryChart('chart-health-traj-life', 'healthTrajLife', 'health_life_expectancy',
+      'Life Expectancy (Years)', 60, 75, 1, t);
+  }
+
+  // --- Render Safety Nets & Nutrition Trajectory Tab ---
+  function renderSocialTrajectoryTab(t) {
+    buildTrajectoryChart('chart-social-traj-stunting', 'socialTrajStunting', 'social_stunting',
+      'Child Stunting (%)', 20, 55, 1, t);
+    buildTrajectoryChart('chart-social-traj-wasting', 'socialTrajWasting', 'social_wasting',
+      'Child Wasting (%)', 10, 26, 1, t);
+    buildTrajectoryChart('chart-social-traj-mpi', 'socialTrajMpi', 'social_mpi',
+      'MPI (%)', 0, 55, 1, t);
+    buildTrajectoryChart('chart-social-traj-spend', 'socialTrajSpend', 'social_spend_gsdp',
+      'Welfare Spend (% of GSDP)', 1.0, 4.0, 2, t);
+  }
+
+  // --- Render Fiscal Input Quality Trajectory Tab ---
+  function renderFiscalInputTrajectoryTab(t) {
+    buildTrajectoryChart('chart-fiscal-traj-devexp', 'fiscalTrajDevExp', 'input_dev_to_total',
+      'Developmental Expenditure (% of Total)', 50, 72, 1, t);
+    buildTrajectoryChart('chart-fiscal-traj-social', 'fiscalTrajSocial', 'input_social_gsdp',
+      'Social Sector Spend (% of GSDP)', 5, 10, 1, t);
   }
 
   function renderThreeDTab() {
