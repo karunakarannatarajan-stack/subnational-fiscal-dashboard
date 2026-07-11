@@ -3616,6 +3616,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     });
+
+    // Federal Favoritism: Direct Central Investment & Projects
+    buildTrajectoryChart(
+      'chart-transfers-central-investment',
+      'transfersCentralInvestment',
+      'direct_central_investment',
+      'Direct Central Investment (% of GSDP)',
+      0,
+      10,
+      2,
+      t
+    );
   }
 
   // --- Render Education Efficacy & Retention Metrics Tab ---
