@@ -50,14 +50,14 @@ const fiscalData = {
     "name": "Telangana",
     "capital": "Hyderabad",
     "region": "South",
-    "color": "#dc2626"
+    "color": "#ec4899"
   },
   {
     "id": "WB",
     "name": "West Bengal",
     "capital": "Kolkata",
     "region": "East",
-    "color": "#6b7280"
+    "color": "#14b8a6"
   }
 ],
   years: [

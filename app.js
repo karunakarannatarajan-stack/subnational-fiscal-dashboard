@@ -3628,6 +3628,30 @@ document.addEventListener("DOMContentLoaded", () => {
       2,
       t
     );
+
+    // Section 3: Grants-in-Aid (Article 275)
+    buildTrajectoryChart(
+      'chart-transfers-grants',
+      'transfersGrants',
+      'grants_in_aid',
+      'Grants-in-Aid (% of GSDP)',
+      0,
+      3,
+      2,
+      t
+    );
+
+    // Section 4: Centrally Sponsored Schemes (CSS)
+    buildTrajectoryChart(
+      'chart-transfers-css',
+      'transfersCSS',
+      'css_schemes',
+      'Centrally Sponsored Schemes (% of GSDP)',
+      0,
+      4,
+      2,
+      t
+    );
   }
 
   // --- Render Education Efficacy & Retention Metrics Tab ---
@@ -5013,6 +5037,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (budget === null || fd_abs === null || ct_pct === null) return null;
       const rev_receipts = budget - fd_abs;
       return (rev_receipts * ct_pct) / 100.0;
+    }
+    if (key === "grants_in_aid") {
+      const stateBreakdown = centralInvestmentBreakdown[stateId];
+      return stateBreakdown ? stateBreakdown.grants[yearIdx] : 0;
+    }
+    if (key === "css_schemes") {
+      const stateBreakdown = centralInvestmentBreakdown[stateId];
+      return stateBreakdown ? stateBreakdown.css[yearIdx] : 0;
     }
     return fiscalData.metrics[key][stateId][yearIdx];
   }
