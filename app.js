@@ -2800,15 +2800,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     });
-
-    // Federal Favoritism: Direct Central Investment & Projects
-    buildTrajectoryChart(
-      'chart-deficit-central-investment',
-      'deficitCentralInvestment',
-      'direct_central_investment',
-      'Direct Central Investment (% of GSDP)',
-      1, 10, 1, t
-    );
   }
 
   // --- Render Debt Sustainability Trajectory (Trellis/Facet Plots) ---
