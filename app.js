@@ -3665,14 +3665,14 @@ document.addEventListener("DOMContentLoaded", () => {
       t
     );
 
-    // Section 6: GST Revenue Sent to Centre (% of Revenue Receipts)
+    // Section 6: GST Revenue Sent to Centre (% of State Generated Revenues)
     buildTrajectoryChart(
       'chart-transfers-gst-outflow',
       'transfersGSTOutflow',
-      'gst_sent_to_centre_rr',
-      'GST Revenue Sent to Centre (% of Revenue Receipts)',
+      'gst_sent_to_centre_generated',
+      'GST Sent to Centre (% of State Generated Revenues)',
       0,
-      45,
+      60,
       2,
       t
     );
@@ -5110,15 +5110,22 @@ document.addEventListener("DOMContentLoaded", () => {
       if (dev === null || direct === null || grants === null || css === null) return null;
       return dev + direct + grants + css;
     }
-    if (key === "gst_sent_to_centre_rr") {
-      const val_gsdp = fiscalData.metrics.gst_sent_to_centre[stateId][yearIdx];
+    if (key === "gst_sent_to_centre_generated") {
+      const gst_gsdp = fiscalData.metrics.gst_sent_to_centre[stateId][yearIdx];
       const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
       const fd_abs = getMetricValue(stateId, "fiscal_deficit_abs", yearIdx);
+      const ct_abs = getMetricValue(stateId, "central_transfers_abs", yearIdx);
       const gsdp_abs = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
-      if (val_gsdp === null || !budget || !gsdp_abs) return null;
+
+      if (gst_gsdp === null || !budget || !gsdp_abs || ct_abs === null) return null;
+
       const rev_receipts = budget - fd_abs;
-      if (rev_receipts === 0) return null;
-      return val_gsdp * (gsdp_abs / rev_receipts);
+      const own_revenues = rev_receipts - ct_abs;
+      const gst_abs = (gst_gsdp / 100.0) * gsdp_abs;
+      const generated_revenues = own_revenues + gst_abs;
+
+      if (generated_revenues === 0) return null;
+      return (gst_abs / generated_revenues) * 100.0;
     }
     return fiscalData.metrics[key][stateId][yearIdx];
   }
