@@ -807,6 +807,44 @@
               </div>
             </div>
 
+            <!-- Section 7: GST Transferred to Centre (% of Total Generated Revenues) -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
+                  <i class="fa-solid fa-percent" style="color: var(--accent-color); margin-right: 5px;"></i> GST Transferred to Centre (% of Total Generated Revenues)
+                  <span class="tooltip-container">
+                    <i class="fa-solid fa-circle-info info-icon"></i>
+                    <span class="tooltip-text">
+                      <strong>GST Transferred to Centre (% of Total Generated Revenues):</strong><br>
+                      Measures the proportion of the state's total self-generated revenues (State Own Revenue Receipts + GST Sent to Centre) that is sent to the Central government in the form of CGST and Central IGST.
+                    </span>
+                  </span>
+                </h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-transfers-gst-share"></canvas>
+              </div>
+            </div>
+
+            <!-- Section 8: Return on Tax Transfer: Devolution Received vs GST Sent (%) -->
+            <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
+              <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
+                  <i class="fa-solid fa-rotate-left" style="color: var(--accent-color); margin-right: 5px;"></i> Return on Tax Transfer: Devolution Received vs GST Sent (%)
+                  <span class="tooltip-container">
+                    <i class="fa-solid fa-circle-info info-icon"></i>
+                    <span class="tooltip-text">
+                      <strong>Return on Tax Transfer:</strong><br>
+                      Measures the ratio of total aggregate central transfers received back (devolution, direct investment, grants, CSS) as a percentage of the GST tax revenue sent to the Central government from the state.
+                    </span>
+                  </span>
+                </h3>
+              </div>
+              <div style="position: relative; height: 600px; width: 100%;">
+                <canvas id="chart-transfers-dev-return"></canvas>
+              </div>
+            </div>
+
           </div>
 
           <!-- Central Transfers Tab View -->
@@ -1717,7 +1755,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.58"></script>
-  <script src="app.js?v=3.58"></script>
+  <script src="data.js?v=3.59"></script>
+  <script src="app.js?v=3.59"></script>
 </body>
 </html>

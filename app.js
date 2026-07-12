@@ -3676,6 +3676,30 @@ document.addEventListener("DOMContentLoaded", () => {
       1,
       t
     );
+
+    // Section 7: GST Transferred to Centre (% of Total Generated Revenues)
+    buildTrajectoryChart(
+      'chart-transfers-gst-share',
+      'transfersGSTShare',
+      'gst_share_of_generated',
+      'GST Transferred to Centre (% of Total Generated Revenues)',
+      0,
+      100,
+      2,
+      t
+    );
+
+    // Section 8: Return on Tax Transfer: Devolution Received vs GST Sent (%)
+    buildTrajectoryChart(
+      'chart-transfers-dev-return',
+      'transfersDevReturn',
+      'devolution_to_gst_ratio',
+      'Devolution Received vs GST Sent (%)',
+      0,
+      null,
+      2,
+      t
+    );
   }
 
   // --- Render Education Efficacy & Retention Metrics Tab ---
@@ -5125,6 +5149,42 @@ document.addEventListener("DOMContentLoaded", () => {
       const generated_revenues = own_revenues + gst_abs;
 
       return generated_revenues / 100.0; // Return in Rupees Billion
+    }
+    if (key === "gst_share_of_generated") {
+      const gst_gsdp = fiscalData.metrics.gst_sent_to_centre[stateId][yearIdx];
+      const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
+      const fd_abs = getMetricValue(stateId, "fiscal_deficit_abs", yearIdx);
+      const ct_abs = getMetricValue(stateId, "central_transfers_abs", yearIdx);
+      const gsdp_abs = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
+
+      if (gst_gsdp === null || !budget || !gsdp_abs || ct_abs === null) return null;
+
+      const rev_receipts = budget - fd_abs;
+      const own_revenues = rev_receipts - ct_abs;
+      const gst_abs = (gst_gsdp / 100.0) * gsdp_abs;
+      const generated_revenues = own_revenues + gst_abs;
+
+      if (generated_revenues === 0) return null;
+      return (gst_abs / generated_revenues) * 100.0;
+    }
+    if (key === "devolution_to_gst_ratio") {
+      const gst_gsdp = fiscalData.metrics.gst_sent_to_centre[stateId][yearIdx];
+      const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
+      const fd_abs = getMetricValue(stateId, "fiscal_deficit_abs", yearIdx);
+      const ct_abs = getMetricValue(stateId, "central_transfers_abs", yearIdx);
+      const gsdp_abs = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
+
+      if (gst_gsdp === null || !budget || !gsdp_abs || ct_abs === null) return null;
+
+      const rev_receipts = budget - fd_abs;
+      const direct_abs = getMetricValue(stateId, "direct_central_investment_rr", yearIdx) / 100.0 * rev_receipts;
+      const grants_abs = getMetricValue(stateId, "grants_in_aid_rr", yearIdx) / 100.0 * rev_receipts;
+      const css_abs = getMetricValue(stateId, "css_schemes_rr", yearIdx) / 100.0 * rev_receipts;
+      const total_received = ct_abs + direct_abs + grants_abs + css_abs;
+
+      const gst_abs = (gst_gsdp / 100.0) * gsdp_abs;
+      if (gst_abs === 0) return null;
+      return (total_received / gst_abs) * 100.0;
     }
     return fiscalData.metrics[key][stateId][yearIdx];
   }
