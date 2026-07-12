@@ -3621,10 +3621,10 @@ document.addEventListener("DOMContentLoaded", () => {
     buildTrajectoryChart(
       'chart-transfers-central-investment',
       'transfersCentralInvestment',
-      'direct_central_investment',
-      'Direct Central Investment (% of GSDP)',
+      'direct_central_investment_rr',
+      'Direct Central Investment (% of Revenue Receipts)',
       0,
-      10,
+      80,
       2,
       t
     );
@@ -3633,10 +3633,10 @@ document.addEventListener("DOMContentLoaded", () => {
     buildTrajectoryChart(
       'chart-transfers-grants',
       'transfersGrants',
-      'grants_in_aid',
-      'Grants-in-Aid (% of GSDP)',
+      'grants_in_aid_rr',
+      'Grants-in-Aid (% of Revenue Receipts)',
       0,
-      3,
+      30,
       2,
       t
     );
@@ -3645,160 +3645,25 @@ document.addEventListener("DOMContentLoaded", () => {
     buildTrajectoryChart(
       'chart-transfers-css',
       'transfersCSS',
-      'css_schemes',
-      'Centrally Sponsored Schemes (% of GSDP)',
+      'css_schemes_rr',
+      'Centrally Sponsored Schemes (% of Revenue Receipts)',
       0,
-      4,
+      40,
       2,
       t
     );
 
-    // Section 5: Return on Contribution
-    renderContributionReturnChart(t);
-  }
-
-  // --- Render Fiscal Return on Contribution Chart (Selected State) ---
-  function renderContributionReturnChart(t) {
-    const canvasId = 'chart-transfers-contribution-return';
-    const ctx = document.getElementById(canvasId);
-    if (!ctx) return;
-
-    const chartKey = 'transfers-contribution-return';
-    if (charts[chartKey]) charts[chartKey].destroy();
-
-    const stateId = activeStateId;
-    const labels = fiscalData.years.map(y => y.replace(" (RE)", "").replace(" (BE)", ""));
-
-    // Helper to calculate devolution % of GSDP
-    // Devolution % of GSDP = (central_transfers_abs / gsdp_absolute) * 100
-    // Then divided by centralTaxContribution[stateId]
-    const getDevolutionRatio = (yearIdx) => {
-      const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
-      const fd_abs = getMetricValue(stateId, "fiscal_deficit_abs", yearIdx);
-      const ct_pct = fiscalData.metrics.central_transfers[stateId][yearIdx];
-      const gsdp_abs = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
-      const contribution_pct = centralTaxContribution[stateId][yearIdx];
-      
-      if (!budget || !fd_abs || !ct_pct || !gsdp_abs || !contribution_pct) return null;
-      const rev_receipts = budget - fd_abs;
-      const dev_abs = (rev_receipts * ct_pct) / 100.0;
-      const dev_gsdp = (dev_abs / gsdp_abs) * 100.0;
-      return (dev_gsdp / contribution_pct) * 100.0;
-    };
-
-    // Helper for other metrics: (metric % of GSDP / contribution % of GSDP) * 100
-    const getMetricRatio = (metricKey, yearIdx) => {
-      const contribution_pct = centralTaxContribution[stateId][yearIdx];
-      if (!contribution_pct) return null;
-      let metricVal = 0;
-      if (metricKey === "grants") {
-        metricVal = centralInvestmentBreakdown[stateId].grants[yearIdx];
-      } else if (metricKey === "css") {
-        metricVal = centralInvestmentBreakdown[stateId].css[yearIdx];
-      } else if (metricKey === "direct") {
-        metricVal = fiscalData.metrics.direct_central_investment[stateId][yearIdx];
-      }
-      if (metricVal === null || metricVal === undefined) return null;
-      return (metricVal / contribution_pct) * 100.0;
-    };
-
-    const datasets = [
-      {
-        label: "Tax Devolution",
-        data: fiscalData.years.map((_, idx) => getDevolutionRatio(idx)),
-        borderColor: "#3b82f6",
-        backgroundColor: "rgba(59, 130, 246, 0.05)",
-        borderWidth: 2.5,
-        fill: false,
-        tension: 0.15
-      },
-      {
-        label: "Grants-in-Aid",
-        data: fiscalData.years.map((_, idx) => getMetricRatio("grants", idx)),
-        borderColor: "#10b981",
-        backgroundColor: "rgba(16, 185, 129, 0.05)",
-        borderWidth: 2.5,
-        fill: false,
-        tension: 0.15
-      },
-      {
-        label: "Centrally Sponsored Schemes (CSS)",
-        data: fiscalData.years.map((_, idx) => getMetricRatio("css", idx)),
-        borderColor: "#f59e0b",
-        backgroundColor: "rgba(245, 158, 11, 0.05)",
-        borderWidth: 2.5,
-        fill: false,
-        tension: 0.15
-      },
-      {
-        label: "Direct Central Investment",
-        data: fiscalData.years.map((_, idx) => getMetricRatio("direct", idx)),
-        borderColor: "#8b5cf6",
-        backgroundColor: "rgba(139, 92, 246, 0.05)",
-        borderWidth: 2.5,
-        fill: false,
-        tension: 0.15
-      }
-    ];
-
-    charts[chartKey] = new Chart(ctx.getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: datasets
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        layout: { padding: { top: 35, bottom: 30, left: 10, right: 10 } },
-        scales: {
-          x: {
-            grid: { color: t.gridColor },
-            ticks: { color: t.textSecondary, font: { size: 9, family: "'Outfit', sans-serif" } }
-          },
-          y: {
-            min: 0,
-            grid: { color: t.gridColor },
-            ticks: {
-              color: t.textSecondary,
-              font: { size: 9, family: "'Outfit', sans-serif" },
-              callback: function (value) { return value.toFixed(0) + '%'; }
-            },
-            title: {
-              display: true,
-              text: "Return Share (% of Central Tax Contribution)",
-              color: t.textSecondary,
-              font: { size: 10, weight: 600, family: "'Outfit', sans-serif" }
-            }
-          }
-        },
-        plugins: {
-          legend: {
-            display: true,
-            position: 'top',
-            labels: {
-              color: t.textColor,
-              font: { size: 11, family: "'Outfit', sans-serif" },
-              boxWidth: 12,
-              usePointStyle: true
-            }
-          },
-          tooltip: {
-            backgroundColor: t.tooltipBg,
-            titleColor: t.tooltipText,
-            bodyColor: t.textColor,
-            borderColor: t.tooltipBorder,
-            borderWidth: 1,
-            callbacks: {
-              label: (ctx) => {
-                if (ctx.raw === null) return '';
-                return `${ctx.dataset.label}: ${ctx.raw.toFixed(1)}% of Contribution`;
-              }
-            }
-          }
-        }
-      }
-    });
+    // Section 5: Aggregate Central Resource Transfers
+    buildTrajectoryChart(
+      'chart-transfers-contribution-return',
+      'aggregateTransfers',
+      'aggregate_central_transfers',
+      'Aggregate Central Transfers (% of Revenue Receipts)',
+      0,
+      120,
+      2,
+      t
+    );
   }
 
   // --- Render Education Efficacy & Retention Metrics Tab ---
@@ -5192,6 +5057,46 @@ document.addEventListener("DOMContentLoaded", () => {
     if (key === "css_schemes") {
       const stateBreakdown = centralInvestmentBreakdown[stateId];
       return stateBreakdown ? stateBreakdown.css[yearIdx] : 0;
+    }
+    if (key === "direct_central_investment_rr") {
+      const val_gsdp = fiscalData.metrics.direct_central_investment[stateId][yearIdx];
+      const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
+      const fd_abs = getMetricValue(stateId, "fiscal_deficit_abs", yearIdx);
+      const gsdp_abs = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
+      if (val_gsdp === null || !budget || !gsdp_abs) return null;
+      const rev_receipts = budget - fd_abs;
+      if (rev_receipts === 0) return null;
+      return val_gsdp * (gsdp_abs / rev_receipts);
+    }
+    if (key === "grants_in_aid_rr") {
+      const stateBreakdown = centralInvestmentBreakdown[stateId];
+      const val_gsdp = stateBreakdown ? stateBreakdown.grants[yearIdx] : 0;
+      const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
+      const fd_abs = getMetricValue(stateId, "fiscal_deficit_abs", yearIdx);
+      const gsdp_abs = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
+      if (val_gsdp === null || val_gsdp === undefined || !budget || !gsdp_abs) return null;
+      const rev_receipts = budget - fd_abs;
+      if (rev_receipts === 0) return null;
+      return val_gsdp * (gsdp_abs / rev_receipts);
+    }
+    if (key === "css_schemes_rr") {
+      const stateBreakdown = centralInvestmentBreakdown[stateId];
+      const val_gsdp = stateBreakdown ? stateBreakdown.css[yearIdx] : 0;
+      const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
+      const fd_abs = getMetricValue(stateId, "fiscal_deficit_abs", yearIdx);
+      const gsdp_abs = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
+      if (val_gsdp === null || val_gsdp === undefined || !budget || !gsdp_abs) return null;
+      const rev_receipts = budget - fd_abs;
+      if (rev_receipts === 0) return null;
+      return val_gsdp * (gsdp_abs / rev_receipts);
+    }
+    if (key === "aggregate_central_transfers") {
+      const dev = getMetricValue(stateId, "central_transfers", yearIdx);
+      const direct = getMetricValue(stateId, "direct_central_investment_rr", yearIdx);
+      const grants = getMetricValue(stateId, "grants_in_aid_rr", yearIdx);
+      const css = getMetricValue(stateId, "css_schemes_rr", yearIdx);
+      if (dev === null || direct === null || grants === null || css === null) return null;
+      return dev + direct + grants + css;
     }
     return fiscalData.metrics[key][stateId][yearIdx];
   }
