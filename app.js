@@ -3665,15 +3665,15 @@ document.addEventListener("DOMContentLoaded", () => {
       t
     );
 
-    // Section 6: GST Revenue Sent to Centre (% of State Generated Revenues)
+    // Section 6: Total Generated Revenues (Rupees Billion)
     buildTrajectoryChart(
       'chart-transfers-gst-outflow',
       'transfersGSTOutflow',
-      'gst_sent_to_centre_generated',
-      'GST Sent to Centre (% of State Generated Revenues)',
+      'absolute_generated_revenues',
+      'Total Generated Revenues (Rupees Billion)',
       0,
-      60,
-      2,
+      null,
+      1,
       t
     );
   }
@@ -5110,7 +5110,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (dev === null || direct === null || grants === null || css === null) return null;
       return dev + direct + grants + css;
     }
-    if (key === "gst_sent_to_centre_generated") {
+    if (key === "absolute_generated_revenues") {
       const gst_gsdp = fiscalData.metrics.gst_sent_to_centre[stateId][yearIdx];
       const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
       const fd_abs = getMetricValue(stateId, "fiscal_deficit_abs", yearIdx);
@@ -5124,8 +5124,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const gst_abs = (gst_gsdp / 100.0) * gsdp_abs;
       const generated_revenues = own_revenues + gst_abs;
 
-      if (generated_revenues === 0) return null;
-      return (gst_abs / generated_revenues) * 100.0;
+      return generated_revenues / 100.0; // Return in Rupees Billion
     }
     return fiscalData.metrics[key][stateId][yearIdx];
   }
