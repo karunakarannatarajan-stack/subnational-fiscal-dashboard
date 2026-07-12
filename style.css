@@ -884,5 +884,66 @@ body {
   height: 240px;
 }
 
+/* Custom Tooltip Styling */
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.tooltip-container .info-icon {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  transition: color 0.15s ease;
+}
+
+.tooltip-container:hover .info-icon {
+  color: var(--accent-color);
+}
+
+.tooltip-container .tooltip-text {
+  visibility: hidden;
+  width: 320px;
+  background-color: var(--bg-select-option, #1e293b);
+  color: var(--text-primary, #f8fafc);
+  text-align: left;
+  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+  border-radius: var(--radius-sm, 8px);
+  padding: 0.75rem 1rem;
+  position: absolute;
+  z-index: 100;
+  bottom: 125%; /* Position above the icon */
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+  font-size: 0.75rem;
+  font-weight: normal;
+  line-height: 1.4;
+  box-shadow: var(--box-shadow);
+  backdrop-filter: var(--blur-amount);
+  pointer-events: none;
+  white-space: normal;
+}
+
+/* Tooltip Arrow */
+.tooltip-container .tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--bg-select-option, #1e293b) transparent transparent transparent;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
 
 
