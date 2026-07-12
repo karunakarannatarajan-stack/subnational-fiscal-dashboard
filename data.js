@@ -594,6 +594,18 @@ const fiscalData = {
       AP: [67.0, 67.8, 68.6, 69.4, 70.2, 71.0, 71.8, 72.5, 73.2, 73.9, 74.6, 75.3, 76.0, 76.6, 77.2, 77.8],
       TS: [null, null, null, null, 66.5, 67.4, 68.3, 69.1, 69.9, 70.7, 71.5, 72.2, 72.9, 73.6, 74.3, 75.0],
       WB: [76.3, 77.0, 77.7, 78.4, 79.1, 79.7, 80.3, 80.9, 81.5, 82.0, 82.5, 83.0, 83.5, 84.0, 84.4, 84.8]
+    },
+    gst_sent_to_centre: {
+      name: "GST Revenue Sent to Centre (% of GSDP)",
+      description: "Estimated CGST and central share of IGST collected from the state's economic activity and retained by the Central Government.",
+      MH: [null, null, null, null, null, null, null, 3.2, 3.3, 3.4, 3.1, 3.3, 3.4, 3.5, 3.6, 3.6],
+      TN: [null, null, null, null, null, null, null, 2.5, 2.6, 2.7, 2.5, 2.6, 2.7, 2.8, 2.9, 2.9],
+      GJ: [null, null, null, null, null, null, null, 3.6, 3.7, 3.8, 3.5, 3.7, 3.8, 3.9, 4.0, 4.1],
+      KA: [null, null, null, null, null, null, null, 2.9, 3.0, 3.1, 2.8, 3.0, 3.1, 3.2, 3.3, 3.3],
+      UP: [null, null, null, null, null, null, null, 1.4, 1.5, 1.5, 1.3, 1.4, 1.5, 1.5, 1.6, 1.6],
+      AP: [null, null, null, null, null, null, null, 1.6, 1.7, 1.7, 1.5, 1.6, 1.7, 1.7, 1.8, 1.8],
+      TS: [null, null, null, null, null, null, null, 2.1, 2.2, 2.2, 2.0, 2.1, 2.2, 2.3, 2.4, 2.4],
+      WB: [null, null, null, null, null, null, null, 1.5, 1.6, 1.6, 1.4, 1.5, 1.6, 1.6, 1.7, 1.7]
     }
   },
   sdl_yields: {

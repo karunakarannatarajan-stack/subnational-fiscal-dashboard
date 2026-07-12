@@ -3664,6 +3664,18 @@ document.addEventListener("DOMContentLoaded", () => {
       2,
       t
     );
+
+    // Section 6: GST Revenue Sent to Centre (% of Revenue Receipts)
+    buildTrajectoryChart(
+      'chart-transfers-gst-outflow',
+      'transfersGSTOutflow',
+      'gst_sent_to_centre_rr',
+      'GST Revenue Sent to Centre (% of Revenue Receipts)',
+      0,
+      45,
+      2,
+      t
+    );
   }
 
   // --- Render Education Efficacy & Retention Metrics Tab ---
@@ -5097,6 +5109,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const css = getMetricValue(stateId, "css_schemes_rr", yearIdx);
       if (dev === null || direct === null || grants === null || css === null) return null;
       return dev + direct + grants + css;
+    }
+    if (key === "gst_sent_to_centre_rr") {
+      const val_gsdp = fiscalData.metrics.gst_sent_to_centre[stateId][yearIdx];
+      const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
+      const fd_abs = getMetricValue(stateId, "fiscal_deficit_abs", yearIdx);
+      const gsdp_abs = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
+      if (val_gsdp === null || !budget || !gsdp_abs) return null;
+      const rev_receipts = budget - fd_abs;
+      if (rev_receipts === 0) return null;
+      return val_gsdp * (gsdp_abs / rev_receipts);
     }
     return fiscalData.metrics[key][stateId][yearIdx];
   }
