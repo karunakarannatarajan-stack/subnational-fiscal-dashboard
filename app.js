@@ -3653,14 +3653,14 @@ document.addEventListener("DOMContentLoaded", () => {
       t
     );
 
-    // Section 5: Aggregate Central Resource Transfers
+    // Section 5: Net Central Resource Transfers (Federal transfers minus state GST outflow)
     buildTrajectoryChart(
       'chart-transfers-contribution-return',
       'aggregateTransfers',
-      'aggregate_central_transfers',
-      'Aggregate Central Transfers (% of Revenue Receipts)',
-      0,
-      120,
+      'net_central_transfers',
+      'Net Central Transfers (% of Revenue Receipts)',
+      null,
+      null,
       2,
       t
     );
@@ -5133,6 +5133,27 @@ document.addEventListener("DOMContentLoaded", () => {
       const css = getMetricValue(stateId, "css_schemes_rr", yearIdx);
       if (dev === null || direct === null || grants === null || css === null) return null;
       return dev + direct + grants + css;
+    }
+    if (key === "net_central_transfers") {
+      const dev = getMetricValue(stateId, "central_transfers", yearIdx);
+      const direct = getMetricValue(stateId, "direct_central_investment_rr", yearIdx);
+      const grants = getMetricValue(stateId, "grants_in_aid_rr", yearIdx);
+      const css = getMetricValue(stateId, "css_schemes_rr", yearIdx);
+
+      // GST sent to Centre expressed as % of Revenue Receipts
+      const gst_gsdp = fiscalData.metrics.gst_sent_to_centre[stateId][yearIdx];
+      const budget = fiscalData.metrics.total_budget[stateId][yearIdx];
+      const fd_abs = getMetricValue(stateId, "fiscal_deficit_abs", yearIdx);
+      const gsdp_abs = fiscalData.metrics.gsdp_absolute[stateId][yearIdx];
+
+      if (dev === null || direct === null || grants === null || css === null) return null;
+      if (gst_gsdp === null || !budget || !gsdp_abs) return null;
+
+      const rev_receipts = budget - fd_abs;
+      if (rev_receipts === 0) return null;
+
+      const gst_as_pct_rr = (gst_gsdp / 100.0) * gsdp_abs / rev_receipts * 100.0;
+      return (dev + direct + grants + css) - gst_as_pct_rr;
     }
     if (key === "absolute_generated_revenues") {
       const gst_gsdp = fiscalData.metrics.gst_sent_to_centre[stateId][yearIdx];

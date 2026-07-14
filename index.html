@@ -769,16 +769,17 @@
               <p><strong>4. Direct Central Investment (Off-Budget Capital Outlay):</strong> Direct capital expenditure by Central Ministries and agencies (such as NHAI for highways or Indian Railways) inside the state. These funds do not flow through the state budget or treasury but represent direct federal asset creation within the state's territory.</p>
             </div>
 
-            <!-- Section 5: Return on Contribution (As % of Central Tax Contribution) -->
+            <!-- Section 5: Net Central Resource Transfers (Federal transfers minus GST outflow) -->
             <div class="chart-main-card" style="width: 100%; height: 750px; padding: 1.5rem; margin-top: 1rem;">
               <div class="card-header-bar" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
                 <h3 style="font-size: 1.05rem; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
-                  <i class="fa-solid fa-rotate-left" style="color: var(--accent-color); margin-right: 5px;"></i> Aggregate Central Resource Transfers (% of Revenue Receipts)
+                  <i class="fa-solid fa-scale-balanced" style="color: var(--accent-color); margin-right: 5px;"></i> Net Central Transfers (% of Revenue Receipts)
                   <span class="tooltip-container">
                     <i class="fa-solid fa-circle-info info-icon"></i>
                     <span class="tooltip-text">
-                      <strong>Aggregate Central Resource Transfers:</strong><br>
-                      Plots the sum of all state-wise central resource transfers (Tax Devolution + Direct Central Investment + Grants-in-Aid + Centrally Sponsored Schemes) represented as a percentage of each state's total Revenue Receipts.
+                      <strong>Net Central Transfers:</strong><br>
+                      Net federal resource flow as a percentage of Revenue Receipts. Calculated as Aggregate Central Transfers (Tax Devolution + Direct Central Investment + Grants-in-Aid + CSS) minus the GST revenue sent from the state to the Centre.<br><br>
+                      <em>Positive values</em> indicate the state receives more from the Centre than it sends as GST. <em>Negative values</em> indicate a net outflow — the state sends more to the Centre in GST than it receives back in all federal transfers combined.
                     </span>
                   </span>
                 </h3>
@@ -1755,7 +1756,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.61"></script>
-  <script src="app.js?v=3.61"></script>
+  <script src="data.js?v=3.62"></script>
+  <script src="app.js?v=3.62"></script>
 </body>
 </html>
