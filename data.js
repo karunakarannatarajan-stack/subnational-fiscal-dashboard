@@ -698,4 +698,5 @@ if (typeof module !== "undefined" && module.exports) {
 } else {
   window.fiscalData = fiscalData;
   window.centralInvestmentBreakdown = centralInvestmentBreakdown;
+  window.centralTaxContribution = centralTaxContribution;
 }
