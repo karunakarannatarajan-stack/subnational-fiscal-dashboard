@@ -3696,7 +3696,7 @@ document.addEventListener("DOMContentLoaded", () => {
       'devolution_to_gst_ratio',
       'Federal Budgetary Transfers Received vs Total Taxes Paid (%)',
       0,
-      100,
+      150,
       2,
       t
     );
