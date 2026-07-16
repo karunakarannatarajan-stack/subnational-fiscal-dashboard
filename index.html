@@ -2149,6 +2149,38 @@
             </div>
           </div>
 
+          <!-- Combined GTR & SGST Split: 26-Year Trajectory Card -->
+          <div class="chart-main-card" style="padding:1.5rem; margin-bottom:1.25rem; border: 1px solid rgba(74,222,128,0.15);">
+            <div class="card-header-bar" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border-color); margin-bottom:1rem;">
+              <h3 style="font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:0.5rem; color:var(--text-primary);">
+                <i class="fa-solid fa-chart-area" style="color:#22c55e;"></i>
+                Combined GTR &amp; SGST Split: 26-Year Trajectory of the National Tax Pool (2000–2026+)
+                <span class="tooltip-container">
+                  <i class="fa-solid fa-circle-info info-icon"></i>
+                  <span class="tooltip-text">
+                    <strong>Combined GTR &amp; SGST/SST Pool:</strong><br>
+                    Tracks the final allocation of the primary national tax pool (Central GTR + State VAT/SGST). The green area represents the total resources received by states (devolution + direct VAT/SGST), and the red area represents the portion retained by the Federal Government.
+                  </span>
+                </span>
+              </h3>
+              <span class="badge" style="background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.3);">Combined National Pool</span>
+            </div>
+
+            <!-- Color legend strip -->
+            <div style="display:flex; gap:1.5rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem; padding:0.6rem 0.8rem; background:rgba(255,255,255,0.03); border-radius:6px; font-size:0.78rem; color:var(--text-secondary);">
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#22c55e; display:inline-block;"></span> Total Received by States (VAT/SGST + Devolution)</span>
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#f87171; display:inline-block;"></span> Retained by Central Government</span>
+            </div>
+
+            <div style="position:relative; height:340px; width:100%;">
+              <canvas id="chart-devolution-combined-gtr-sgst"></canvas>
+            </div>
+            
+            <div style="margin-top:1rem; padding:0.8rem; background:rgba(255,255,255,0.02); border-radius:6px; font-size:0.78rem; color:var(--text-secondary); line-height:1.45;">
+              <strong>National Resource Distribution:</strong> Scaling this combined pool to 100% highlights the net effect of post-GST reforms. Out of 100% of this combined pool, states receive approximately <strong>44%</strong> (via direct SGST/SST and central tax devolution), while the Federal Government retains <strong>56%</strong>.
+            </div>
+          </div>
+
           </div>
 
           </div>
@@ -2170,7 +2202,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.74"></script>
-  <script src="app.js?v=3.74"></script>
+  <script src="data.js?v=3.75"></script>
+  <script src="app.js?v=3.75"></script>
 </body>
 </html>

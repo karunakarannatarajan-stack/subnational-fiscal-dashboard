@@ -6495,6 +6495,123 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
+
+    // --- Combined GTR & SGST Split Chart ---
+    const combGtrSgstCtx = document.getElementById('chart-devolution-combined-gtr-sgst');
+    if (combGtrSgstCtx) {
+      if (charts['devolutionCombinedGtrSgst']) charts['devolutionCombinedGtrSgst'].destroy();
+
+      const combGtrSgstLabels = [];
+      const combGtrSgstStates = [];
+      const combGtrSgstCentre = [];
+
+      for (let yr = 2000; yr <= 2026; yr++) {
+        const label = `${yr}-${String(yr + 1).slice(-2)}`;
+        combGtrSgstLabels.push(label);
+        
+        if (yr < 2005) {
+          combGtrSgstStates.push(41.0);
+          combGtrSgstCentre.push(59.0);
+        } else if (yr >= 2005 && yr < 2010) {
+          combGtrSgstStates.push(43.0);
+          combGtrSgstCentre.push(57.0);
+        } else if (yr >= 2010 && yr < 2015) {
+          combGtrSgstStates.push(45.0);
+          combGtrSgstCentre.push(55.0);
+        } else if (yr >= 2015 && yr < 2020) {
+          combGtrSgstStates.push(48.0);
+          combGtrSgstCentre.push(52.0);
+        } else if (yr >= 2020 && yr < 2026) {
+          combGtrSgstStates.push(44.0);
+          combGtrSgstCentre.push(56.0);
+        } else {
+          combGtrSgstStates.push(43.5);
+          combGtrSgstCentre.push(56.5);
+        }
+      }
+
+      charts['devolutionCombinedGtrSgst'] = new Chart(combGtrSgstCtx, {
+        type: 'line',
+        data: {
+          labels: combGtrSgstLabels,
+          datasets: [
+            {
+              label: 'Total Received by States (%)',
+              data: combGtrSgstStates,
+              borderColor: '#22c55e',
+              backgroundColor: 'rgba(34,197,94,0.22)',
+              borderWidth: 2.5,
+              fill: 'origin',
+              stepped: 'before',
+              pointRadius: 0
+            },
+            {
+              label: 'Retained by Central Government (%)',
+              data: combGtrSgstCentre,
+              borderColor: '#f87171',
+              backgroundColor: 'rgba(248,113,113,0.18)',
+              borderWidth: 2.5,
+              fill: '-1',
+              stepped: 'before',
+              pointRadius: 0
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                title: (items) => `FY ${combGtrSgstLabels[items[0].dataIndex]} — Combined GTR & SGST/SST Pool`,
+                label: (item) => {
+                  const val = item.raw.toFixed(1);
+                  return item.datasetIndex === 0 
+                    ? ` 🟢 Total States' share: ${val}%` 
+                    : ` 🔴 Total Central retention: ${val}%`;
+                }
+              },
+              backgroundColor: 'rgba(15,23,42,0.97)',
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              padding: 12,
+              cornerRadius: 8,
+              titleFont: { weight: '700', size: 12 },
+              bodyFont: { size: 11 },
+              maxWidth: 380
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#94a3b8', font: { size: 9 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 14 }
+            },
+            y: {
+              stacked: true,
+              min: 0,
+              max: 100,
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 10 },
+                stepSize: 10,
+                callback: v => v + '%'
+              },
+              title: {
+                display: true,
+                text: '% of Combined GTR & SGST/SST Pool',
+                color: '#94a3b8',
+                font: { size: 10 }
+              }
+            }
+          }
+        }
+      });
+    }
   }
 
   // Run initialization
