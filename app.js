@@ -6388,6 +6388,97 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
+
+    // --- GST Compensation Guarantee Chart ---
+    const compCtx = document.getElementById('chart-devolution-compensation');
+    if (compCtx) {
+      if (charts['devolutionCompensation']) charts['devolutionCompensation'].destroy();
+
+      const compLabels = ['2015-16', '2016-17', '2017-18', '2018-19', '2019-20', '2020-21', '2021-22', '2022-23', '2023-24', '2024-25', '2025-26'];
+      const cessCollected = [0, 0, 62612, 95081, 95444, 85000, 104800, 120000, 132000, 144000, 155000];
+      const compReleased  = [0, 0, 48177, 81141, 165302, 246988, 318000, 86000, 0, 0, 0];
+
+      charts['devolutionCompensation'] = new Chart(compCtx, {
+        type: 'line',
+        data: {
+          labels: compLabels,
+          datasets: [
+            {
+              label: 'GST Compensation Cess Collected (₹ Cr)',
+              data: cessCollected,
+              borderColor: '#60a5fa',
+              backgroundColor: 'rgba(96,165,250,0.1)',
+              borderWidth: 2.5,
+              fill: true,
+              pointBackgroundColor: '#60a5fa',
+              pointRadius: 4,
+              pointHoverRadius: 7,
+              tension: 0.3
+            },
+            {
+              label: 'Compensation Released to States (₹ Cr)',
+              data: compReleased,
+              borderColor: '#f87171',
+              backgroundColor: 'transparent',
+              borderWidth: 2.5,
+              borderDash: [5, 4],
+              fill: false,
+              pointBackgroundColor: '#f87171',
+              pointRadius: 4,
+              pointHoverRadius: 7,
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                title: (items) => `FY ${compLabels[items[0].dataIndex]} — GST Compensation`,
+                label: (item) => ` ${item.dataset.label}: ₹${item.raw.toLocaleString('en-IN')} Cr`
+              },
+              backgroundColor: 'rgba(15,23,42,0.97)',
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              padding: 12,
+              cornerRadius: 8,
+              titleFont: { weight: '700', size: 12 },
+              bodyFont: { size: 11 },
+              maxWidth: 380
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#94a3b8', font: { size: 9 } }
+            },
+            y: {
+              min: 0,
+              max: 350000,
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 10 },
+                stepSize: 50000,
+                callback: v => `₹${(v / 1000).toFixed(0)}k Cr`
+              },
+              title: {
+                display: true,
+                text: 'Rupees (Crores)',
+                color: '#94a3b8',
+                font: { size: 10 }
+              }
+            }
+          }
+        }
+      });
+    }
   }
 
   // Run initialization
