@@ -6089,24 +6089,32 @@ document.addEventListener("DOMContentLoaded", () => {
       if (charts['devolutionSurrender']) charts['devolutionSurrender'].destroy();
 
       const surLabels = [];
-      const surStates = [];
-      const surCentre = [];
+      const surSST_SGST = [];    // Bottom layer: VAT/SST (100% pre-GST) or SGST (50% post-GST)
+      const surStateDev = [];    // 2nd layer: Devolution from CGST (0% pre-GST, ~16% post-GST)
+      const surCentrePool = [];  // 3rd layer: Centre divisible pool share (0% pre-GST, ~23% post-GST)
+      const surCesses = [];      // Top layer: Cesses & surcharges (0% pre-GST, ~10.5% post-GST)
 
       for (let yr = 2000; yr <= 2026; yr++) {
         const label = `${yr}-${String(yr + 1).slice(-2)}`;
         surLabels.push(label);
         if (yr < 2017) {
-          // Pre-GST VAT/SST: States get 100%
-          surStates.push(100.0);
-          surCentre.push(0.0);
+          // Pre-GST VAT/SST: 100% owned & retained by States
+          surSST_SGST.push(100.0);
+          surStateDev.push(0.0);
+          surCentrePool.push(0.0);
+          surCesses.push(0.0);
         } else if (yr >= 2017 && yr < 2020) {
           // 14th FC era post-GST
-          surStates.push(66.8);
-          surCentre.push(33.2);
+          surSST_SGST.push(50.0);
+          surStateDev.push(17.7);
+          surCentrePool.push(24.3);
+          surCesses.push(8.0);
         } else {
           // 15th / 16th FC era post-GST
-          surStates.push(66.2);
-          surCentre.push(33.8);
+          surSST_SGST.push(50.0);
+          surStateDev.push(16.2);
+          surCentrePool.push(23.3);
+          surCesses.push(10.5);
         }
       }
 
@@ -6116,28 +6124,44 @@ document.addEventListener("DOMContentLoaded", () => {
           labels: surLabels,
           datasets: [
             {
-              label: 'States\' Share of Consumption Tax Base (%)',
-              data: surStates,
-              borderColor: '#4ade80',
-              backgroundColor: 'rgba(74,222,128,0.22)',
-              borderWidth: 2.5,
+              label: '1. SGST / SST (Direct to State)',
+              data: surSST_SGST,
+              borderColor: '#15803d',
+              backgroundColor: 'rgba(34,197,94,0.75)',
+              borderWidth: 1.5,
               fill: 'origin',
               stepped: 'before',
-              pointRadius: (context) => (context.dataIndex === 17 ? 8 : 2), // highlight 2017-18 transition point
-              pointHoverRadius: 10,
-              pointBackgroundColor: '#4ade80'
+              pointRadius: 0
             },
             {
-              label: 'Centre\'s Share of Consumption Tax Base (%)',
-              data: surCentre,
-              borderColor: '#f87171',
-              backgroundColor: 'rgba(248,113,113,0.18)',
-              borderWidth: 2.5,
+              label: '2. Devolved CGST Share (State Devolution)',
+              data: surStateDev,
+              borderColor: '#84cc16',
+              backgroundColor: 'rgba(163,230,53,0.70)',
+              borderWidth: 1.5,
               fill: '-1',
               stepped: 'before',
-              pointRadius: (context) => (context.dataIndex === 17 ? 8 : 2),
-              pointHoverRadius: 10,
-              pointBackgroundColor: '#f87171'
+              pointRadius: 0
+            },
+            {
+              label: '3. Centre Divisible Pool Share',
+              data: surCentrePool,
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(96,165,250,0.65)',
+              borderWidth: 1.5,
+              fill: '-1',
+              stepped: 'before',
+              pointRadius: 0
+            },
+            {
+              label: '4. Central Cesses & Surcharges (Centre only)',
+              data: surCesses,
+              borderColor: '#ea580c',
+              backgroundColor: 'rgba(249,115,22,0.75)',
+              borderWidth: 1.5,
+              fill: '-1',
+              stepped: 'before',
+              pointRadius: 0
             }
           ]
         },
@@ -6158,14 +6182,37 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             tooltip: {
               callbacks: {
-                title: (items) => `FY ${surLabels[items[0].dataIndex]} — Consumption Tax Split`,
-                label: (item) => ` ${item.dataset.label}: ${item.raw.toFixed(1)}%`
+                title: (items) => `FY ${surLabels[items[0].dataIndex]} — Consumption Tax Sharing (₹100 Base)`,
+                label: (item) => {
+                  const val = item.raw.toFixed(1);
+                  const labels = [
+                    `🟢 Direct to State (SGST/SST): ₹${val}`,
+                    `🟢 Devolved CGST (to State): ₹${val}`,
+                    `🔵 Centre divisible pool share: ₹${val}`,
+                    `🟠 Central cesses & surcharges: ₹${val}`
+                  ];
+                  return ' ' + (labels[item.datasetIndex] ?? item.dataset.label + ': ' + val + '%');
+                },
+                afterBody: (items) => {
+                  const idx = items[0].dataIndex;
+                  const yr = 2000 + idx;
+                  const totalState = (surSST_SGST[idx] + surStateDev[idx]).toFixed(1);
+                  const totalCentre = (surCentrePool[idx] + surCesses[idx]).toFixed(1);
+                  return [
+                    '',
+                    `⟶ Total State Receipt: ₹${totalState} (out of ₹100)`,
+                    `⟶ Total Centre Retention: ₹${totalCentre} (out of ₹100)`
+                  ];
+                }
               },
               backgroundColor: 'rgba(15,23,42,0.97)',
               titleColor: '#e2e8f0',
               bodyColor: '#94a3b8',
-              padding: 10,
-              cornerRadius: 6
+              padding: 14,
+              cornerRadius: 8,
+              titleFont: { weight: '700', size: 12 },
+              bodyFont: { size: 11 },
+              maxWidth: 420
             }
           },
           scales: {
@@ -6181,12 +6228,12 @@ document.addEventListener("DOMContentLoaded", () => {
               ticks: {
                 color: '#94a3b8',
                 font: { size: 10 },
-                stepSize: 20,
-                callback: v => v + '%'
+                stepSize: 10,
+                callback: v => '₹' + v
               },
               title: {
                 display: true,
-                text: '% of Consumption Tax Base',
+                text: 'Allocation of ₹100 of Consumption Taxes',
                 color: '#94a3b8',
                 font: { size: 10 }
               }
