@@ -6082,6 +6082,119 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
+
+    // --- Sovereign Surrender: 26-Year Consumption Tax Share Trajectory ---
+    const surCtx = document.getElementById('chart-devolution-surrender');
+    if (surCtx) {
+      if (charts['devolutionSurrender']) charts['devolutionSurrender'].destroy();
+
+      const surLabels = [];
+      const surStates = [];
+      const surCentre = [];
+
+      for (let yr = 2000; yr <= 2026; yr++) {
+        const label = `${yr}-${String(yr + 1).slice(-2)}`;
+        surLabels.push(label);
+        if (yr < 2017) {
+          // Pre-GST VAT/SST: States get 100%
+          surStates.push(100.0);
+          surCentre.push(0.0);
+        } else if (yr >= 2017 && yr < 2020) {
+          // 14th FC era post-GST
+          surStates.push(66.8);
+          surCentre.push(33.2);
+        } else {
+          // 15th / 16th FC era post-GST
+          surStates.push(66.2);
+          surCentre.push(33.8);
+        }
+      }
+
+      charts['devolutionSurrender'] = new Chart(surCtx, {
+        type: 'line',
+        data: {
+          labels: surLabels,
+          datasets: [
+            {
+              label: 'States\' Share of Consumption Tax Base (%)',
+              data: surStates,
+              borderColor: '#4ade80',
+              backgroundColor: 'rgba(74,222,128,0.22)',
+              borderWidth: 2.5,
+              fill: 'origin',
+              stepped: 'before',
+              pointRadius: (context) => (context.dataIndex === 17 ? 8 : 2), // highlight 2017-18 transition point
+              pointHoverRadius: 10,
+              pointBackgroundColor: '#4ade80'
+            },
+            {
+              label: 'Centre\'s Share of Consumption Tax Base (%)',
+              data: surCentre,
+              borderColor: '#f87171',
+              backgroundColor: 'rgba(248,113,113,0.18)',
+              borderWidth: 2.5,
+              fill: '-1',
+              stepped: 'before',
+              pointRadius: (context) => (context.dataIndex === 17 ? 8 : 2),
+              pointHoverRadius: 10,
+              pointBackgroundColor: '#f87171'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                color: '#94a3b8',
+                font: { size: 10 },
+                usePointStyle: true,
+                padding: 12
+              }
+            },
+            tooltip: {
+              callbacks: {
+                title: (items) => `FY ${surLabels[items[0].dataIndex]} — Consumption Tax Split`,
+                label: (item) => ` ${item.dataset.label}: ${item.raw.toFixed(1)}%`
+              },
+              backgroundColor: 'rgba(15,23,42,0.97)',
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              padding: 10,
+              cornerRadius: 6
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#94a3b8', font: { size: 9 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 14 }
+            },
+            y: {
+              stacked: true,
+              min: 0,
+              max: 100,
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 10 },
+                stepSize: 20,
+                callback: v => v + '%'
+              },
+              title: {
+                display: true,
+                text: '% of Consumption Tax Base',
+                color: '#94a3b8',
+                font: { size: 10 }
+              }
+            }
+          }
+        }
+      });
+    }
   }
 
   // Run initialization

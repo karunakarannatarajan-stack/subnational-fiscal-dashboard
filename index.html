@@ -2049,6 +2049,32 @@
               </div>
             </div>
 
+          <!-- Sovereign Surrender: 26-Year Consumption Tax Share Trajectory (2000-2026+) -->
+          <div class="chart-main-card" style="padding:1.5rem; margin-bottom:1.25rem; border: 1px solid rgba(248,113,113,0.15);">
+            <div class="card-header-bar" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border-color); margin-bottom:1rem;">
+              <h3 style="font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:0.5rem; color:var(--text-primary);">
+                <i class="fa-solid fa-square-poll-vertical" style="color:#f87171;"></i>
+                Sovereign Surrender: 26-Year Consumption Tax Share Trajectory (2000–2026+)
+                <span class="tooltip-container">
+                  <i class="fa-solid fa-circle-info info-icon"></i>
+                  <span class="tooltip-text">
+                    <strong>Surrender of Consumption Tax Base:</strong><br>
+                    Tracks the final allocation of ₹100 of consumption-based tax. From 2000 to 2017, states kept 100% of State Sales Tax / VAT. Post-2017, consumption tax was unified into GST: states keep 50% as SGST directly, and CGST is shared, resulting in the state's share falling to ~66% and the Centre keeping ~34% of the base.
+                  </span>
+                </span>
+              </h3>
+              <span class="badge" style="background:rgba(248,113,113,0.15); color:#f87171; border:1px solid rgba(248,113,113,0.3);">26-Year Timeline</span>
+            </div>
+
+            <div style="position:relative; height:360px; width:100%;">
+              <canvas id="chart-devolution-surrender"></canvas>
+            </div>
+            
+            <div style="margin-top:1rem; padding:0.8rem; background:rgba(255,255,255,0.02); border-radius:6px; font-size:0.78rem; color:var(--text-secondary); line-height:1.45;">
+              <strong>Historical Shift (2017):</strong> The vertical drop in 2017 highlights the structural cost of fiscal unification. While GST removed tax cascading and trade barriers, it structurally reallocated ~34% of the sub-national consumption tax base to the Central Government.
+            </div>
+          </div>
+
           </div>
 
           </div>
@@ -2070,7 +2096,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.68"></script>
-  <script src="app.js?v=3.68"></script>
+  <script src="data.js?v=3.69"></script>
+  <script src="app.js?v=3.69"></script>
 </body>
 </html>
