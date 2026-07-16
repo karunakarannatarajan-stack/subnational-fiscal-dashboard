@@ -6272,6 +6272,122 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
+
+    // --- Central GTR Split: 26-Year Trajectory of the Central ₹100 ---
+    const gtrCtx = document.getElementById('chart-devolution-gtr-share');
+    if (gtrCtx) {
+      if (charts['devolutionGtrShare']) charts['devolutionGtrShare'].destroy();
+
+      const gtrLabels = [];
+      const gtrStates = [];
+      const gtrCentre = [];
+
+      for (let yr = 2000; yr <= 2026; yr++) {
+        const label = `${yr}-${String(yr + 1).slice(-2)}`;
+        gtrLabels.push(label);
+        if (yr < 2005) {
+          gtrStates.push(26.6);
+          gtrCentre.push(73.4);
+        } else if (yr >= 2005 && yr < 2010) {
+          gtrStates.push(27.0);
+          gtrCentre.push(73.0);
+        } else if (yr >= 2010 && yr < 2015) {
+          gtrStates.push(28.0);
+          gtrCentre.push(72.0);
+        } else if (yr >= 2015 && yr < 2020) {
+          gtrStates.push(35.3);
+          gtrCentre.push(64.7);
+        } else if (yr >= 2020 && yr < 2026) {
+          gtrStates.push(32.5);
+          gtrCentre.push(67.5);
+        } else {
+          gtrStates.push(32.2);
+          gtrCentre.push(67.8);
+        }
+      }
+
+      charts['devolutionGtrShare'] = new Chart(gtrCtx, {
+        type: 'line',
+        data: {
+          labels: gtrLabels,
+          datasets: [
+            {
+              label: 'Devolved to States (Effective Devolution) (%)',
+              data: gtrStates,
+              borderColor: '#4ade80',
+              backgroundColor: 'rgba(74,222,128,0.22)',
+              borderWidth: 2.5,
+              fill: 'origin',
+              stepped: 'before',
+              pointRadius: 0
+            },
+            {
+              label: 'Retained by Central Government (%)',
+              data: gtrCentre,
+              borderColor: '#f87171',
+              backgroundColor: 'rgba(248,113,113,0.18)',
+              borderWidth: 2.5,
+              fill: '-1',
+              stepped: 'before',
+              pointRadius: 0
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                title: (items) => `FY ${gtrLabels[items[0].dataIndex]} — Union GTR Split`,
+                label: (item) => {
+                  const val = item.raw.toFixed(1);
+                  return item.datasetIndex === 0 
+                    ? ` 🟢 Sent to States (Effective): ₹${val} of ₹100 GTR` 
+                    : ` 🔴 Retained by Centre: ₹${val} of ₹100 GTR`;
+                }
+              },
+              backgroundColor: 'rgba(15,23,42,0.97)',
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              padding: 12,
+              cornerRadius: 8,
+              titleFont: { weight: '700', size: 12 },
+              bodyFont: { size: 11 },
+              maxWidth: 380
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#94a3b8', font: { size: 9 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 14 }
+            },
+            y: {
+              stacked: true,
+              min: 0,
+              max: 100,
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 10 },
+                stepSize: 10,
+                callback: v => '₹' + v
+              },
+              title: {
+                display: true,
+                text: 'Split of ₹100 Central Gross Tax Revenue (GTR)',
+                color: '#94a3b8',
+                font: { size: 10 }
+              }
+            }
+          }
+        }
+      });
+    }
   }
 
   // Run initialization

@@ -2084,6 +2084,38 @@
             </div>
           </div>
 
+          <!-- Central GTR Split: 26-Year Trajectory of the Central ₹100 (2000-2026+) -->
+          <div class="chart-main-card" style="padding:1.5rem; margin-bottom:1.25rem; border: 1px solid rgba(74,222,128,0.15);">
+            <div class="card-header-bar" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border-color); margin-bottom:1rem;">
+              <h3 style="font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:0.5rem; color:var(--text-primary);">
+                <i class="fa-solid fa-coins" style="color:#4ade80;"></i>
+                Central GTR Split: 26-Year Trajectory of the Central ₹100 (2000–2026+)
+                <span class="tooltip-container">
+                  <i class="fa-solid fa-circle-info info-icon"></i>
+                  <span class="tooltip-text">
+                    <strong>GTR Distribution:</strong><br>
+                    Tracks how the Central Government splits every ₹100 of Gross Tax Revenue (GTR) it collects. The green area shows the actual devolved tax sent to states. The red area shows the final portion retained by the Centre.
+                  </span>
+                </span>
+              </h3>
+              <span class="badge" style="background:rgba(74,222,128,0.15); color:#4ade80; border:1px solid rgba(74,222,128,0.3);">Union GTR Share</span>
+            </div>
+
+            <!-- Color legend strip -->
+            <div style="display:flex; gap:1.5rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem; padding:0.6rem 0.8rem; background:rgba(255,255,255,0.03); border-radius:6px; font-size:0.78rem; color:var(--text-secondary);">
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#4ade80; display:inline-block;"></span> Devolved to States (Effective Devolution)</span>
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#f87171; display:inline-block;"></span> Retained by Central Government</span>
+            </div>
+
+            <div style="position:relative; height:340px; width:100%;">
+              <canvas id="chart-devolution-gtr-share"></canvas>
+            </div>
+            
+            <div style="margin-top:1rem; padding:0.8rem; background:rgba(255,255,255,0.02); border-radius:6px; font-size:0.78rem; color:var(--text-secondary); line-height:1.45;">
+              <strong>Fiscal Trend:</strong> The sharp jump in 2015-16 represents the 14th Finance Commission's recommendation. However, the subsequent years show the Centre's retention (red) expanding again due to the rising share of non-shareable cesses and surcharges.
+            </div>
+          </div>
+
           </div>
 
           </div>
@@ -2105,7 +2137,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.71"></script>
-  <script src="app.js?v=3.71"></script>
+  <script src="data.js?v=3.72"></script>
+  <script src="app.js?v=3.72"></script>
 </body>
 </html>
