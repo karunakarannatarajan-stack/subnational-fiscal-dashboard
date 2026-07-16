@@ -6093,10 +6093,28 @@ document.addEventListener("DOMContentLoaded", () => {
       const surStateDev = [];    // 2nd layer: Devolution from CGST (0% pre-GST, ~16% post-GST)
       const surCentrePool = [];  // 3rd layer: Centre divisible pool share (0% pre-GST, ~23% post-GST)
       const surCesses = [];      // Top layer: Cesses & surcharges (0% pre-GST, ~10.5% post-GST)
+      const surDirectDev = [];   // Direct Tax Devolution line overlay (Corp, Income, Customs as % of GTR)
 
       for (let yr = 2000; yr <= 2026; yr++) {
         const label = `${yr}-${String(yr + 1).slice(-2)}`;
         surLabels.push(label);
+        
+        // Populate Direct Tax Devolution line
+        if (yr < 2005) {
+          surDirectDev.push(15.2);
+        } else if (yr >= 2005 && yr < 2010) {
+          surDirectDev.push(16.5);
+        } else if (yr >= 2010 && yr < 2015) {
+          surDirectDev.push(18.2);
+        } else if (yr >= 2015 && yr < 2020) {
+          surDirectDev.push(23.8);
+        } else if (yr >= 2020 && yr < 2026) {
+          surDirectDev.push(21.5);
+        } else {
+          surDirectDev.push(21.0);
+        }
+
+        // Populate consumption tax stack layers
         if (yr < 2017) {
           // Pre-GST VAT/SST: 100% owned & retained by States
           surSST_SGST.push(100.0);
@@ -6124,6 +6142,21 @@ document.addEventListener("DOMContentLoaded", () => {
           labels: surLabels,
           datasets: [
             {
+              label: 'Direct Tax Devolution (Corp/Income/Customs)',
+              data: surDirectDev,
+              borderColor: '#a78bfa',
+              backgroundColor: 'transparent',
+              borderWidth: 3,
+              pointBackgroundColor: '#a78bfa',
+              pointBorderColor: '#a78bfa',
+              pointRadius: 4,
+              pointHoverRadius: 8,
+              fill: false,
+              tension: 0.35,
+              stacked: false, // Prevents line from stacking with areas
+              order: 1
+            },
+            {
               label: '1. SGST / SST (Direct to State)',
               data: surSST_SGST,
               borderColor: '#15803d',
@@ -6131,7 +6164,8 @@ document.addEventListener("DOMContentLoaded", () => {
               borderWidth: 1.5,
               fill: 'origin',
               stepped: 'before',
-              pointRadius: 0
+              pointRadius: 0,
+              order: 2
             },
             {
               label: '2. Devolved CGST Share (State Devolution)',
@@ -6141,7 +6175,8 @@ document.addEventListener("DOMContentLoaded", () => {
               borderWidth: 1.5,
               fill: '-1',
               stepped: 'before',
-              pointRadius: 0
+              pointRadius: 0,
+              order: 2
             },
             {
               label: '3. Centre Divisible Pool Share',
@@ -6151,7 +6186,8 @@ document.addEventListener("DOMContentLoaded", () => {
               borderWidth: 1.5,
               fill: '-1',
               stepped: 'before',
-              pointRadius: 0
+              pointRadius: 0,
+              order: 2
             },
             {
               label: '4. Central Cesses & Surcharges (Centre only)',
@@ -6161,7 +6197,8 @@ document.addEventListener("DOMContentLoaded", () => {
               borderWidth: 1.5,
               fill: '-1',
               stepped: 'before',
-              pointRadius: 0
+              pointRadius: 0,
+              order: 2
             }
           ]
         },
@@ -6171,14 +6208,7 @@ document.addEventListener("DOMContentLoaded", () => {
           interaction: { mode: 'index', intersect: false },
           plugins: {
             legend: {
-              display: true,
-              position: 'top',
-              labels: {
-                color: '#94a3b8',
-                font: { size: 10 },
-                usePointStyle: true,
-                padding: 12
-              }
+              display: false // We use our own custom legend in HTML
             },
             tooltip: {
               callbacks: {
@@ -6186,6 +6216,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 label: (item) => {
                   const val = item.raw.toFixed(1);
                   const labels = [
+                    `🟣 Direct Tax Devolution: ₹${val} (of Central GTR)`,
                     `🟢 Direct to State (SGST/SST): ₹${val}`,
                     `🟢 Devolved CGST (to State): ₹${val}`,
                     `🔵 Centre divisible pool share: ₹${val}`,
@@ -6195,13 +6226,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 },
                 afterBody: (items) => {
                   const idx = items[0].dataIndex;
-                  const yr = 2000 + idx;
                   const totalState = (surSST_SGST[idx] + surStateDev[idx]).toFixed(1);
                   const totalCentre = (surCentrePool[idx] + surCesses[idx]).toFixed(1);
                   return [
                     '',
-                    `⟶ Total State Receipt: ₹${totalState} (out of ₹100)`,
-                    `⟶ Total Centre Retention: ₹${totalCentre} (out of ₹100)`
+                    `⟶ Total State Receipt (from ₹100 Goods base): ₹${totalState}`,
+                    `⟶ Total Centre Retention (from ₹100 Goods base): ₹${totalCentre}`
                   ];
                 }
               },
