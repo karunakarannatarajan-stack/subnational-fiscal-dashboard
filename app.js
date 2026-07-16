@@ -6510,23 +6510,23 @@ document.addEventListener("DOMContentLoaded", () => {
         combGtrSgstLabels.push(label);
         
         if (yr < 2005) {
-          combGtrSgstStates.push(41.0);
-          combGtrSgstCentre.push(59.0);
+          combGtrSgstStates.push(50.4);
+          combGtrSgstCentre.push(49.6);
         } else if (yr >= 2005 && yr < 2010) {
-          combGtrSgstStates.push(43.0);
-          combGtrSgstCentre.push(57.0);
+          combGtrSgstStates.push(47.8);
+          combGtrSgstCentre.push(52.2);
         } else if (yr >= 2010 && yr < 2015) {
-          combGtrSgstStates.push(45.0);
-          combGtrSgstCentre.push(55.0);
+          combGtrSgstStates.push(46.2);
+          combGtrSgstCentre.push(53.8);
         } else if (yr >= 2015 && yr < 2020) {
-          combGtrSgstStates.push(48.0);
-          combGtrSgstCentre.push(52.0);
+          combGtrSgstStates.push(45.5);
+          combGtrSgstCentre.push(54.5);
         } else if (yr >= 2020 && yr < 2026) {
-          combGtrSgstStates.push(44.0);
-          combGtrSgstCentre.push(56.0);
+          combGtrSgstStates.push(43.7);
+          combGtrSgstCentre.push(56.3);
         } else {
-          combGtrSgstStates.push(43.5);
-          combGtrSgstCentre.push(56.5);
+          combGtrSgstStates.push(43.2);
+          combGtrSgstCentre.push(56.8);
         }
       }
 
