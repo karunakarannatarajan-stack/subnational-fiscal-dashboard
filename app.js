@@ -5802,6 +5802,139 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
+
+    // --- Cess Erosion Divergence Chart ---
+    const CESS_DATA = [
+      { finance_commission:'11th', operational_years:'2000-2005', chairman:'A.M. Khusro',
+        statutory_share_pct:29.5, divisible_pool_of_gtr_pct:90.2, effective_devolution_of_gtr_pct:26.6,
+        macro_context:'Inaugural period of the unified divisible pool. Cesses and surcharges accounted for less than 5% of GTR, keeping the divisible pool close to full gross collections. The gap between statutory and effective rates was minimal (~2.9 pp).' },
+      { finance_commission:'12th', operational_years:'2005-2010', chairman:'C. Rangarajan',
+        statutory_share_pct:30.5, divisible_pool_of_gtr_pct:88.5, effective_devolution_of_gtr_pct:27.0,
+        macro_context:'First full cycle under the pooled divisible pool framework. The Education Cess (2%+1%) introduced in 2004 began the structural expansion of non-shareable levies, trimming the pool as a share of GTR and widening the effective gap to ~3.5 pp.' },
+      { finance_commission:'13th', operational_years:'2010-2015', chairman:'Vijay Kelkar',
+        statutory_share_pct:32.0, divisible_pool_of_gtr_pct:87.5, effective_devolution_of_gtr_pct:28.0,
+        macro_context:'Baseline period with a still-large divisible pool. Cesses and surcharges accounted for roughly 8–10% of GTR. States benefited from an incremental statutory increase to 32%, and the effective gap remained moderate at ~4 pp.' },
+      { finance_commission:'14th', operational_years:'2015-2020', chairman:'Y.V. Reddy',
+        statutory_share_pct:42.0, divisible_pool_of_gtr_pct:84.1, effective_devolution_of_gtr_pct:35.3,
+        macro_context:'The landmark 10 pp statutory jump to 42% was partly offset by a parallel expansion of non-shareable cesses — Swachh Bharat Cess and Krishi Kalyan Cess — shrinking the divisible pool from ~88% to ~84% of GTR. The effective gap widened to ~6.7 pp.' },
+      { finance_commission:'15th', operational_years:'2020-2026', chairman:'N.K. Singh',
+        statutory_share_pct:41.0, divisible_pool_of_gtr_pct:79.2, effective_devolution_of_gtr_pct:32.5,
+        macro_context:'Pandemic-era fiscal stress led to a surge in non-shareable cesses — Agriculture Infrastructure Development Cess on fuel, health and education surcharges — pushing the divisible pool down to ~79% of GTR. The effective-to-statutory gap ballooned to ~8.5 pp, its widest on record.' },
+      { finance_commission:'16th', operational_years:'2026-2031', chairman:'Arvind Panagariya',
+        statutory_share_pct:41.0, divisible_pool_of_gtr_pct:78.5, effective_devolution_of_gtr_pct:32.2,
+        macro_context:'Maintained the statutory 41% pool share. The effective share of GTR remains structurally constrained. States and the 16th FC have flagged the persistent reliance on fuel and infrastructure cesses as a continuing fiscal federalism concern requiring constitutional redress.' }
+    ];
+
+    const cessCtx = document.getElementById('chart-devolution-cess');
+    if (cessCtx) {
+      if (charts['devolutionCess']) charts['devolutionCess'].destroy();
+      const cessLabels = CESS_DATA.map(d => `${d.finance_commission} FC\n${d.operational_years}`);
+      const cessGradDiv = cessCtx.getContext('2d').createLinearGradient(0, 0, 0, 400);
+      cessGradDiv.addColorStop(0, 'rgba(248,113,113,0.20)');
+      cessGradDiv.addColorStop(1, 'rgba(248,113,113,0.01)');
+
+      charts['devolutionCess'] = new Chart(cessCtx, {
+        type: 'line',
+        data: {
+          labels: cessLabels,
+          datasets: [
+            {
+              label: 'Statutory Devolution Share (% of Divisible Pool)',
+              data: CESS_DATA.map(d => d.statutory_share_pct),
+              borderColor: '#63b3ed',
+              backgroundColor: 'transparent',
+              borderWidth: 2.5,
+              pointBackgroundColor: '#63b3ed',
+              pointRadius: 7,
+              pointHoverRadius: 10,
+              tension: 0.3,
+              fill: false,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Effective Devolution (% of Gross Tax Revenue)',
+              data: CESS_DATA.map(d => d.effective_devolution_of_gtr_pct),
+              borderColor: '#f87171',
+              backgroundColor: cessGradDiv,
+              borderWidth: 2.5,
+              pointBackgroundColor: '#f87171',
+              pointRadius: 7,
+              pointHoverRadius: 10,
+              tension: 0.3,
+              fill: '-1',
+              yAxisID: 'y'
+            },
+            {
+              label: 'Divisible Pool as % of GTR (right axis)',
+              data: CESS_DATA.map(d => d.divisible_pool_of_gtr_pct),
+              borderColor: '#a78bfa',
+              backgroundColor: 'transparent',
+              borderWidth: 1.5,
+              borderDash: [5, 4],
+              pointBackgroundColor: '#a78bfa',
+              pointRadius: 5,
+              pointHoverRadius: 8,
+              tension: 0.3,
+              fill: false,
+              yAxisID: 'y2'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: { color: '#94a3b8', font: { size: 11 }, usePointStyle: true, padding: 18 }
+            },
+            tooltip: {
+              callbacks: {
+                title: (items) => {
+                  const d = CESS_DATA[items[0].dataIndex];
+                  return `${d.finance_commission} Finance Commission (${d.operational_years}) — ${d.chairman}`;
+                },
+                afterBody: (items) => {
+                  const d = CESS_DATA[items[0].dataIndex];
+                  const gap = (d.statutory_share_pct - d.effective_devolution_of_gtr_pct).toFixed(1);
+                  return ['', `\u26a0 Cess Erosion Gap: ${gap} pp`, '', d.macro_context];
+                }
+              },
+              backgroundColor: 'rgba(15,23,42,0.97)',
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              padding: 14,
+              cornerRadius: 8,
+              titleFont: { weight: '700', size: 13 },
+              bodyFont: { size: 11 },
+              maxWidth: 420
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#94a3b8', font: { size: 10 } }
+            },
+            y: {
+              min: 22, max: 48,
+              position: 'left',
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: { color: '#94a3b8', font: { size: 11 }, callback: v => v + '%' },
+              title: { display: true, text: 'Devolution Share (%)', color: '#94a3b8', font: { size: 11 } }
+            },
+            y2: {
+              min: 70, max: 95,
+              position: 'right',
+              grid: { drawOnChartArea: false },
+              ticks: { color: '#a78bfa', font: { size: 11 }, callback: v => v + '%' },
+              title: { display: true, text: 'Divisible Pool (% of GTR)', color: '#a78bfa', font: { size: 11 } }
+            }
+          }
+        }
+      });
+    }
   }
 
   // Run initialization

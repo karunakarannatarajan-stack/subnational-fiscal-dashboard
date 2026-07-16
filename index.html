@@ -1892,6 +1892,60 @@
               </div>
             </div>
 
+          <!-- Cesses & Surcharges Erosion: Statutory vs Effective Devolution -->
+          <div class="chart-main-card" style="padding:1.5rem; margin-bottom:1.25rem;">
+            <div class="card-header-bar" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border-color); margin-bottom:1rem;">
+              <h3 style="font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;">
+                <i class="fa-solid fa-triangle-exclamation" style="color:#f87171;"></i>
+                The Cess Erosion Gap: Statutory Share vs Effective Devolution (% of Gross Tax Revenue)
+                <span class="tooltip-container">
+                  <i class="fa-solid fa-circle-info info-icon"></i>
+                  <span class="tooltip-text">
+                    <strong>Why the curves diverge:</strong><br>
+                    The statutory devolution % applies only to the <em>Divisible Pool</em> (Gross Tax Revenue minus cesses, surcharges, and collection costs). The effective devolution % measures what states actually receive as a share of total GTR. The widening gap between the two lines reveals the growing constitutional tension: the Centre increasingly raises revenue through non-shareable cesses, effectively bypassing the devolution formula and retaining a higher share of gross collections.
+                  </span>
+                </span>
+              </h3>
+              <span class="badge" style="background:rgba(248,113,113,0.15); color:#f87171; border:1px solid rgba(248,113,113,0.3);">Constitutional tension visible</span>
+            </div>
+
+            <!-- Insight strip: key gap metrics -->
+            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:0.75rem; margin-bottom:1.25rem;">
+              <div style="background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:8px; padding:0.85rem; text-align:center;">
+                <div style="font-size:0.7rem; color:#f87171; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.3rem;">Gap in 13th FC Era</div>
+                <div style="font-size:1.6rem; font-weight:700; color:#f87171; line-height:1;">~4.0 pp</div>
+                <div style="font-size:0.65rem; color:var(--text-secondary);">2010–2015 baseline</div>
+              </div>
+              <div style="background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:8px; padding:0.85rem; text-align:center;">
+                <div style="font-size:0.7rem; color:#f87171; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.3rem;">Gap in 14th FC Era</div>
+                <div style="font-size:1.6rem; font-weight:700; color:#f87171; line-height:1;">~6.7 pp</div>
+                <div style="font-size:0.65rem; color:var(--text-secondary);">2015–2020 · cess expansion</div>
+              </div>
+              <div style="background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.35); border-radius:8px; padding:0.85rem; text-align:center;">
+                <div style="font-size:0.7rem; color:#f87171; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.3rem;">Gap in 15th FC Era</div>
+                <div style="font-size:1.6rem; font-weight:700; color:#f87171; line-height:1;">~8.5 pp</div>
+                <div style="font-size:0.65rem; color:var(--text-secondary);">2020–2026 · pandemic cess surge</div>
+              </div>
+              <div style="background:rgba(248,113,113,0.06); border:1px solid rgba(248,113,113,0.2); border-radius:8px; padding:0.85rem; text-align:center;">
+                <div style="font-size:0.7rem; color:#f87171; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.3rem;">Divisible Pool Shrinkage</div>
+                <div style="font-size:1.6rem; font-weight:700; color:#f87171; line-height:1;">~10 pp</div>
+                <div style="font-size:0.65rem; color:var(--text-secondary);">GTR coverage: 90% → 79%</div>
+              </div>
+            </div>
+
+            <div style="position:relative; height:420px; width:100%;">
+              <canvas id="chart-devolution-cess"></canvas>
+            </div>
+
+            <!-- Narrative below chart -->
+            <div style="margin-top:1rem; padding:1rem; background:rgba(248,113,113,0.05); border-left:3px solid #f87171; border-radius:0 6px 6px 0;">
+              <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.6; margin:0;">
+                <strong style="color:var(--text-primary);">The Constitutional Tension:</strong>
+                Under Article 270 of the Constitution, cesses and surcharges levied for specific purposes are explicitly excluded from the divisible pool and do not accrue to states. The Centre has leveraged this provision aggressively — the share of cesses in gross tax revenue grew from ~3% in 2011-12 to over <strong style="color:#f87171;">~22% by 2023-24</strong>. This structural shift means that even the historic 14th FC jump to 42% statutory share delivered a smaller-than-expected real windfall to states, as the pool being shared had itself shrunk relative to total central collections.
+              </p>
+            </div>
+          </div>
+
           </div>
           <!-- ===== END FINANCE COMMISSION TAB ===== -->
 
@@ -1911,7 +1965,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.64"></script>
-  <script src="app.js?v=3.64"></script>
+  <script src="data.js?v=3.65"></script>
+  <script src="app.js?v=3.65"></script>
 </body>
 </html>
