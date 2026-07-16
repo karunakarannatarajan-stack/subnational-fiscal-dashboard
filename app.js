@@ -6395,8 +6395,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (charts['devolutionCompensation']) charts['devolutionCompensation'].destroy();
 
       const compLabels = ['2015-16', '2016-17', '2017-18', '2018-19', '2019-20', '2020-21', '2021-22', '2022-23', '2023-24', '2024-25', '2025-26'];
-      const cessCollected = [0, 0, 62612, 95081, 95444, 85000, 104800, 120000, 132000, 144000, 155000];
-      const compReleased  = [0, 0, 48177, 81141, 165302, 246988, 318000, 86000, 0, 0, 0];
+      // States' GST Resource Pool Composition (normalized to 100%)
+      const surSGST = [100.0, 100.0, 64.0, 64.0, 64.0, 52.0, 52.0, 67.5, 75.5, 75.5, 75.5];
+      const surCGST = [0.0, 0.0, 22.6, 22.6, 22.6, 16.8, 16.8, 21.9, 24.5, 24.5, 24.5];
+      const surComp = [0.0, 0.0, 13.4, 13.4, 13.4, 31.2, 31.2, 10.6, 0.0, 0.0, 0.0];
 
       charts['devolutionCompensation'] = new Chart(compCtx, {
         type: 'line',
@@ -6404,29 +6406,34 @@ document.addEventListener("DOMContentLoaded", () => {
           labels: compLabels,
           datasets: [
             {
-              label: 'GST Compensation Cess Collected (₹ Cr)',
-              data: cessCollected,
-              borderColor: '#60a5fa',
-              backgroundColor: 'rgba(96,165,250,0.1)',
-              borderWidth: 2.5,
-              fill: true,
-              pointBackgroundColor: '#60a5fa',
-              pointRadius: 4,
-              pointHoverRadius: 7,
-              tension: 0.3
+              label: '1. SGST / SST (Direct to State)',
+              data: surSGST,
+              borderColor: '#15803d',
+              backgroundColor: 'rgba(34,197,94,0.75)',
+              borderWidth: 1.5,
+              fill: 'origin',
+              stepped: 'before',
+              pointRadius: 0
             },
             {
-              label: 'Compensation Released to States (₹ Cr)',
-              data: compReleased,
-              borderColor: '#f87171',
-              backgroundColor: 'transparent',
-              borderWidth: 2.5,
-              borderDash: [5, 4],
-              fill: false,
-              pointBackgroundColor: '#f87171',
-              pointRadius: 4,
-              pointHoverRadius: 7,
-              tension: 0.3
+              label: '2. Devolved CGST Share',
+              data: surCGST,
+              borderColor: '#84cc16',
+              backgroundColor: 'rgba(163,230,53,0.70)',
+              borderWidth: 1.5,
+              fill: '-1',
+              stepped: 'before',
+              pointRadius: 0
+            },
+            {
+              label: '3. GST Compensation (Transition Guarantee)',
+              data: surComp,
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(96,165,250,0.65)',
+              borderWidth: 1.5,
+              fill: '-1',
+              stepped: 'before',
+              pointRadius: 0
             }
           ]
         },
@@ -6436,12 +6443,20 @@ document.addEventListener("DOMContentLoaded", () => {
           interaction: { mode: 'index', intersect: false },
           plugins: {
             legend: {
-              display: false
+              display: false // HTML custom legend used
             },
             tooltip: {
               callbacks: {
-                title: (items) => `FY ${compLabels[items[0].dataIndex]} — GST Compensation`,
-                label: (item) => ` ${item.dataset.label}: ₹${item.raw.toLocaleString('en-IN')} Cr`
+                title: (items) => `FY ${compLabels[items[0].dataIndex]} — GST Resource Pool Composition`,
+                label: (item) => {
+                  const val = item.raw.toFixed(1);
+                  const labels = [
+                    `🟢 Direct to State (SGST/SST): ${val}%`,
+                    `🟢 Devolved CGST Share: ${val}%`,
+                    `🔵 GST Compensation (Transition): ${val}%`
+                  ];
+                  return ' ' + (labels[item.datasetIndex] ?? item.dataset.label + ': ' + val + '%');
+                }
               },
               backgroundColor: 'rgba(15,23,42,0.97)',
               titleColor: '#e2e8f0',
@@ -6459,18 +6474,19 @@ document.addEventListener("DOMContentLoaded", () => {
               ticks: { color: '#94a3b8', font: { size: 9 } }
             },
             y: {
+              stacked: true,
               min: 0,
-              max: 350000,
+              max: 100,
               grid: { color: 'rgba(255,255,255,0.06)' },
               ticks: {
                 color: '#94a3b8',
                 font: { size: 10 },
-                stepSize: 50000,
-                callback: v => `₹${(v / 1000).toFixed(0)}k Cr`
+                stepSize: 10,
+                callback: v => v + '%'
               },
               title: {
                 display: true,
-                text: 'Rupees (Crores)',
+                text: '% of States\' Total GST Resource Pool',
                 color: '#94a3b8',
                 font: { size: 10 }
               }
