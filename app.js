@@ -5805,6 +5805,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- GTR 100% Composition: Stacked Bar + Centre Retention dotted line ---
     const CESS_DATA = [
+      { finance_commission: '6th', operational_years: '1974-1979', chairman: 'K. Brahmananda Reddy',
+        statutory_share_pct: 22.0, divisible_pool_of_gtr_pct: 96.5, effective_devolution_of_gtr_pct: 22.0,
+        macro_context: 'Fragmented sharing: 80% Income Tax and 20% Excise. Core tax engines like Corp Tax were fully excluded from States.' },
+      { finance_commission: '7th', operational_years: '1979-1984', chairman: 'J.M. Shelat',
+        statutory_share_pct: 26.0, divisible_pool_of_gtr_pct: 96.0, effective_devolution_of_gtr_pct: 26.0,
+        macro_context: 'Excise sharing pool doubled from 20% to 40%, boosting overall devolution yield for the states.' },
+      { finance_commission: '8th', operational_years: '1984-1989', chairman: 'Y.B. Chavan',
+        statutory_share_pct: 27.0, divisible_pool_of_gtr_pct: 95.0, effective_devolution_of_gtr_pct: 27.0,
+        macro_context: 'Union Excise sharing raised to 45% to help fund states\' growing administrative expenditures.' },
+      { finance_commission: '9th', operational_years: '1989-1995', chairman: 'N.K.P. Salve',
+        statutory_share_pct: 27.5, divisible_pool_of_gtr_pct: 94.0, effective_devolution_of_gtr_pct: 27.5,
+        macro_context: 'Adopted a normative approach to assess states\' revenue capacities and expenditures.' },
+      { finance_commission: '10th', operational_years: '1995-2000', chairman: 'K.C. Pant',
+        statutory_share_pct: 27.8, divisible_pool_of_gtr_pct: 93.0, effective_devolution_of_gtr_pct: 27.8,
+        macro_context: 'Recommended a single unified divisible pool of all central taxes, paving the way for the 80th Amendment.' },
       { finance_commission: '11th', operational_years: '2000-2005', chairman: 'A.M. Khusro',
         statutory_share_pct: 29.5, divisible_pool_of_gtr_pct: 90.2, effective_devolution_of_gtr_pct: 26.6,
         macro_context: 'Inaugural period of the unified divisible pool. Cesses & surcharges were <5% of GTR. The divisible pool covered ~90% of collections, keeping the gap between statutory and effective rates minimal (~3 pp).' },
@@ -5992,9 +6007,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (combCtx) {
       if (charts['devolutionCombined']) charts['devolutionCombined'].destroy();
 
-      const combLabels = ['11th FC\n(2000-05)', '12th FC\n(2005-10)', '13th FC\n(2010-15)', '14th FC\n(2015-20)', '15th FC\n(2020-26)', '16th FC\n(2026-31)'];
-      const statesShare = [55.5, 59.2, 61.8, 63.5, 61.2, 61.0];
-      const centreShare = [44.5, 40.8, 38.2, 36.5, 38.8, 39.0];
+      const combLabels = ['6th FC\n(1974-79)', '7th FC\n(1979-84)', '8th FC\n(1984-89)', '9th FC\n(1989-95)', '10th FC\n(1995-00)', '11th FC\n(2000-05)', '12th FC\n(2005-10)', '13th FC\n(2010-15)', '14th FC\n(2015-20)', '15th FC\n(2020-26)', '16th FC\n(2026-31)'];
+      const statesShare = [48.5, 50.5, 51.0, 51.0, 51.7, 55.5, 59.2, 61.8, 63.5, 61.2, 61.0];
+      const centreShare = [51.5, 49.5, 49.0, 49.0, 48.3, 44.5, 40.8, 38.2, 36.5, 38.8, 39.0];
 
       const combGrad = combCtx.getContext('2d').createLinearGradient(0, 0, 0, 250);
       combGrad.addColorStop(0, 'rgba(74,222,128,0.22)');
@@ -6095,12 +6110,22 @@ document.addEventListener("DOMContentLoaded", () => {
       const surCesses = [];      // Top layer: Cesses & surcharges (0% pre-GST, ~10.5% post-GST)
       const surDirectDev = [];   // Direct Tax Devolution line overlay (Corp, Income, Customs as % of GTR)
 
-      for (let yr = 2000; yr <= 2026; yr++) {
+      for (let yr = 1974; yr <= 2030; yr++) {
         const label = `${yr}-${String(yr + 1).slice(-2)}`;
         surLabels.push(label);
         
         // Populate Direct Tax Devolution line
-        if (yr < 2005) {
+        if (yr < 1979) {
+          surDirectDev.push(11.5);
+        } else if (yr >= 1979 && yr < 1984) {
+          surDirectDev.push(14.5);
+        } else if (yr >= 1984 && yr < 1989) {
+          surDirectDev.push(15.5);
+        } else if (yr >= 1989 && yr < 1995) {
+          surDirectDev.push(16.0);
+        } else if (yr >= 1995 && yr < 2000) {
+          surDirectDev.push(16.2);
+        } else if (yr >= 2000 && yr < 2005) {
           surDirectDev.push(15.2);
         } else if (yr >= 2005 && yr < 2010) {
           surDirectDev.push(16.5);
@@ -6116,19 +6141,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Populate consumption tax stack layers
         if (yr < 2017) {
-          // Pre-GST VAT/SST: 100% owned & retained by States
           surSST_SGST.push(100.0);
           surStateDev.push(0.0);
           surCentrePool.push(0.0);
           surCesses.push(0.0);
         } else if (yr >= 2017 && yr < 2020) {
-          // 14th FC era post-GST
           surSST_SGST.push(50.0);
           surStateDev.push(17.7);
           surCentrePool.push(24.3);
           surCesses.push(8.0);
         } else {
-          // 15th / 16th FC era post-GST
           surSST_SGST.push(50.0);
           surStateDev.push(16.2);
           surCentrePool.push(23.3);
@@ -6282,10 +6304,25 @@ document.addEventListener("DOMContentLoaded", () => {
       const gtrStates = [];
       const gtrCentre = [];
 
-      for (let yr = 2000; yr <= 2026; yr++) {
+      for (let yr = 1974; yr <= 2030; yr++) {
         const label = `${yr}-${String(yr + 1).slice(-2)}`;
         gtrLabels.push(label);
-        if (yr < 2005) {
+        if (yr < 1979) {
+          gtrStates.push(22.0);
+          gtrCentre.push(78.0);
+        } else if (yr >= 1979 && yr < 1984) {
+          gtrStates.push(26.0);
+          gtrCentre.push(74.0);
+        } else if (yr >= 1984 && yr < 1989) {
+          gtrStates.push(27.0);
+          gtrCentre.push(73.0);
+        } else if (yr >= 1989 && yr < 1995) {
+          gtrStates.push(27.5);
+          gtrCentre.push(72.5);
+        } else if (yr >= 1995 && yr < 2000) {
+          gtrStates.push(27.8);
+          gtrCentre.push(72.2);
+        } else if (yr >= 2000 && yr < 2005) {
           gtrStates.push(26.6);
           gtrCentre.push(73.4);
         } else if (yr >= 2005 && yr < 2010) {
@@ -6394,11 +6431,37 @@ document.addEventListener("DOMContentLoaded", () => {
     if (compCtx) {
       if (charts['devolutionCompensation']) charts['devolutionCompensation'].destroy();
 
-      const compLabels = ['2015-16', '2016-17', '2017-18', '2018-19', '2019-20', '2020-21', '2021-22', '2022-23', '2023-24', '2024-25', '2025-26'];
-      // States' GST Resource Pool Composition (normalized to 100%)
-      const surSGST = [100.0, 100.0, 64.0, 64.0, 64.0, 52.0, 52.0, 67.5, 75.5, 75.5, 75.5];
-      const surCGST = [0.0, 0.0, 22.6, 22.6, 22.6, 16.8, 16.8, 21.9, 24.5, 24.5, 24.5];
-      const surComp = [0.0, 0.0, 13.4, 13.4, 13.4, 31.2, 31.2, 10.6, 0.0, 0.0, 0.0];
+      const compLabels = [];
+      const surSGST = [];
+      const surCGST = [];
+      const surComp = [];
+
+      for (let yr = 1974; yr <= 2030; yr++) {
+        const label = `${yr}-${String(yr + 1).slice(-2)}`;
+        compLabels.push(label);
+        
+        if (yr < 2017) {
+          surSGST.push(100.0);
+          surCGST.push(0.0);
+          surComp.push(0.0);
+        } else if (yr >= 2017 && yr < 2020) {
+          surSGST.push(64.0);
+          surCGST.push(22.6);
+          surComp.push(13.4);
+        } else if (yr >= 2020 && yr < 2022) {
+          surSGST.push(52.0);
+          surCGST.push(16.8);
+          surComp.push(31.2);
+        } else if (yr === 2022) {
+          surSGST.push(67.5);
+          surCGST.push(21.9);
+          surComp.push(10.6);
+        } else {
+          surSGST.push(75.5);
+          surCGST.push(24.5);
+          surComp.push(0.0);
+        }
+      }
 
       charts['devolutionCompensation'] = new Chart(compCtx, {
         type: 'line',
