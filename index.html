@@ -148,6 +148,10 @@
               <i class="fa-solid fa-cube"></i>
               <span>3D Fiscal Space</span>
             </button>
+            <button class="nav-item" data-tab="devolution">
+              <i class="fa-solid fa-landmark"></i>
+              <span>Finance Commission</span>
+            </button>
           </nav>
         </div>
 
@@ -1740,6 +1744,115 @@
             </div>
           </div>
 
+          <!-- ===== FINANCE COMMISSION VERTICAL DEVOLUTION TAB ===== -->
+          <div class="tab-view" id="tab-devolution">
+
+            <!-- Hero stat strip -->
+            <div style="display:grid; grid-template-columns: repeat(6,1fr); gap:0.75rem; margin-bottom:1.25rem;">
+              <div class="chart-main-card" style="padding:1rem; text-align:center;" id="fc-stat-11">
+                <div style="font-size:0.7rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.05em;">11th FC</div>
+                <div style="font-size:1.8rem; font-weight:700; color:var(--accent-color); line-height:1.1;">29.5%</div>
+                <div style="font-size:0.65rem; color:var(--text-secondary);">2000–2005</div>
+              </div>
+              <div class="chart-main-card" style="padding:1rem; text-align:center;">
+                <div style="font-size:0.7rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.05em;">12th FC</div>
+                <div style="font-size:1.8rem; font-weight:700; color:var(--accent-color); line-height:1.1;">30.5%</div>
+                <div style="font-size:0.65rem; color:var(--text-secondary);">2005–2010</div>
+              </div>
+              <div class="chart-main-card" style="padding:1rem; text-align:center;">
+                <div style="font-size:0.7rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.05em;">13th FC</div>
+                <div style="font-size:1.8rem; font-weight:700; color:var(--accent-color); line-height:1.1;">32.0%</div>
+                <div style="font-size:0.65rem; color:var(--text-secondary);">2010–2015</div>
+              </div>
+              <div class="chart-main-card" style="padding:1rem; text-align:center; border:1px solid rgba(255,170,0,0.4);">
+                <div style="font-size:0.7rem; color:#ffaa00; text-transform:uppercase; letter-spacing:0.05em;">14th FC ★</div>
+                <div style="font-size:1.8rem; font-weight:700; color:#ffaa00; line-height:1.1;">42.0%</div>
+                <div style="font-size:0.65rem; color:var(--text-secondary);">2015–2020 · +10pp leap</div>
+              </div>
+              <div class="chart-main-card" style="padding:1rem; text-align:center;">
+                <div style="font-size:0.7rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.05em;">15th FC</div>
+                <div style="font-size:1.8rem; font-weight:700; color:var(--accent-color); line-height:1.1;">41.0%</div>
+                <div style="font-size:0.65rem; color:var(--text-secondary);">2020–2026</div>
+              </div>
+              <div class="chart-main-card" style="padding:1rem; text-align:center;">
+                <div style="font-size:0.7rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.05em;">16th FC</div>
+                <div style="font-size:1.8rem; font-weight:700; color:var(--accent-color); line-height:1.1;">41.0%</div>
+                <div style="font-size:0.65rem; color:var(--text-secondary);">2026–2031</div>
+              </div>
+            </div>
+
+            <!-- Main trend chart -->
+            <div class="chart-main-card" style="padding:1.5rem; margin-bottom:1.25rem;">
+              <div class="card-header-bar" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border-color); margin-bottom:1rem;">
+                <h3 style="font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;">
+                  <i class="fa-solid fa-chart-line" style="color:var(--accent-color);"></i>
+                  Vertical Devolution Trend — Finance Commission Award Periods (2000–2031)
+                  <span class="tooltip-container">
+                    <i class="fa-solid fa-circle-info info-icon"></i>
+                    <span class="tooltip-text">
+                      <strong>Vertical Devolution %:</strong><br>
+                      The constitutionally mandated share of the central divisible pool of taxes transferred to all State Governments collectively. Recommended once every five years by the Finance Commission under Article 280 of the Constitution.
+                    </span>
+                  </span>
+                </h3>
+                <span class="badge info">Chart.js Line Chart</span>
+              </div>
+              <div style="position:relative; height:420px; width:100%;">
+                <canvas id="chart-devolution-trend"></canvas>
+              </div>
+            </div>
+
+            <!-- Data table -->
+            <div class="chart-main-card" style="padding:1.5rem; margin-bottom:1.25rem; overflow-x:auto;">
+              <div class="card-header-bar" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border-color); margin-bottom:1rem;">
+                <h3 style="font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;">
+                  <i class="fa-solid fa-table" style="color:var(--accent-color);"></i>
+                  Finance Commission Reference Table
+                </h3>
+              </div>
+              <table id="fc-reference-table" style="width:100%; border-collapse:collapse; font-size:0.82rem;">
+                <thead>
+                  <tr style="border-bottom:2px solid var(--border-color);">
+                    <th style="padding:0.6rem 0.8rem; text-align:left; color:var(--text-secondary); font-weight:600;">FC</th>
+                    <th style="padding:0.6rem 0.8rem; text-align:left; color:var(--text-secondary); font-weight:600;">Chairman</th>
+                    <th style="padding:0.6rem 0.8rem; text-align:left; color:var(--text-secondary); font-weight:600;">Period</th>
+                    <th style="padding:0.6rem 0.8rem; text-align:center; color:var(--text-secondary); font-weight:600;">Vertical Share</th>
+                    <th style="padding:0.6rem 0.8rem; text-align:center; color:var(--text-secondary); font-weight:600;">Change</th>
+                    <th style="padding:0.6rem 0.8rem; text-align:left; color:var(--text-secondary); font-weight:600;">Macro Context</th>
+                  </tr>
+                </thead>
+                <tbody id="fc-table-body">
+                  <!-- populated by JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Narrative insight boxes -->
+            <div class="analysis-narrative" style="margin-bottom:0;">
+              <h3><i class="fa-solid fa-scale-balanced"></i> Structural Shifts in Vertical Devolution</h3>
+              <div class="narrative-highlights" style="grid-template-columns:1fr 1fr; margin-top:0.5rem;">
+                <div class="highlight-item" style="padding:0.8rem;">
+                  <i class="fa-solid fa-bolt" style="color:#ffaa00; font-size:1rem;"></i>
+                  <p style="font-size:0.8rem; line-height:1.5;"><strong>14th FC Paradigm Shift (2015–2020):</strong> Under Y.V. Reddy, the vertical share made a historic 10-percentage-point jump from 32% to 42% — the single largest increase in India's fiscal federalism history. The rationale was to move away from tied, scheme-based central grants (which carry conditionalities) toward unconditional, untied tax devolution, giving states greater fiscal autonomy.</p>
+                </div>
+                <div class="highlight-item" style="padding:0.8rem;">
+                  <i class="fa-solid fa-divide" style="color:var(--accent-color); font-size:1rem;"></i>
+                  <p style="font-size:0.8rem; line-height:1.5;"><strong>15th FC Adjustment (2020–2026):</strong> Under N.K. Singh, the vertical share was marginally reduced from 42% to 41% to account for the creation of two new Union Territories — J&amp;K and Ladakh — carved out of the erstwhile state of Jammu &amp; Kashmir, which were removed from the divisible pool sharing formula since UTs are centrally funded.</p>
+                </div>
+                <div class="highlight-item" style="padding:0.8rem;">
+                  <i class="fa-solid fa-circle-check" style="color:var(--accent-success, #4ade80); font-size:1rem;"></i>
+                  <p style="font-size:0.8rem; line-height:1.5;"><strong>12th FC Era (2005–2010):</strong> The first commission to operate fully under the post-80th Constitutional Amendment regime (2000), which pooled income tax and corporation tax into a single divisible pool alongside excise duties. The 30.5% share reflected this consolidated base for the first full five-year cycle.</p>
+                </div>
+                <div class="highlight-item" style="padding:0.8rem;">
+                  <i class="fa-solid fa-landmark" style="color:var(--accent-color); font-size:1rem;"></i>
+                  <p style="font-size:0.8rem; line-height:1.5;"><strong>16th FC Status (2026–2031):</strong> Under Arvind Panagariya, the commission is expected to maintain the 41% status quo to preserve macroeconomic stability. A higher devolution is debated since Central government's sovereign obligations (defence, debt service) place pressures to retain a larger share, while states argue for higher shares to fund SDG-linked expenditures.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <!-- ===== END FINANCE COMMISSION TAB ===== -->
+
         </div>
 
         </div>
@@ -1756,7 +1869,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.62"></script>
-  <script src="app.js?v=3.62"></script>
+  <script src="data.js?v=3.63"></script>
+  <script src="app.js?v=3.63"></script>
 </body>
 </html>

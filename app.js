@@ -679,6 +679,8 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => renderFiscalNavigator(), 50);
     } else if (activeTab === "threed") {
       renderThreeDTab();
+    } else if (activeTab === "devolution") {
+      renderDevolutionTab();
     }
   }
 
@@ -5348,6 +5350,226 @@ document.addEventListener("DOMContentLoaded", () => {
       return `${prefix}${value.toFixed(2)}%`;
     }
     return `${value.toFixed(2)}%`;
+  }
+
+
+  // --- Finance Commission Vertical Devolution Tab ---
+  function renderDevolutionTab() {
+    const FC_DATA = {
+      metric_tracked: "Vertical Devolution Percentage",
+      historical_timeline: [
+        {
+          finance_commission: "11th",
+          chairman: "A.M. Khusro",
+          operational_years: "2000-2005",
+          vertical_share_pct: 29.5,
+          macro_context: "Interim framework tracking the transition to the alternative scheme of devolution introduced post-80th Constitutional Amendment (2000). First commission to recommend shares under the consolidated divisible pool concept."
+        },
+        {
+          finance_commission: "12th",
+          chairman: "C. Rangarajan",
+          operational_years: "2005-2010",
+          vertical_share_pct: 30.5,
+          macro_context: "First commission to operate fully under the post-80th Constitutional Amendment regime, which pooled all central taxes (income tax, corporation tax, and excise duties) into a single divisible pool. The 30.5% reflected incremental enhancement over the 11th FC baseline."
+        },
+        {
+          finance_commission: "13th",
+          chairman: "Vijay Kelkar",
+          operational_years: "2010-2015",
+          vertical_share_pct: 32.0,
+          macro_context: "Incremental 1.5 percentage point increase from 30.5% to 32% to enhance the predictability of revenue streams for states and reduce their dependence on discretionary grants. Introduced outcome-based conditionality for certain grants."
+        },
+        {
+          finance_commission: "14th",
+          chairman: "Y.V. Reddy",
+          operational_years: "2015-2020",
+          vertical_share_pct: 42.0,
+          macro_context: "Historic 10 percentage point structural leap from 32% to 42% — the single largest increase in India's fiscal federalism history. The rationale was to prioritize unconditional tax devolution over tied, scheme-based central grants (CSS), granting states significantly greater fiscal autonomy and expenditure flexibility."
+        },
+        {
+          finance_commission: "15th",
+          chairman: "N.K. Singh",
+          operational_years: "2020-2026",
+          vertical_share_pct: 41.0,
+          macro_context: "Marginal reduction from 42% to 41% to formally account for the reorganization of the erstwhile state of Jammu & Kashmir into the Union Territories of J&K and Ladakh in 2019. UTs are centrally funded and thus excluded from the divisible pool formula, requiring a downward normalization."
+        },
+        {
+          finance_commission: "16th",
+          chairman: "Arvind Panagariya",
+          operational_years: "2026-2031",
+          vertical_share_pct: 41.0,
+          macro_context: "Expected to maintain status quo at 41% to preserve macroeconomic stability and balance central sovereign obligations (defence, debt service) against state expenditure needs. States continue to advocate for a higher share to fund SDG-linked social sector spending."
+        }
+      ]
+    };
+
+    const timeline = FC_DATA.historical_timeline;
+
+    // --- Build Chart ---
+    const ctx = document.getElementById('chart-devolution-trend');
+    if (!ctx) return;
+    if (charts['devolution']) charts['devolution'].destroy();
+
+    // Build stepped data: each FC period spans multiple years, plot by start year
+    const labels = timeline.map(d => d.operational_years.split('-')[0]);
+    const values = timeline.map(d => d.vertical_share_pct);
+    const isLandmark = timeline.map(d => d.vertical_share_pct === 42.0);
+
+    // Area fill gradient
+    const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(99,179,237,0.35)');
+    gradient.addColorStop(1, 'rgba(99,179,237,0.02)');
+
+    const pointColors = timeline.map(d =>
+      d.vertical_share_pct === 42.0 ? '#ffaa00' :
+      d.operational_years.startsWith('2026') ? '#a78bfa' : '#63b3ed'
+    );
+    const pointRadius = timeline.map(d => d.vertical_share_pct === 42.0 ? 10 : 7);
+    const pointBorderWidth = timeline.map(d => d.vertical_share_pct === 42.0 ? 3 : 2);
+
+    charts['devolution'] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Vertical Devolution (%)',
+          data: values,
+          borderColor: '#63b3ed',
+          backgroundColor: gradient,
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0,        // stepped look
+          pointBackgroundColor: pointColors,
+          pointBorderColor: pointColors,
+          pointRadius: pointRadius,
+          pointHoverRadius: 12,
+          pointBorderWidth: pointBorderWidth
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: (items) => {
+                const idx = items[0].dataIndex;
+                const fc = timeline[idx];
+                return `${fc.finance_commission} Finance Commission (${fc.operational_years})`;
+              },
+              label: (item) => {
+                return `Vertical Share: ${item.raw}%`;
+              },
+              afterLabel: (item) => {
+                const idx = item.dataIndex;
+                const fc = timeline[idx];
+                return [`Chairman: ${fc.chairman}`, '', fc.macro_context];
+              }
+            },
+            backgroundColor: 'rgba(15,23,42,0.97)',
+            titleColor: '#e2e8f0',
+            bodyColor: '#94a3b8',
+            padding: 14,
+            cornerRadius: 8,
+            boxPadding: 4,
+            titleFont: { weight: '700', size: 13 },
+            bodyFont: { size: 11 },
+            maxWidth: 360
+          },
+          annotation: {
+            annotations: {
+              landmark14: {
+                type: 'point',
+                xValue: labels.indexOf('2015'),
+                yValue: 42.0,
+                backgroundColor: 'rgba(255,170,0,0.15)',
+                borderColor: '#ffaa00',
+                borderWidth: 2,
+                radius: 22
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.06)' },
+            ticks: {
+              color: '#94a3b8',
+              font: { size: 11 },
+              callback: (val, idx) => {
+                const fc = timeline[idx];
+                return fc ? [`${fc.finance_commission} FC`, fc.operational_years] : '';
+              }
+            }
+          },
+          y: {
+            min: 25,
+            max: 48,
+            grid: { color: 'rgba(255,255,255,0.06)' },
+            ticks: {
+              color: '#94a3b8',
+              font: { size: 11 },
+              callback: v => v + '%'
+            },
+            title: {
+              display: true,
+              text: 'Vertical Devolution Share (%)',
+              color: '#94a3b8',
+              font: { size: 11 }
+            }
+          }
+        }
+      }
+    });
+
+    // --- Annotate the 14th FC leap manually with a custom plugin (fallback label) ---
+    // Draw a reference line at y=42 via a dataset annotation
+    // (chartjs-plugin-annotation not loaded; use a second dataset as a dashed reference)
+    // Add a dashed threshold line at 42%
+    const refDataset = {
+      label: '14th FC Landmark (42%)',
+      data: labels.map(() => 42.0),
+      borderColor: 'rgba(255,170,0,0.25)',
+      borderDash: [6, 4],
+      borderWidth: 1.5,
+      pointRadius: 0,
+      fill: false,
+      tension: 0
+    };
+    charts['devolution'].data.datasets.push(refDataset);
+    charts['devolution'].update();
+
+    // --- Build Reference Table ---
+    const tbody = document.getElementById('fc-table-body');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    timeline.forEach((fc, idx) => {
+      const prev = idx > 0 ? timeline[idx - 1].vertical_share_pct : null;
+      const delta = prev !== null ? (fc.vertical_share_pct - prev) : null;
+      const deltaStr = delta === null ? '—' :
+        delta > 0 ? `<span style="color:#4ade80;">+${delta.toFixed(1)}pp &#x25B2;</span>` :
+        delta < 0 ? `<span style="color:#f87171;">${delta.toFixed(1)}pp &#x25BC;</span>` :
+        `<span style="color:#94a3b8;">=</span>`;
+
+      const isLandmarkRow = fc.finance_commission === '14th';
+      const rowBg = isLandmarkRow ? 'rgba(255,170,0,0.07)' : (idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)');
+
+      const row = document.createElement('tr');
+      row.style.cssText = `border-bottom:1px solid rgba(255,255,255,0.06); background:${rowBg}; transition:background 0.15s;`;
+      row.innerHTML = `
+        <td style="padding:0.65rem 0.8rem; font-weight:700; color:${isLandmarkRow ? '#ffaa00' : 'var(--accent-color)'}; white-space:nowrap;">${fc.finance_commission} FC</td>
+        <td style="padding:0.65rem 0.8rem; color:var(--text-primary); white-space:nowrap;">${fc.chairman}</td>
+        <td style="padding:0.65rem 0.8rem; color:var(--text-secondary); white-space:nowrap;">${fc.operational_years}</td>
+        <td style="padding:0.65rem 0.8rem; text-align:center; font-weight:700; font-size:1.05rem; color:${isLandmarkRow ? '#ffaa00' : 'var(--text-primary)'}">${fc.vertical_share_pct.toFixed(1)}%</td>
+        <td style="padding:0.65rem 0.8rem; text-align:center;">${deltaStr}</td>
+        <td style="padding:0.65rem 0.8rem; color:var(--text-secondary); font-size:0.78rem; line-height:1.45;">${fc.macro_context}</td>
+      `;
+      row.addEventListener('mouseenter', () => row.style.background = 'rgba(99,179,237,0.07)');
+      row.addEventListener('mouseleave', () => row.style.background = rowBg);
+      tbody.appendChild(row);
+    });
   }
 
   // Run initialization
