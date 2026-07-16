@@ -5803,80 +5803,102 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // --- Cess Erosion Divergence Chart ---
+    // --- GTR 100% Composition: Stacked Bar + Centre Retention dotted line ---
     const CESS_DATA = [
-      { finance_commission:'11th', operational_years:'2000-2005', chairman:'A.M. Khusro',
-        statutory_share_pct:29.5, divisible_pool_of_gtr_pct:90.2, effective_devolution_of_gtr_pct:26.6,
-        macro_context:'Inaugural period of the unified divisible pool. Cesses and surcharges accounted for less than 5% of GTR, keeping the divisible pool close to full gross collections. The gap between statutory and effective rates was minimal (~2.9 pp).' },
-      { finance_commission:'12th', operational_years:'2005-2010', chairman:'C. Rangarajan',
-        statutory_share_pct:30.5, divisible_pool_of_gtr_pct:88.5, effective_devolution_of_gtr_pct:27.0,
-        macro_context:'First full cycle under the pooled divisible pool framework. The Education Cess (2%+1%) introduced in 2004 began the structural expansion of non-shareable levies, trimming the pool as a share of GTR and widening the effective gap to ~3.5 pp.' },
-      { finance_commission:'13th', operational_years:'2010-2015', chairman:'Vijay Kelkar',
-        statutory_share_pct:32.0, divisible_pool_of_gtr_pct:87.5, effective_devolution_of_gtr_pct:28.0,
-        macro_context:'Baseline period with a still-large divisible pool. Cesses and surcharges accounted for roughly 8–10% of GTR. States benefited from an incremental statutory increase to 32%, and the effective gap remained moderate at ~4 pp.' },
-      { finance_commission:'14th', operational_years:'2015-2020', chairman:'Y.V. Reddy',
-        statutory_share_pct:42.0, divisible_pool_of_gtr_pct:84.1, effective_devolution_of_gtr_pct:35.3,
-        macro_context:'The landmark 10 pp statutory jump to 42% was partly offset by a parallel expansion of non-shareable cesses — Swachh Bharat Cess and Krishi Kalyan Cess — shrinking the divisible pool from ~88% to ~84% of GTR. The effective gap widened to ~6.7 pp.' },
-      { finance_commission:'15th', operational_years:'2020-2026', chairman:'N.K. Singh',
-        statutory_share_pct:41.0, divisible_pool_of_gtr_pct:79.2, effective_devolution_of_gtr_pct:32.5,
-        macro_context:'Pandemic-era fiscal stress led to a surge in non-shareable cesses — Agriculture Infrastructure Development Cess on fuel, health and education surcharges — pushing the divisible pool down to ~79% of GTR. The effective-to-statutory gap ballooned to ~8.5 pp, its widest on record.' },
-      { finance_commission:'16th', operational_years:'2026-2031', chairman:'Arvind Panagariya',
-        statutory_share_pct:41.0, divisible_pool_of_gtr_pct:78.5, effective_devolution_of_gtr_pct:32.2,
-        macro_context:'Maintained the statutory 41% pool share. The effective share of GTR remains structurally constrained. States and the 16th FC have flagged the persistent reliance on fuel and infrastructure cesses as a continuing fiscal federalism concern requiring constitutional redress.' }
+      { finance_commission: '11th', operational_years: '2000-2005', chairman: 'A.M. Khusro',
+        statutory_share_pct: 29.5, divisible_pool_of_gtr_pct: 90.2, effective_devolution_of_gtr_pct: 26.6,
+        macro_context: 'Inaugural period of the unified divisible pool. Cesses & surcharges were <5% of GTR. The divisible pool covered ~90% of collections, keeping the gap between statutory and effective rates minimal (~3 pp).' },
+      { finance_commission: '12th', operational_years: '2005-2010', chairman: 'C. Rangarajan',
+        statutory_share_pct: 30.5, divisible_pool_of_gtr_pct: 88.5, effective_devolution_of_gtr_pct: 27.0,
+        macro_context: 'The Education Cess (2%+1%) introduced in 2004 began the structural expansion of non-shareable levies. Pool shrank to ~88.5% of GTR; Centre retained ~73% of every ₹100 collected.' },
+      { finance_commission: '13th', operational_years: '2010-2015', chairman: 'Vijay Kelkar',
+        statutory_share_pct: 32.0, divisible_pool_of_gtr_pct: 87.5, effective_devolution_of_gtr_pct: 28.0,
+        macro_context: 'Cesses and surcharges accounted for ~10-12% of GTR. States got a modest bump to 32% statutory share. The Centre retained ~72% of gross collections — roughly ₹72 out of every ₹100.' },
+      { finance_commission: '14th', operational_years: '2015-2020', chairman: 'Y.V. Reddy',
+        statutory_share_pct: 42.0, divisible_pool_of_gtr_pct: 84.1, effective_devolution_of_gtr_pct: 35.3,
+        macro_context: 'The landmark 10 pp statutory jump to 42% was the best outcome for states. However, the Centre simultaneously expanded Swachh Bharat and Krishi Kalyan cesses, shrinking the pool to ~84%. States' best era: Centre retained only ~65 of every ₹100.' },
+      { finance_commission: '15th', operational_years: '2020-2026', chairman: 'N.K. Singh',
+        statutory_share_pct: 41.0, divisible_pool_of_gtr_pct: 79.2, effective_devolution_of_gtr_pct: 32.5,
+        macro_context: 'Pandemic-era fiscal stress triggered an explosion of non-shareable cesses — AIDC on fuel, GST Compensation Cess, health surcharges. The pool fell to ~79% of GTR. Centre clawed back to retaining ~67.5 of every ₹100.' },
+      { finance_commission: '16th', operational_years: '2026-2031', chairman: 'Arvind Panagariya',
+        statutory_share_pct: 41.0, divisible_pool_of_gtr_pct: 78.5, effective_devolution_of_gtr_pct: 32.2,
+        macro_context: 'Statutory share held at 41%, but the divisible pool continues to shrink as fuel and infrastructure cesses persist. Centre retains ~68 out of every ₹100. States advocate for including cesses in the divisible pool.' }
     ];
 
     const cessCtx = document.getElementById('chart-devolution-cess');
     if (cessCtx) {
       if (charts['devolutionCess']) charts['devolutionCess'].destroy();
+
+      // Compute three segments for each FC period (sum = 100% of GTR)
+      // ① stateDevolution  = effective_devolution_of_gtr_pct
+      // ② centrePool       = divisible_pool_of_gtr_pct × (1 - statutory_share_pct/100)
+      // ③ cesses           = 100 - divisible_pool_of_gtr_pct
+      // dotted line        = centrePool + cesses = 100 - stateDevolution
+      const seg_state    = CESS_DATA.map(d => parseFloat(d.effective_devolution_of_gtr_pct.toFixed(1)));
+      const seg_cPool    = CESS_DATA.map(d => parseFloat(((d.divisible_pool_of_gtr_pct / 100) * (1 - d.statutory_share_pct / 100) * 100).toFixed(1)));
+      const seg_cess     = CESS_DATA.map(d => parseFloat((100 - d.divisible_pool_of_gtr_pct).toFixed(1)));
+      const dotted_centre = CESS_DATA.map(d => parseFloat((100 - d.effective_devolution_of_gtr_pct).toFixed(1)));
+
       const cessLabels = CESS_DATA.map(d => `${d.finance_commission} FC\n${d.operational_years}`);
-      const cessGradDiv = cessCtx.getContext('2d').createLinearGradient(0, 0, 0, 400);
-      cessGradDiv.addColorStop(0, 'rgba(248,113,113,0.20)');
-      cessGradDiv.addColorStop(1, 'rgba(248,113,113,0.01)');
 
       charts['devolutionCess'] = new Chart(cessCtx, {
-        type: 'line',
+        type: 'bar',
         data: {
           labels: cessLabels,
           datasets: [
             {
-              label: 'Statutory Devolution Share (% of Divisible Pool)',
-              data: CESS_DATA.map(d => d.statutory_share_pct),
-              borderColor: '#63b3ed',
-              backgroundColor: 'transparent',
-              borderWidth: 2.5,
-              pointBackgroundColor: '#63b3ed',
-              pointRadius: 7,
-              pointHoverRadius: 10,
-              tension: 0.3,
-              fill: false,
-              yAxisID: 'y'
+              // ① Green — States' effective devolution
+              label: 'States\' Effective Devolution (% of GTR)',
+              data: seg_state,
+              backgroundColor: 'rgba(74,222,128,0.80)',
+              borderColor: 'rgba(74,222,128,1)',
+              borderWidth: 1,
+              borderRadius: { topLeft: 0, topRight: 0, bottomLeft: 5, bottomRight: 5 },
+              borderSkipped: 'bottom',
+              stack: 'gtr',
+              order: 3
             },
             {
-              label: 'Effective Devolution (% of Gross Tax Revenue)',
-              data: CESS_DATA.map(d => d.effective_devolution_of_gtr_pct),
+              // ② Blue — Centre retains from divisible pool
+              label: 'Centre Retains from Divisible Pool (% of GTR)',
+              data: seg_cPool,
+              backgroundColor: 'rgba(96,165,250,0.70)',
+              borderColor: 'rgba(96,165,250,1)',
+              borderWidth: 1,
+              borderRadius: 0,
+              borderSkipped: true,
+              stack: 'gtr',
+              order: 3
+            },
+            {
+              // ③ Orange — Cesses & surcharges (top segment, growing over time)
+              label: 'Cesses & Surcharges — Centre only, not shared (% of GTR)',
+              data: seg_cess,
+              backgroundColor: 'rgba(251,146,60,0.80)',
+              borderColor: 'rgba(251,146,60,1)',
+              borderWidth: 1,
+              borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 0, bottomRight: 0 },
+              borderSkipped: 'bottom',
+              stack: 'gtr',
+              order: 3
+            },
+            {
+              // Dotted line — Centre's total retention
+              label: 'Centre\'s Total Retention (dotted line, % of GTR)',
+              type: 'line',
+              data: dotted_centre,
               borderColor: '#f87171',
-              backgroundColor: cessGradDiv,
-              borderWidth: 2.5,
-              pointBackgroundColor: '#f87171',
-              pointRadius: 7,
-              pointHoverRadius: 10,
-              tension: 0.3,
-              fill: '-1',
-              yAxisID: 'y'
-            },
-            {
-              label: 'Divisible Pool as % of GTR (right axis)',
-              data: CESS_DATA.map(d => d.divisible_pool_of_gtr_pct),
-              borderColor: '#a78bfa',
               backgroundColor: 'transparent',
-              borderWidth: 1.5,
-              borderDash: [5, 4],
-              pointBackgroundColor: '#a78bfa',
-              pointRadius: 5,
-              pointHoverRadius: 8,
+              borderWidth: 2.5,
+              borderDash: [7, 4],
+              pointBackgroundColor: '#f87171',
+              pointBorderColor: '#f87171',
+              pointRadius: 6,
+              pointHoverRadius: 9,
               tension: 0.3,
               fill: false,
-              yAxisID: 'y2'
+              stack: undefined,
+              order: 1
             }
           ]
         },
@@ -5888,18 +5910,42 @@ document.addEventListener("DOMContentLoaded", () => {
             legend: {
               display: true,
               position: 'top',
-              labels: { color: '#94a3b8', font: { size: 11 }, usePointStyle: true, padding: 18 }
+              labels: {
+                color: '#94a3b8',
+                font: { size: 11 },
+                usePointStyle: true,
+                pointStyleWidth: 14,
+                padding: 20,
+                filter: (item) => item.datasetIndex < 4  // show all 4 legend items
+              }
             },
             tooltip: {
               callbacks: {
                 title: (items) => {
                   const d = CESS_DATA[items[0].dataIndex];
-                  return `${d.finance_commission} Finance Commission (${d.operational_years}) — ${d.chairman}`;
+                  return `${d.finance_commission} Finance Commission (${d.operational_years})  —  ${d.chairman}`;
+                },
+                label: (item) => {
+                  const d = CESS_DATA[item.dataIndex];
+                  const labels = {
+                    0: `🟢 States receive: ${seg_state[item.dataIndex]}% of GTR`,
+                    1: `🔵 Centre pool retained: ${seg_cPool[item.dataIndex]}% of GTR`,
+                    2: `🟠 Cesses & surcharges: ${seg_cess[item.dataIndex]}% of GTR`,
+                    3: `⟶ Centre total retention: ${dotted_centre[item.dataIndex]}% of GTR`
+                  };
+                  return labels[item.datasetIndex] ?? item.formattedValue + '%';
                 },
                 afterBody: (items) => {
                   const d = CESS_DATA[items[0].dataIndex];
-                  const gap = (d.statutory_share_pct - d.effective_devolution_of_gtr_pct).toFixed(1);
-                  return ['', `\u26a0 Cess Erosion Gap: ${gap} pp`, '', d.macro_context];
+                  const stateShare = seg_state[items[0].dataIndex];
+                  const cessShare = seg_cess[items[0].dataIndex];
+                  return [
+                    '',
+                    `📐 Divisible Pool: ${d.divisible_pool_of_gtr_pct}% of GTR`,
+                    `📐 Statutory share (of pool): ${d.statutory_share_pct}%`,
+                    '',
+                    d.macro_context
+                  ];
                 }
               },
               backgroundColor: 'rgba(15,23,42,0.97)',
@@ -5909,27 +5955,32 @@ document.addEventListener("DOMContentLoaded", () => {
               cornerRadius: 8,
               titleFont: { weight: '700', size: 13 },
               bodyFont: { size: 11 },
-              maxWidth: 420
+              maxWidth: 440
             }
           },
           scales: {
             x: {
-              grid: { color: 'rgba(255,255,255,0.05)' },
+              stacked: true,
+              grid: { display: false },
               ticks: { color: '#94a3b8', font: { size: 10 } }
             },
             y: {
-              min: 22, max: 48,
-              position: 'left',
+              stacked: true,
+              min: 0,
+              max: 100,
               grid: { color: 'rgba(255,255,255,0.06)' },
-              ticks: { color: '#94a3b8', font: { size: 11 }, callback: v => v + '%' },
-              title: { display: true, text: 'Devolution Share (%)', color: '#94a3b8', font: { size: 11 } }
-            },
-            y2: {
-              min: 70, max: 95,
-              position: 'right',
-              grid: { drawOnChartArea: false },
-              ticks: { color: '#a78bfa', font: { size: 11 }, callback: v => v + '%' },
-              title: { display: true, text: 'Divisible Pool (% of GTR)', color: '#a78bfa', font: { size: 11 } }
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 11 },
+                stepSize: 10,
+                callback: v => v + '%'
+              },
+              title: {
+                display: true,
+                text: '% of Gross Tax Revenue (GTR)',
+                color: '#94a3b8',
+                font: { size: 11 }
+              }
             }
           }
         }

@@ -1893,55 +1893,44 @@
             </div>
 
           <!-- Cesses & Surcharges Erosion: Statutory vs Effective Devolution -->
+          <!-- GTR 100% Composition Chart: Where Does Every ₹100 of Central Tax Revenue Go? -->
           <div class="chart-main-card" style="padding:1.5rem; margin-bottom:1.25rem;">
             <div class="card-header-bar" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border-color); margin-bottom:1rem;">
               <h3 style="font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;">
-                <i class="fa-solid fa-triangle-exclamation" style="color:#f87171;"></i>
-                The Cess Erosion Gap: Statutory Share vs Effective Devolution (% of Gross Tax Revenue)
+                <i class="fa-solid fa-chart-pie" style="color:var(--accent-color);"></i>
+                Central Tax Revenue Distribution: Where Does Every ₹100 Go? (per FC Period)
                 <span class="tooltip-container">
                   <i class="fa-solid fa-circle-info info-icon"></i>
                   <span class="tooltip-text">
-                    <strong>Why the curves diverge:</strong><br>
-                    The statutory devolution % applies only to the <em>Divisible Pool</em> (Gross Tax Revenue minus cesses, surcharges, and collection costs). The effective devolution % measures what states actually receive as a share of total GTR. The widening gap between the two lines reveals the growing constitutional tension: the Centre increasingly raises revenue through non-shareable cesses, effectively bypassing the devolution formula and retaining a higher share of gross collections.
+                    <strong>How to read this chart:</strong><br>
+                    Each bar = 100% of Gross Tax Revenue (GTR) collected by the Central Government in that FC period.<br><br>
+                    <strong style="color:#4ade80;">Green</strong> = what all states combined actually receive (Effective Devolution)<br>
+                    <strong style="color:#60a5fa;">Blue-grey</strong> = Centre's retained share from the divisible pool (its constitutional entitlement)<br>
+                    <strong style="color:#fb923c;">Orange-red</strong> = Cesses &amp; Surcharges collected by Centre but never shared with states (Article 270)<br><br>
+                    The <strong>dotted line</strong> = Centre's total retention = Blue-grey + Orange. As cesses grow, this line rises even if the statutory devolution rate stays the same.
                   </span>
                 </span>
               </h3>
-              <span class="badge" style="background:rgba(248,113,113,0.15); color:#f87171; border:1px solid rgba(248,113,113,0.3);">Constitutional tension visible</span>
+              <span class="badge" style="background:rgba(248,113,113,0.15); color:#f87171; border:1px solid rgba(248,113,113,0.3);">GTR = 100%</span>
             </div>
 
-            <!-- Insight strip: key gap metrics -->
-            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:0.75rem; margin-bottom:1.25rem;">
-              <div style="background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:8px; padding:0.85rem; text-align:center;">
-                <div style="font-size:0.7rem; color:#f87171; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.3rem;">Gap in 13th FC Era</div>
-                <div style="font-size:1.6rem; font-weight:700; color:#f87171; line-height:1;">~4.0 pp</div>
-                <div style="font-size:0.65rem; color:var(--text-secondary);">2010–2015 baseline</div>
-              </div>
-              <div style="background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:8px; padding:0.85rem; text-align:center;">
-                <div style="font-size:0.7rem; color:#f87171; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.3rem;">Gap in 14th FC Era</div>
-                <div style="font-size:1.6rem; font-weight:700; color:#f87171; line-height:1;">~6.7 pp</div>
-                <div style="font-size:0.65rem; color:var(--text-secondary);">2015–2020 · cess expansion</div>
-              </div>
-              <div style="background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.35); border-radius:8px; padding:0.85rem; text-align:center;">
-                <div style="font-size:0.7rem; color:#f87171; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.3rem;">Gap in 15th FC Era</div>
-                <div style="font-size:1.6rem; font-weight:700; color:#f87171; line-height:1;">~8.5 pp</div>
-                <div style="font-size:0.65rem; color:var(--text-secondary);">2020–2026 · pandemic cess surge</div>
-              </div>
-              <div style="background:rgba(248,113,113,0.06); border:1px solid rgba(248,113,113,0.2); border-radius:8px; padding:0.85rem; text-align:center;">
-                <div style="font-size:0.7rem; color:#f87171; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.3rem;">Divisible Pool Shrinkage</div>
-                <div style="font-size:1.6rem; font-weight:700; color:#f87171; line-height:1;">~10 pp</div>
-                <div style="font-size:0.65rem; color:var(--text-secondary);">GTR coverage: 90% → 79%</div>
-              </div>
+            <!-- Color legend strip -->
+            <div style="display:flex; gap:1.5rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem; padding:0.6rem 0.8rem; background:rgba(255,255,255,0.03); border-radius:6px; font-size:0.78rem; color:var(--text-secondary);">
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#4ade80; display:inline-block;"></span> States' Effective Devolution</span>
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#60a5fa; display:inline-block;"></span> Centre Retains (from Divisible Pool)</span>
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#fb923c; display:inline-block;"></span> Cesses &amp; Surcharges (Centre only, not shared)</span>
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:28px; height:2px; border-top:2.5px dashed #f87171; display:inline-block;"></span> Centre's Total Retention (dotted)</span>
             </div>
 
-            <div style="position:relative; height:420px; width:100%;">
+            <div style="position:relative; height:460px; width:100%;">
               <canvas id="chart-devolution-cess"></canvas>
             </div>
 
             <!-- Narrative below chart -->
             <div style="margin-top:1rem; padding:1rem; background:rgba(248,113,113,0.05); border-left:3px solid #f87171; border-radius:0 6px 6px 0;">
               <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.6; margin:0;">
-                <strong style="color:var(--text-primary);">The Constitutional Tension:</strong>
-                Under Article 270 of the Constitution, cesses and surcharges levied for specific purposes are explicitly excluded from the divisible pool and do not accrue to states. The Centre has leveraged this provision aggressively — the share of cesses in gross tax revenue grew from ~3% in 2011-12 to over <strong style="color:#f87171;">~22% by 2023-24</strong>. This structural shift means that even the historic 14th FC jump to 42% statutory share delivered a smaller-than-expected real windfall to states, as the pool being shared had itself shrunk relative to total central collections.
+                <strong style="color:var(--text-primary);">The Constitutional Tension (Article 270):</strong>
+                Cesses and surcharges levied for specific purposes are explicitly excluded from the divisible pool and do not accrue to states. The Centre has leveraged this provision aggressively — the orange segment grew from <strong style="color:#fb923c;">~10% in 2000</strong> to <strong style="color:#fb923c;">~21% by 2026</strong> of total central taxes. As a result, even the historic 14th FC jump to 42% statutory share delivered a smaller-than-expected real windfall to states: the <em>dotted retention line</em> only dipped modestly before rebounding as cesses surged.
               </p>
             </div>
           </div>
@@ -1965,7 +1954,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.65"></script>
-  <script src="app.js?v=3.65"></script>
+  <script src="data.js?v=3.66"></script>
+  <script src="app.js?v=3.66"></script>
 </body>
 </html>
