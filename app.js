@@ -6496,48 +6496,70 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // --- Combined GTR & SGST Split Chart ---
-    const combGtrSgstCtx = document.getElementById('chart-devolution-combined-gtr-sgst');
-    if (combGtrSgstCtx) {
-      if (charts['devolutionCombinedGtrSgst']) charts['devolutionCombinedGtrSgst'].destroy();
+    // --- Evolution of the Central ₹100: 50-Year Trajectory of Fiscal Devolution ---
+    const fiftyYrCtx = document.getElementById('chart-devolution-50yr');
+    if (fiftyYrCtx) {
+      if (charts['devolution50yr']) charts['devolution50yr'].destroy();
 
-      const combGtrSgstLabels = [];
-      const combGtrSgstStates = [];
-      const combGtrSgstCentre = [];
+      const labels = [];
+      const states = [];
+      const centre = [];
 
-      for (let yr = 2000; yr <= 2026; yr++) {
+      for (let yr = 1974; yr <= 2030; yr++) {
         const label = `${yr}-${String(yr + 1).slice(-2)}`;
-        combGtrSgstLabels.push(label);
+        labels.push(label);
         
-        if (yr < 2005) {
-          combGtrSgstStates.push(50.4);
-          combGtrSgstCentre.push(49.6);
+        if (yr < 1979) {
+          // 6th FC: 22.0% states, 78.0% centre
+          states.push(22.0);
+          centre.push(78.0);
+        } else if (yr >= 1979 && yr < 1984) {
+          // 7th FC: 26.0% states, 74.0% centre
+          states.push(26.0);
+          centre.push(74.0);
+        } else if (yr >= 1984 && yr < 1989) {
+          // 8th FC: 27.0% states, 73.0% centre
+          states.push(27.0);
+          centre.push(73.0);
+        } else if (yr >= 1989 && yr < 1995) {
+          // 9th FC: 27.5% states, 72.5% centre
+          states.push(27.5);
+          centre.push(72.5);
+        } else if (yr >= 1995 && yr < 2000) {
+          // 10th FC: 27.8% states, 72.2% centre
+          states.push(27.8);
+          centre.push(72.2);
+        } else if (yr >= 2000 && yr < 2005) {
+          // 11th FC: 26.6% states, 73.4% centre
+          states.push(26.6);
+          centre.push(73.4);
         } else if (yr >= 2005 && yr < 2010) {
-          combGtrSgstStates.push(47.8);
-          combGtrSgstCentre.push(52.2);
+          // 12th FC: 27.0% states, 73.0% centre
+          states.push(27.0);
+          centre.push(73.0);
         } else if (yr >= 2010 && yr < 2015) {
-          combGtrSgstStates.push(46.2);
-          combGtrSgstCentre.push(53.8);
+          // 13th FC: 28.0% states, 72.0% centre
+          states.push(28.0);
+          centre.push(72.0);
         } else if (yr >= 2015 && yr < 2020) {
-          combGtrSgstStates.push(45.5);
-          combGtrSgstCentre.push(54.5);
-        } else if (yr >= 2020 && yr < 2026) {
-          combGtrSgstStates.push(43.7);
-          combGtrSgstCentre.push(56.3);
+          // 14th FC: 35.3% states, 64.7% centre
+          states.push(35.3);
+          centre.push(64.7);
         } else {
-          combGtrSgstStates.push(43.2);
-          combGtrSgstCentre.push(56.8);
+          // 15th and 16th FC: 32.5% states, 67.5% centre
+          states.push(32.5);
+          centre.push(67.5);
         }
       }
 
-      charts['devolutionCombinedGtrSgst'] = new Chart(combGtrSgstCtx, {
+      charts['devolution50yr'] = new Chart(fiftyYrCtx, {
         type: 'line',
         data: {
-          labels: combGtrSgstLabels,
+          labels: labels,
           datasets: [
             {
-              label: 'Total Received by States (%)',
-              data: combGtrSgstStates,
+              label: 'Devolved to States (%)',
+              data: states,
               borderColor: '#22c55e',
               backgroundColor: 'rgba(34,197,94,0.22)',
               borderWidth: 2.5,
@@ -6547,7 +6569,7 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             {
               label: 'Retained by Central Government (%)',
-              data: combGtrSgstCentre,
+              data: centre,
               borderColor: '#f87171',
               backgroundColor: 'rgba(248,113,113,0.18)',
               borderWidth: 2.5,
@@ -6567,28 +6589,46 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             tooltip: {
               callbacks: {
-                title: (items) => `FY ${combGtrSgstLabels[items[0].dataIndex]} — Combined GTR & SGST/SST Pool`,
+                title: (items) => `FY ${labels[items[0].dataIndex]} — Union GTR Devolution`,
                 label: (item) => {
                   const val = item.raw.toFixed(1);
                   return item.datasetIndex === 0 
-                    ? ` 🟢 Total States' share: ${val}%` 
-                    : ` 🔴 Total Central retention: ${val}%`;
+                    ? ` 🟢 Sent to States (Effective): ₹${val} of ₹100 GTR` 
+                    : ` 🔴 Retained by Centre: ₹${val} of ₹100 GTR`;
+                },
+                afterBody: (items) => {
+                  const idx = items[0].dataIndex;
+                  const yr = 1974 + idx;
+                  let fcInfo = "";
+                  if (yr < 1979) fcInfo = "6th FC (1974-79)\nIncome Tax: 80%, Excise: 20%\nExcluded Corporate/Customs tax from States.";
+                  else if (yr < 1984) fcInfo = "7th FC (1979-84)\nExcise share raised to 40%.";
+                  else if (yr < 1989) fcInfo = "8th FC (1984-89)";
+                  else if (yr < 1995) fcInfo = "9th FC (1989-95)";
+                  else if (yr < 2000) fcInfo = "10th FC (1995-00)";
+                  else if (yr < 2005) fcInfo = "11th FC (2000-05)\n80th Amendment unified divisible pool at 29.5%.";
+                  else if (yr < 2010) fcInfo = "12th FC (2005-10)\nStatutory share: 30.5%.";
+                  else if (yr < 2015) fcInfo = "13th FC (2010-15)\nStatutory share: 32.0%.";
+                  else if (yr < 2020) fcInfo = "14th FC (2015-20)\nStatutory share raised to 42.0%.";
+                  else if (yr < 2026) fcInfo = "15th FC (2020-26)\nStatutory share: 41.0% (J&K adjustment).";
+                  else fcInfo = "16th FC (2026-31)\nUnified divisible pool: 41.0%.";
+                  
+                  return ["", "📐 Framework Info:", fcInfo];
                 }
               },
               backgroundColor: 'rgba(15,23,42,0.97)',
               titleColor: '#e2e8f0',
               bodyColor: '#94a3b8',
-              padding: 12,
+              padding: 14,
               cornerRadius: 8,
               titleFont: { weight: '700', size: 12 },
               bodyFont: { size: 11 },
-              maxWidth: 380
+              maxWidth: 400
             }
           },
           scales: {
             x: {
               grid: { color: 'rgba(255,255,255,0.05)' },
-              ticks: { color: '#94a3b8', font: { size: 9 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 14 }
+              ticks: { color: '#94a3b8', font: { size: 9 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 12 }
             },
             y: {
               stacked: true,
@@ -6599,11 +6639,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 color: '#94a3b8',
                 font: { size: 10 },
                 stepSize: 10,
-                callback: v => v + '%'
+                callback: v => '₹' + v
               },
               title: {
                 display: true,
-                text: '% of Combined GTR & SGST/SST Pool',
+                text: 'Split of ₹100 Central Gross Tax Revenue (GTR)',
                 color: '#94a3b8',
                 font: { size: 10 }
               }
