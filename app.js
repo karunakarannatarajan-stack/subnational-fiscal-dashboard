@@ -5816,7 +5816,7 @@ document.addEventListener("DOMContentLoaded", () => {
         macro_context: 'Cesses and surcharges accounted for ~10-12% of GTR. States got a modest bump to 32% statutory share. The Centre retained ~72% of gross collections — roughly ₹72 out of every ₹100.' },
       { finance_commission: '14th', operational_years: '2015-2020', chairman: 'Y.V. Reddy',
         statutory_share_pct: 42.0, divisible_pool_of_gtr_pct: 84.1, effective_devolution_of_gtr_pct: 35.3,
-        macro_context: 'The landmark 10 pp statutory jump to 42% was the best outcome for states. However, the Centre simultaneously expanded Swachh Bharat and Krishi Kalyan cesses, shrinking the pool to ~84%. States' best era: Centre retained only ~65 of every ₹100.' },
+        macro_context: 'The landmark 10 pp statutory jump to 42% was the best outcome for states. However, the Centre simultaneously expanded Swachh Bharat and Krishi Kalyan cesses, shrinking the pool to ~84%. States\' best era: Centre retained only ~65 of every ₹100.' },
       { finance_commission: '15th', operational_years: '2020-2026', chairman: 'N.K. Singh',
         statutory_share_pct: 41.0, divisible_pool_of_gtr_pct: 79.2, effective_devolution_of_gtr_pct: 32.5,
         macro_context: 'Pandemic-era fiscal stress triggered an explosion of non-shareable cesses — AIDC on fuel, GST Compensation Cess, health surcharges. The pool fell to ~79% of GTR. Centre clawed back to retaining ~67.5 of every ₹100.' },
