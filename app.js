@@ -6652,6 +6652,336 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
+
+    // --- Metric 1: Combined National Tax Pie Chart (1974-2031) ---
+    const combinedPieCtx = document.getElementById('chart-devolution-combined-pie-50yr');
+    if (combinedPieCtx) {
+      if (charts['devolutionCombinedPie50yr']) charts['devolutionCombinedPie50yr'].destroy();
+
+      const pieLabels = [];
+      const pieSotrRetained = [];
+      const pieDevolution = [];
+      const pieCentreRetained = [];
+
+      for (let yr = 1974; yr <= 2030; yr++) {
+        const label = `${yr}-${String(yr + 1).slice(-2)}`;
+        pieLabels.push(label);
+        
+        if (yr < 1979) {
+          pieSotrRetained.push(35.0);
+          pieDevolution.push(13.5);
+          pieCentreRetained.push(51.5);
+        } else if (yr >= 1979 && yr < 1984) {
+          pieSotrRetained.push(34.0);
+          pieDevolution.push(16.5);
+          pieCentreRetained.push(49.5);
+        } else if (yr >= 1984 && yr < 1989) {
+          pieSotrRetained.push(33.5);
+          pieDevolution.push(17.5);
+          pieCentreRetained.push(49.0);
+        } else if (yr >= 1989 && yr < 1995) {
+          pieSotrRetained.push(33.0);
+          pieDevolution.push(18.0);
+          pieCentreRetained.push(49.0);
+        } else if (yr >= 1995 && yr < 2000) {
+          pieSotrRetained.push(33.5);
+          pieDevolution.push(18.2);
+          pieCentreRetained.push(48.3);
+        } else if (yr >= 2000 && yr < 2005) {
+          pieSotrRetained.push(34.0);
+          pieDevolution.push(17.5);
+          pieCentreRetained.push(48.5);
+        } else if (yr >= 2005 && yr < 2010) {
+          pieSotrRetained.push(36.5);
+          pieDevolution.push(17.0);
+          pieCentreRetained.push(46.5);
+        } else if (yr >= 2010 && yr < 2015) {
+          pieSotrRetained.push(37.5);
+          pieDevolution.push(17.5);
+          pieCentreRetained.push(45.0);
+        } else if (yr >= 2015 && yr < 2020) {
+          pieSotrRetained.push(34.5);
+          pieDevolution.push(22.5);
+          pieCentreRetained.push(43.0);
+        } else if (yr >= 2020 && yr < 2026) {
+          pieSotrRetained.push(30.0);
+          pieDevolution.push(20.5);
+          pieCentreRetained.push(49.5);
+        } else {
+          pieSotrRetained.push(29.5);
+          pieDevolution.push(20.0);
+          pieCentreRetained.push(50.5);
+        }
+      }
+
+      charts['devolutionCombinedPie50yr'] = new Chart(combinedPieCtx, {
+        type: 'line',
+        data: {
+          labels: pieLabels,
+          datasets: [
+            {
+              label: "1. States' Own Tax Retained (SOTR)",
+              data: pieSotrRetained,
+              borderColor: '#15803d',
+              backgroundColor: 'rgba(21,128,61,0.75)',
+              borderWidth: 1.5,
+              fill: 'origin',
+              stepped: 'before',
+              pointRadius: 0
+            },
+            {
+              label: '2. Tax Devolution Received',
+              data: pieDevolution,
+              borderColor: '#84cc16',
+              backgroundColor: 'rgba(163,230,53,0.70)',
+              borderWidth: 1.5,
+              fill: '-1',
+              stepped: 'before',
+              pointRadius: 0
+            },
+            {
+              label: '3. Retained by Central Government',
+              data: pieCentreRetained,
+              borderColor: '#f87171',
+              backgroundColor: 'rgba(248,113,113,0.65)',
+              borderWidth: 1.5,
+              fill: '-1',
+              stepped: 'before',
+              pointRadius: 0
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => `FY ${pieLabels[items[0].dataIndex]} — Combined National Tax Split`,
+                label: (item) => {
+                  const val = item.raw.toFixed(1);
+                  const labels = [
+                    `🟢 States' Own Tax Retained (SOTR): ${val}% of national pie`,
+                    `🟢 Tax Devolution Received: ${val}% of national pie`,
+                    `🔴 Retained by Central GTR: ${val}% of national pie`
+                  ];
+                  return ' ' + (labels[item.datasetIndex] ?? item.dataset.label + ': ' + val + '%');
+                },
+                afterBody: (items) => {
+                  const idx = items[0].dataIndex;
+                  const totalState = (pieSotrRetained[idx] + pieDevolution[idx]).toFixed(1);
+                  const totalCentre = pieCentreRetained[idx].toFixed(1);
+                  return [
+                    '',
+                    `⟶ Net State Control of Taxes: ${totalState}%`,
+                    `⟶ Net Central Control of Taxes: ${totalCentre}%`
+                  ];
+                }
+              },
+              backgroundColor: 'rgba(15,23,42,0.97)',
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              padding: 12,
+              cornerRadius: 8,
+              titleFont: { weight: '700', size: 12 },
+              bodyFont: { size: 11 },
+              maxWidth: 400
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#94a3b8', font: { size: 9 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 12 }
+            },
+            y: {
+              stacked: true,
+              min: 0,
+              max: 100,
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 10 },
+                stepSize: 10,
+                callback: v => v + '%'
+              },
+              title: {
+                display: true,
+                text: '% of Combined GTR + SOTR Pool',
+                color: '#94a3b8',
+                font: { size: 10 }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // --- Metric 2: The Federal Flow Chart (1974-2031) ---
+    const federalFlowCtx = document.getElementById('chart-devolution-federal-flow-50yr');
+    if (federalFlowCtx) {
+      if (charts['devolutionFederalFlow50yr']) charts['devolutionFederalFlow50yr'].destroy();
+
+      const flowLabels = [];
+      const flowDevolution = [];
+      const flowGrants = [];
+      const flowCentreRetained = [];
+
+      for (let yr = 1974; yr <= 2030; yr++) {
+        const label = `${yr}-${String(yr + 1).slice(-2)}`;
+        flowLabels.push(label);
+        
+        if (yr < 1979) {
+          flowDevolution.push(22.0);
+          flowGrants.push(21.0);
+          flowCentreRetained.push(57.0);
+        } else if (yr >= 1979 && yr < 1984) {
+          flowDevolution.push(26.0);
+          flowGrants.push(19.0);
+          flowCentreRetained.push(55.0);
+        } else if (yr >= 1984 && yr < 1989) {
+          flowDevolution.push(27.0);
+          flowGrants.push(18.5);
+          flowCentreRetained.push(54.5);
+        } else if (yr >= 1989 && yr < 1995) {
+          flowDevolution.push(27.5);
+          flowGrants.push(18.0);
+          flowCentreRetained.push(54.5);
+        } else if (yr >= 1995 && yr < 2000) {
+          flowDevolution.push(27.8);
+          flowGrants.push(17.5);
+          flowCentreRetained.push(54.7);
+        } else if (yr >= 2000 && yr < 2005) {
+          flowDevolution.push(26.6);
+          flowGrants.push(18.0);
+          flowCentreRetained.push(55.4);
+        } else if (yr >= 2005 && yr < 2010) {
+          flowDevolution.push(27.0);
+          flowGrants.push(18.5);
+          flowCentreRetained.push(54.5);
+        } else if (yr >= 2010 && yr < 2015) {
+          flowDevolution.push(28.0);
+          flowGrants.push(17.8);
+          flowCentreRetained.push(54.2);
+        } else if (yr >= 2015 && yr < 2020) {
+          flowDevolution.push(35.3);
+          flowGrants.push(9.5);
+          flowCentreRetained.push(55.2);
+        } else if (yr >= 2020 && yr < 2026) {
+          flowDevolution.push(32.5);
+          flowGrants.push(8.2);
+          flowCentreRetained.push(59.3);
+        } else {
+          flowDevolution.push(32.5);
+          flowGrants.push(8.0);
+          flowCentreRetained.push(59.5);
+        }
+      }
+
+      charts['devolutionFederalFlow50yr'] = new Chart(federalFlowCtx, {
+        type: 'line',
+        data: {
+          labels: flowLabels,
+          datasets: [
+            {
+              label: '1. Unconditional Tax Devolution',
+              data: flowDevolution,
+              borderColor: '#22c55e',
+              backgroundColor: 'rgba(34,197,94,0.75)',
+              borderWidth: 1.5,
+              fill: 'origin',
+              stepped: 'before',
+              pointRadius: 0
+            },
+            {
+              label: '2. Central Grants-in-Aid',
+              data: flowGrants,
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(96,165,250,0.70)',
+              borderWidth: 1.5,
+              fill: '-1',
+              stepped: 'before',
+              pointRadius: 0
+            },
+            {
+              label: '3. Retained by Central Government',
+              data: flowCentreRetained,
+              borderColor: '#f87171',
+              backgroundColor: 'rgba(248,113,113,0.65)',
+              borderWidth: 1.5,
+              fill: '-1',
+              stepped: 'before',
+              pointRadius: 0
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => `FY ${flowLabels[items[0].dataIndex]} — Union GTR Resource Allocation`,
+                label: (item) => {
+                  const val = item.raw.toFixed(1);
+                  const labels = [
+                    `🟢 Unconditional Tax Devolution: ${val}% of GTR`,
+                    `🔵 Central Grants-in-Aid (Tied): ${val}% of GTR`,
+                    `🔴 Retained by Central Govt: ${val}% of GTR`
+                  ];
+                  return ' ' + (labels[item.datasetIndex] ?? item.dataset.label + ': ' + val + '%');
+                },
+                afterBody: (items) => {
+                  const idx = items[0].dataIndex;
+                  const totalStateFlow = (flowDevolution[idx] + flowGrants[idx]).toFixed(1);
+                  const totalCentreRetention = flowCentreRetained[idx].toFixed(1);
+                  return [
+                    '',
+                    `⟶ Total Flow to State Budgets: ${totalStateFlow}% of GTR`,
+                    `⟶ Net Central retention: ${totalCentreRetention}% of GTR`
+                  ];
+                }
+              },
+              backgroundColor: 'rgba(15,23,42,0.97)',
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              padding: 12,
+              cornerRadius: 8,
+              titleFont: { weight: '700', size: 12 },
+              bodyFont: { size: 11 },
+              maxWidth: 400
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#94a3b8', font: { size: 9 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 12 }
+            },
+            y: {
+              stacked: true,
+              min: 0,
+              max: 100,
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 10 },
+                stepSize: 10,
+                callback: v => v + '%'
+              },
+              title: {
+                display: true,
+                text: '% of Union Gross Tax Revenue (GTR)',
+                color: '#94a3b8',
+                font: { size: 10 }
+              }
+            }
+          }
+        }
+      });
+    }
   }
 
   // Run initialization

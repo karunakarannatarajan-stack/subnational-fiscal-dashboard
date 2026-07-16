@@ -2182,6 +2182,78 @@
             </div>
           </div>
 
+          <!-- Metric 1: Combined National Tax Pie: 50-Year Trajectory of Final Allocation (1974-2031) -->
+          <div class="chart-main-card" style="padding:1.5rem; margin-bottom:1.25rem; border: 1px solid rgba(34,197,94,0.15);">
+            <div class="card-header-bar" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border-color); margin-bottom:1rem;">
+              <h3 style="font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:0.5rem; color:var(--text-primary);">
+                <i class="fa-solid fa-pie-chart" style="color:#22c55e;"></i>
+                Combined National Tax Pie: 50-Year Trajectory of Final Allocation (1974–2031)
+                <span class="tooltip-container">
+                  <i class="fa-solid fa-circle-info info-icon"></i>
+                  <span class="tooltip-text">
+                    <strong>Combined Tax Pie Derivation:</strong><br>
+                    Combined Tax Pool = Central GTR + States' Own Tax Revenues (SOTR).<br>
+                    • States' Own Tax Retained = (SOTR - Devolution) / Combined Pool<br>
+                    • Tax Devolution Received = Devolution / Combined Pool<br>
+                    • Centre's Retained GTR = (GTR - Devolution) / Combined Pool
+                  </span>
+                </span>
+              </h3>
+              <span class="badge" style="background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.3);">Tax Allocation</span>
+            </div>
+
+            <!-- Color legend strip -->
+            <div style="display:flex; gap:1.5rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem; padding:0.6rem 0.8rem; background:rgba(255,255,255,0.03); border-radius:6px; font-size:0.78rem; color:var(--text-secondary);">
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#15803d; display:inline-block;"></span> States' Own Tax Retained (SOTR)</span>
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#84cc16; display:inline-block;"></span> Tax Devolution Received</span>
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#f87171; display:inline-block;"></span> Retained by Central Government</span>
+            </div>
+
+            <div style="position:relative; height:340px; width:100%;">
+              <canvas id="chart-devolution-combined-pie-50yr"></canvas>
+            </div>
+            
+            <div style="margin-top:1rem; padding:0.8rem; background:rgba(255,255,255,0.02); border-radius:6px; font-size:0.78rem; color:var(--text-secondary); line-height:1.45;">
+              <strong>Structural Shift:</strong> Pre-GST (e.g. 13th FC), states held <strong>55%</strong> of the total national tax pie (SOTR + Devolution). Post-GST, the states' direct SOTR wedge (dark green) has been compressed due to ceding VAT/Sales taxes, shifting more final resources (red area) to the Central Government, which now retains <strong>50.5%</strong>.
+            </div>
+          </div>
+
+          <!-- Metric 2: The Federal Flow: 50-Year Trajectory of Total Transfers to States (1974-2031) -->
+          <div class="chart-main-card" style="padding:1.5rem; margin-bottom:1.25rem; border: 1px solid rgba(96,165,250,0.15);">
+            <div class="card-header-bar" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border-color); margin-bottom:1rem;">
+              <h3 style="font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:0.5rem; color:var(--text-primary);">
+                <i class="fa-solid fa-arrows-turn-to-dots" style="color:#60a5fa;"></i>
+                The Federal Flow: 50-Year Trajectory of Total Transfers to States (1974–2031)
+                <span class="tooltip-container">
+                  <i class="fa-solid fa-circle-info info-icon"></i>
+                  <span class="tooltip-text">
+                    <strong>Federal Flow Derivation:</strong><br>
+                    Measures total fiscal support transferred to state budgets out of the Centre's Gross Tax Revenue (GTR).<br>
+                    • Unconditional Tax Devolution = Devolution / GTR<br>
+                    • Central Grants-in-Aid = Grants / GTR<br>
+                    • Centre's Retained GTR = (GTR - Devolution - Grants) / GTR
+                  </span>
+                </span>
+              </h3>
+              <span class="badge" style="background:rgba(96,165,250,0.15); color:#60a5fa; border:1px solid rgba(96,165,250,0.3);">Union Transfers</span>
+            </div>
+
+            <!-- Color legend strip -->
+            <div style="display:flex; gap:1.5rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem; padding:0.6rem 0.8rem; background:rgba(255,255,255,0.03); border-radius:6px; font-size:0.78rem; color:var(--text-secondary);">
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#22c55e; display:inline-block;"></span> Unconditional Tax Devolution</span>
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#3b82f6; display:inline-block;"></span> Central Grants-in-Aid (Tied/Conditional)</span>
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#f87171; display:inline-block;"></span> Retained by Central Government</span>
+            </div>
+
+            <div style="position:relative; height:340px; width:100%;">
+              <canvas id="chart-devolution-federal-flow-50yr"></canvas>
+            </div>
+            
+            <div style="margin-top:1rem; padding:0.8rem; background:rgba(255,255,255,0.02); border-radius:6px; font-size:0.78rem; color:var(--text-secondary); line-height:1.45;">
+              <strong>The Grant-Swap &amp; Cess Clawback:</strong> Pre-2015, total flows to states (devolution + grants) stood at <strong>45.8% of GTR</strong>. While devolution (green) jumped to 35.3% in 2015-16, central grants (blue) were slashed to 9.5% to balance it. In recent years, total flows to states have declined to an all-time low of <strong>40.5%</strong>.
+            </div>
+          </div>
+
           </div>
 
           </div>
@@ -2203,7 +2275,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.77"></script>
-  <script src="app.js?v=3.77"></script>
+  <script src="data.js?v=3.78"></script>
+  <script src="app.js?v=3.78"></script>
 </body>
 </html>
