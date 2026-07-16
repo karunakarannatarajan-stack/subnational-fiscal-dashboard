@@ -5570,6 +5570,238 @@ document.addEventListener("DOMContentLoaded", () => {
       row.addEventListener('mouseleave', () => row.style.background = rowBg);
       tbody.appendChild(row);
     });
+
+    // --- Step-function timeline chart (year-by-year) ---
+    // Build a year-for-year label array 2000–2031, each year gets its FC's share
+    const FC_PERIODS = [
+      { start: 2000, end: 2005, share: 29.5, fc: '11th', chairman: 'A.M. Khusro' },
+      { start: 2005, end: 2010, share: 30.5, fc: '12th', chairman: 'C. Rangarajan' },
+      { start: 2010, end: 2015, share: 32.0, fc: '13th', chairman: 'Vijay Kelkar' },
+      { start: 2015, end: 2020, share: 42.0, fc: '14th', chairman: 'Y.V. Reddy' },
+      { start: 2020, end: 2026, share: 41.0, fc: '15th', chairman: 'N.K. Singh' },
+      { start: 2026, end: 2031, share: 41.0, fc: '16th', chairman: 'Arvind Panagariya' }
+    ];
+
+    const stepLabels = [];
+    const stepValues = [];
+    const stepColors = [];
+    const stepFCs = [];
+    for (const period of FC_PERIODS) {
+      for (let yr = period.start; yr < period.end; yr++) {
+        stepLabels.push(`${yr}-${String(yr + 1).slice(-2)}`);
+        stepValues.push(period.share);
+        stepColors.push(
+          period.fc === '14th' ? 'rgba(255,170,0,0.85)' :
+          period.fc === '16th' ? 'rgba(167,139,250,0.85)' :
+          'rgba(99,179,237,0.85)'
+        );
+        stepFCs.push(period);
+      }
+    }
+
+    const stepCtx = document.getElementById('chart-devolution-step');
+    if (stepCtx) {
+      if (charts['devolutionStep']) charts['devolutionStep'].destroy();
+      const stepGrad = stepCtx.getContext('2d').createLinearGradient(0, 0, 0, 350);
+      stepGrad.addColorStop(0, 'rgba(99,179,237,0.22)');
+      stepGrad.addColorStop(1, 'rgba(99,179,237,0.01)');
+
+      charts['devolutionStep'] = new Chart(stepCtx, {
+        type: 'line',
+        data: {
+          labels: stepLabels,
+          datasets: [{
+            label: 'Vertical Devolution (%)',
+            data: stepValues,
+            borderColor: '#63b3ed',
+            backgroundColor: stepGrad,
+            borderWidth: 2,
+            fill: true,
+            stepped: 'before',
+            pointBackgroundColor: stepColors,
+            pointBorderColor: stepColors,
+            pointRadius: 4,
+            pointHoverRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => {
+                  const idx = items[0].dataIndex;
+                  const p = stepFCs[idx];
+                  return `FY ${stepLabels[idx]}  |  ${p.fc} Finance Commission`;
+                },
+                label: (item) => `Vertical Share: ${item.raw}%`,
+                afterLabel: (item) => {
+                  const p = stepFCs[item.dataIndex];
+                  return `Chairman: ${p.chairman}`;
+                }
+              },
+              backgroundColor: 'rgba(15,23,42,0.97)',
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              padding: 12,
+              cornerRadius: 8
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 10 },
+                maxRotation: 45,
+                autoSkip: true,
+                maxTicksLimit: 16
+              }
+            },
+            y: {
+              min: 26,
+              max: 46,
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 11 },
+                callback: v => v + '%'
+              },
+              title: {
+                display: true,
+                text: 'Vertical Devolution Share (%)',
+                color: '#94a3b8',
+                font: { size: 11 }
+              }
+            }
+          }
+        }
+      });
+
+      // Add FC period boundary vertical lines as a second dataset (dashed segments at transitions)
+      const boundaryData = stepLabels.map((_, i) => {
+        const curFC = stepFCs[i]?.fc;
+        const prevFC = i > 0 ? stepFCs[i - 1]?.fc : null;
+        return curFC !== prevFC ? stepValues[i] : null;
+      });
+      charts['devolutionStep'].data.datasets.push({
+        label: 'FC Transition',
+        data: boundaryData,
+        borderColor: 'rgba(255,255,255,0.25)',
+        borderWidth: 1.5,
+        borderDash: [4, 4],
+        pointBackgroundColor: 'rgba(255,255,255,0.7)',
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        fill: false,
+        stepped: false,
+        tension: 0
+      });
+      charts['devolutionStep'].update();
+    }
+
+    // --- Delta bar chart: pp change at each FC transition ---
+    const deltaCtx = document.getElementById('chart-devolution-delta');
+    if (deltaCtx) {
+      if (charts['devolutionDelta']) charts['devolutionDelta'].destroy();
+
+      const deltaLabels = [];
+      const deltaValues = [];
+      const deltaBarColors = [];
+      const deltaMeta = [];
+
+      for (let i = 0; i < timeline.length; i++) {
+        const fc = timeline[i];
+        const prev = i > 0 ? timeline[i - 1] : null;
+        const delta = prev ? fc.vertical_share_pct - prev.vertical_share_pct : null;
+        deltaLabels.push(`${fc.finance_commission} FC\n${fc.operational_years}`);
+        deltaValues.push(delta);
+        deltaMeta.push({ fc, delta, prev });
+        deltaBarColors.push(
+          delta === null ? 'rgba(148,163,184,0.5)' :
+          delta > 5 ? 'rgba(255,170,0,0.85)' :
+          delta > 0 ? 'rgba(74,222,128,0.8)' :
+          delta < 0 ? 'rgba(248,113,113,0.8)' :
+          'rgba(148,163,184,0.5)'
+        );
+      }
+
+      charts['devolutionDelta'] = new Chart(deltaCtx, {
+        type: 'bar',
+        data: {
+          labels: deltaLabels,
+          datasets: [{
+            label: 'Change (pp)',
+            data: deltaValues,
+            backgroundColor: deltaBarColors,
+            borderColor: deltaBarColors.map(c => c.replace('0.8', '1').replace('0.85', '1')),
+            borderWidth: 1.5,
+            borderRadius: 6,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => {
+                  const idx = items[0].dataIndex;
+                  const m = deltaMeta[idx];
+                  return `${m.fc.finance_commission} Finance Commission (${m.fc.operational_years})`;
+                },
+                label: (item) => {
+                  const m = deltaMeta[item.dataIndex];
+                  if (m.delta === null) return 'Baseline (first FC)';
+                  const sign = m.delta >= 0 ? '+' : '';
+                  return `Change: ${sign}${m.delta.toFixed(1)} pp  →  ${m.fc.vertical_share_pct}%`;
+                },
+                afterLabel: (item) => {
+                  const m = deltaMeta[item.dataIndex];
+                  return [
+                    `Chairman: ${m.fc.chairman}`,
+                    '',
+                    m.fc.macro_context
+                  ];
+                }
+              },
+              backgroundColor: 'rgba(15,23,42,0.97)',
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              padding: 14,
+              cornerRadius: 8,
+              titleFont: { weight: '700', size: 13 },
+              bodyFont: { size: 11 },
+              maxWidth: 380
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#94a3b8', font: { size: 10 } }
+            },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 11 },
+                callback: v => (v >= 0 ? '+' : '') + v + ' pp'
+              },
+              title: {
+                display: true,
+                text: 'Change vs previous FC (percentage points)',
+                color: '#94a3b8',
+                font: { size: 11 }
+              }
+            }
+          }
+        }
+      });
+    }
   }
 
   // Run initialization
