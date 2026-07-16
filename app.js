@@ -5986,6 +5986,102 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
+
+    // --- Combined Tax Revenue Share Trajectory Chart ---
+    const combCtx = document.getElementById('chart-devolution-combined');
+    if (combCtx) {
+      if (charts['devolutionCombined']) charts['devolutionCombined'].destroy();
+
+      const combLabels = ['11th FC\n(2000-05)', '12th FC\n(2005-10)', '13th FC\n(2010-15)', '14th FC\n(2015-20)', '15th FC\n(2020-26)', '16th FC\n(2026-31)'];
+      const statesShare = [55.5, 59.2, 61.8, 63.5, 61.2, 61.0];
+      const centreShare = [44.5, 40.8, 38.2, 36.5, 38.8, 39.0];
+
+      const combGrad = combCtx.getContext('2d').createLinearGradient(0, 0, 0, 250);
+      combGrad.addColorStop(0, 'rgba(74,222,128,0.22)');
+      combGrad.addColorStop(1, 'rgba(74,222,128,0.01)');
+
+      charts['devolutionCombined'] = new Chart(combCtx, {
+        type: 'line',
+        data: {
+          labels: combLabels,
+          datasets: [
+            {
+              label: 'States\' Combined Share (post-transfer)',
+              data: statesShare,
+              borderColor: '#4ade80',
+              backgroundColor: combGrad,
+              borderWidth: 2.5,
+              fill: true,
+              pointBackgroundColor: '#4ade80',
+              pointRadius: 5,
+              pointHoverRadius: 8,
+              tension: 0.3
+            },
+            {
+              label: 'Centre\'s Retained Share',
+              data: centreShare,
+              borderColor: '#60a5fa',
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              borderDash: [5, 4],
+              fill: false,
+              pointBackgroundColor: '#60a5fa',
+              pointRadius: 5,
+              pointHoverRadius: 8,
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                color: '#94a3b8',
+                font: { size: 10 },
+                usePointStyle: true,
+                padding: 10
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: (item) => ` ${item.dataset.label}: ${item.raw}%`
+              },
+              backgroundColor: 'rgba(15,23,42,0.97)',
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              padding: 10,
+              cornerRadius: 6
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#94a3b8', font: { size: 9 } }
+            },
+            y: {
+              min: 30,
+              max: 70,
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 10 },
+                callback: v => v + '%'
+              },
+              title: {
+                display: true,
+                text: '% of Combined Taxes',
+                color: '#94a3b8',
+                font: { size: 10 }
+              }
+            }
+          }
+        }
+      });
+    }
   }
 
   // Run initialization
