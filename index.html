@@ -2256,67 +2256,98 @@
               <strong>The Grant-Swap &amp; Cess Clawback:</strong> Pre-2015, total flows to states (devolution + grants) stood at <strong>45.8% of GTR</strong>. While devolution (green) jumped to 35.3% in 2015-16, central grants (blue) were slashed to 9.5% to balance it. In recent years, total flows to states have declined to an all-time low of <strong>40.5%</strong>.
           </div>
 
-          <!-- Metric 3: Horizontal Devolution Analytics Card -->
+          <!-- Metric 3A: State-Wise Devolution Share Trajectory: 50-Year Evolution (6th to 16th FC) -->
+          <div class="chart-main-card" style="padding:1.5rem; margin-bottom:1.25rem; border: 1px solid rgba(167,139,250,0.15);">
+            <div class="card-header-bar" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border-color); margin-bottom:1rem;">
+              <h3 style="font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:0.5rem; color:var(--text-primary);">
+                <i class="fa-solid fa-chart-line" style="color:#a78bfa;"></i>
+                State-Wise Horizontal Devolution Trajectory: 50-Year Evolution (6th to 16th FC)
+                <span class="tooltip-container">
+                  <i class="fa-solid fa-circle-info info-icon"></i>
+                  <span class="tooltip-text">
+                    <strong>StateDevolution Trajectory (50 Years):</strong><br>
+                    Tracks how individual state shares of the devolved central tax pool have shifted over the last 50 years across 11 Finance Commissions.<br>
+                    Use the select menu to add states to the chart and click 'x' on chips to remove them.
+                  </span>
+                </span>
+              </h3>
+              <span class="badge" style="background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.3);">50-Year Trajectory</span>
+            </div>
+
+            <!-- Interactive selector and chips -->
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+              <div style="display:flex; align-items:center; gap:0.6rem;">
+                <label for="state-share-add-select" style="font-size:0.78rem; color:var(--text-secondary);">Add State to Plot:</label>
+                <select id="state-share-add-select" style="background:#1e293b; border:1px solid var(--border-color); color:var(--text-primary); font-size:0.75rem; padding:0.25rem 0.6rem; border-radius:4px; outline:none; cursor:pointer;">
+                  <option value="" disabled selected>-- Choose State --</option>
+                  <option value="Andhra Pradesh">Andhra Pradesh</option>
+                  <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                  <option value="Assam">Assam</option>
+                  <option value="Bihar">Bihar</option>
+                  <option value="Chhattisgarh">Chhattisgarh</option>
+                  <option value="Goa">Goa</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Haryana">Haryana</option>
+                  <option value="Himachal Pradesh">Himachal Pradesh</option>
+                  <option value="Jammu & Kashmir">Jammu & Kashmir</option>
+                  <option value="Jharkhand">Jharkhand</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Kerala">Kerala</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Manipur">Manipur</option>
+                  <option value="Meghalaya">Meghalaya</option>
+                  <option value="Mizoram">Mizoram</option>
+                  <option value="Nagaland">Nagaland</option>
+                  <option value="Odisha">Odisha</option>
+                  <option value="Punjab">Punjab</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Sikkim">Sikkim</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Telangana">Telangana</option>
+                  <option value="Tripura">Tripura</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="Uttarakhand">Uttarakhand</option>
+                  <option value="West Bengal">West Bengal</option>
+                </select>
+              </div>
+              <div id="state-share-chips-container" style="display:flex; flex-wrap:wrap; gap:0.4rem; justify-content:flex-end;">
+                <!-- Filled dynamically by chips representing active states -->
+              </div>
+            </div>
+
+            <div style="position:relative; height:340px; width:100%;">
+              <canvas id="chart-devolution-horizontal-states-50yr"></canvas>
+            </div>
+            
+            <div style="margin-top:1rem; padding:0.8rem; background:rgba(255,255,255,0.02); border-radius:6px; font-size:0.78rem; color:var(--text-secondary); line-height:1.45;">
+              <strong>The Horizontal Divide:</strong> Plotting the long-term trend reveals structural winners and losers. Southern and Western states with higher tax capacities and successful population control (like Tamil Nadu and Karnataka) have seen their shares systematically fall, whereas populous northern states (like Uttar Pradesh and Bihar) have maintained large shares due to the high weight of **Income Distance** and population size.
+            </div>
+          </div>
+
+          <!-- Metric 3B: Horizontal Devolution Formula Weights Card (11th to 16th FC) -->
           <div class="chart-main-card" style="padding:1.5rem; margin-bottom:1.25rem; border: 1px solid rgba(167,139,250,0.15);">
             <div class="card-header-bar" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border-color); margin-bottom:1rem;">
               <h3 style="font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:0.5rem; color:var(--text-primary);">
                 <i class="fa-solid fa-table-cells-large" style="color:#a78bfa;"></i>
-                Horizontal Devolution Analytics: Criteria Weights &amp; State-Wise Shares (11th to 16th FC)
+                Horizontal Devolution Formula: Criteria Weight Evolution (11th to 16th FC)
                 <span class="tooltip-container">
                   <i class="fa-solid fa-circle-info info-icon"></i>
                   <span class="tooltip-text">
-                    <strong>Horizontal Devolution:</strong><br>
-                    Defines how the devolved tax pool is distributed among individual states. Uses a formula weighting equity (Income Distance) and efficiency (Tax Effort, Demographic performance) metrics. Sum of formula weights and state shares equals exactly 100%.
+                    <strong>Criteria Weights:</strong><br>
+                    Shows how consecutive Finance Commissions changed the weight given to equity vs. efficiency criteria. Sum of weights always equals 100.0%.
                   </span>
                 </span>
               </h3>
-              <span class="badge" style="background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.3);">Horizontal Sharing</span>
+              <span class="badge" style="background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.3);">Formula Weights</span>
             </div>
 
-            <!-- Layout: Grid for Formula Weights chart and State Shares table -->
-            <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:1.5rem; margin-bottom:1rem;">
-              <!-- Left Column: Formula weights chart -->
-              <div style="background:rgba(255,255,255,0.01); padding:1rem; border-radius:8px; border:1px solid var(--border-color);">
-                <h4 style="font-size:0.88rem; font-weight:600; color:var(--text-primary); margin-bottom:0.8rem; display:flex; align-items:center; gap:0.4rem;">
-                  <i class="fa-solid fa-chart-bar" style="color:#a78bfa;"></i>
-                  Formula Criteria Weight Evolution (%)
-                </h4>
-                <div style="position:relative; height:340px; width:100%;">
-                  <canvas id="chart-devolution-horizontal-weights"></canvas>
-                </div>
-              </div>
-
-              <!-- Right Column: State shares table/grid -->
-              <div style="background:rgba(255,255,255,0.01); padding:1rem; border-radius:8px; border:1px solid var(--border-color); display:flex; flex-direction:column;">
-                <h4 style="font-size:0.88rem; font-weight:600; color:var(--text-primary); margin-bottom:0.8rem; display:flex; align-items:center; justify-content:space-between; gap:0.4rem;">
-                  <span><i class="fa-solid fa-list-ol" style="color:#a78bfa;"></i> State-Wise Share Grid (%)</span>
-                  <select id="state-share-fc-select" style="background:#1e293b; border:1px solid var(--border-color); color:var(--text-primary); font-size:0.75rem; padding:0.2rem 0.5rem; border-radius:4px; outline:none;">
-                    <option value="fc_16th">16th FC (2026-31)</option>
-                    <option value="fc_15th">15th FC (2020-26)</option>
-                    <option value="fc_14th">14th FC (2015-20)</option>
-                    <option value="fc_13th">13th FC (2010-15)</option>
-                    <option value="fc_12th">12th FC (2005-10)</option>
-                    <option value="fc_11th">11th FC (2000-05)</option>
-                  </select>
-                </h4>
-                <div style="flex:1; overflow-y:auto; max-height:310px; padding-right:0.2rem;" class="custom-scrollbar">
-                  <table style="width:100%; border-collapse:collapse; font-size:0.78rem; text-align:left;">
-                    <thead>
-                      <tr style="border-bottom:1px solid var(--border-color); color:var(--text-secondary);">
-                        <th style="padding:0.4rem 0.5rem; font-weight:600;">State Name</th>
-                        <th style="padding:0.4rem 0.5rem; text-align:right; font-weight:600;">Net Share (%)</th>
-                      </tr>
-                    </thead>
-                    <tbody id="state-share-table-body">
-                      <!-- Dynamically filled by app.js -->
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+            <div style="position:relative; height:340px; width:100%;">
+              <canvas id="chart-devolution-horizontal-weights"></canvas>
             </div>
             
             <div style="margin-top:1rem; padding:0.8rem; background:rgba(255,255,255,0.02); border-radius:6px; font-size:0.78rem; color:var(--text-secondary); line-height:1.45;">
-              <strong>Equity vs. Efficiency Tension:</strong> The formula evolution highlights how the weight for **Income Distance** (poorer states catching up) has been maintained between 45% and 50%. The population weight has shifted entirely to the **2011 Census** under the 15th and 16th FC, prompting controversy from states that achieved lower demographic fertility rates, offset partially by the **Demographic Performance** criteria.
+              <strong>Equity vs. Efficiency Weights:</strong> The formula weights highlight the transition from 2000 onwards. While **Income Distance** remains the anchor of the formula (~42.5%), Commissions have reintroduced and expanded efficiency parameters like **Demographic Performance** (10%) and **Tax effort** to incentivize fiscal and social responsibility.
             </div>
           </div>
 
@@ -2341,7 +2372,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.82"></script>
-  <script src="app.js?v=3.82"></script>
+  <script src="data.js?v=3.83"></script>
+  <script src="app.js?v=3.83"></script>
 </body>
 </html>
