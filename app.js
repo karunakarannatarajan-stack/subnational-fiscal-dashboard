@@ -7671,8 +7671,226 @@ document.addEventListener("DOMContentLoaded", () => {
 
       renderIncDistChips();
     }
-  }
+    }
 
-  // Run initialization
+    // --- Metric 3D: Population Devolution Trajectory Chart (50 Years) ---
+    const popCtx = document.getElementById('chart-devolution-population-50yr');
+    if (popCtx) {
+      if (charts['devolutionPop50yr']) charts['devolutionPop50yr'].destroy();
+
+      const stateLabels = ['6th FC\n(1974-79)', '7th FC\n(1979-84)', '8th FC\n(1984-89)', '9th FC\n(1989-95)', '10th FC\n(1995-00)', '11th FC\n(2000-05)', '12th FC\n(2005-10)', '13th FC\n(2010-15)', '14th FC\n(2015-20)', '15th FC\n(2020-26)', '16th FC\n(2026-31)'];
+
+      // Population Yield Database (Sum of all states = Population weight of that commission)
+      const DATA_POP_50YR = {
+        'Andhra Pradesh': [3.12, 2.73, 2.34, 2.30, 2.15, 0.780, 1.950, 1.950, 1.130, 0.620, 0.720],
+        'Arunachal Pradesh': [0.01, 0.02, 0.03, 0.03, 0.04, 0.010, 0.040, 0.040, 0.080, 0.080, 0.090],
+        'Assam': [1.02, 0.89, 0.76, 0.75, 0.70, 0.250, 0.630, 0.630, 0.780, 0.420, 0.490],
+        'Bihar': [4.08, 3.57, 3.06, 3.01, 2.81, 1.020, 2.550, 2.550, 2.810, 1.290, 1.510],
+        'Chhattisgarh': [0.0, 0.0, 0.0, 0.0, 0.0, 0.210, 0.525, 0.525, 0.620, 0.330, 0.385],
+        'Goa': [0.03, 0.03, 0.02, 0.02, 0.02, 0.008, 0.020, 0.020, 0.040, 0.020, 0.025],
+        'Gujarat': [1.96, 1.72, 1.47, 1.45, 1.35, 0.490, 1.230, 1.230, 1.350, 0.740, 0.860],
+        'Haryana': [0.71, 0.62, 0.53, 0.52, 0.49, 0.180, 0.450, 0.450, 0.520, 0.290, 0.340],
+        'Himachal Pradesh': [0.25, 0.22, 0.19, 0.19, 0.17, 0.060, 0.160, 0.160, 0.180, 0.090, 0.105],
+        'Jammu & Kashmir': [0.33, 0.29, 0.25, 0.25, 0.23, 0.080, 0.205, 0.205, 0.270, 0.0, 0.0],
+        'Jharkhand': [0.0, 0.0, 0.0, 0.0, 0.0, 0.280, 0.700, 0.700, 0.850, 0.410, 0.480],
+        'Karnataka': [2.12, 1.86, 1.59, 1.56, 1.46, 0.530, 1.330, 1.330, 1.460, 0.800, 0.930],
+        'Kerala': [1.58, 1.38, 1.18, 1.16, 1.08, 0.390, 0.980, 0.980, 1.050, 0.420, 0.490],
+        'Madhya Pradesh': [2.78, 2.43, 2.08, 2.05, 1.91, 0.690, 1.730, 1.730, 1.950, 1.050, 1.225],
+        'Maharashtra': [3.68, 3.22, 2.76, 2.71, 2.53, 0.920, 2.300, 2.300, 2.530, 1.380, 1.610],
+        'Manipur': [0.08, 0.07, 0.06, 0.06, 0.06, 0.020, 0.050, 0.050, 0.075, 0.040, 0.045],
+        'Meghalaya': [0.08, 0.07, 0.06, 0.06, 0.05, 0.020, 0.050, 0.050, 0.075, 0.040, 0.045],
+        'Mizoram': [0.0, 0.0, 0.02, 0.02, 0.02, 0.007, 0.018, 0.018, 0.030, 0.015, 0.018],
+        'Nagaland': [0.04, 0.04, 0.03, 0.03, 0.03, 0.010, 0.025, 0.025, 0.050, 0.025, 0.030],
+        'Odisha': [1.60, 1.40, 1.20, 1.18, 1.10, 0.400, 1.000, 1.000, 1.100, 0.520, 0.610],
+        'Punjab': [0.99, 0.87, 0.74, 0.73, 0.68, 0.250, 0.620, 0.620, 0.690, 0.350, 0.410],
+        'Rajasthan': [1.86, 1.63, 1.40, 1.37, 1.28, 0.470, 1.160, 1.160, 1.450, 0.840, 0.980],
+        'Sikkim': [0.0, 0.0, 0.01, 0.01, 0.01, 0.003, 0.008, 0.008, 0.015, 0.008, 0.009],
+        'Tamil Nadu': [3.00, 2.63, 2.25, 2.21, 2.06, 0.750, 1.880, 1.880, 2.060, 0.890, 1.030],
+        'Telangana': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.950, 0.430, 0.500],
+        'Tripura': [0.11, 0.10, 0.08, 0.08, 0.08, 0.030, 0.070, 0.070, 0.100, 0.050, 0.058],
+        'Uttar Pradesh': [6.40, 5.60, 4.80, 4.72, 4.40, 1.600, 4.000, 4.000, 4.400, 2.480, 2.890],
+        'Uttarakhand': [0.0, 0.0, 0.0, 0.0, 0.0, 0.075, 0.180, 0.180, 0.220, 0.125, 0.145],
+        'West Bengal': [3.20, 2.80, 2.40, 2.36, 2.20, 0.800, 2.000, 2.000, 2.200, 1.200, 1.400]
+      };
+
+      const stateColors = {
+        'Uttar Pradesh': '#8b5cf6',
+        'Bihar': '#ec4899',
+        'West Bengal': '#14b8a6',
+        'Maharashtra': '#3b82f6',
+        'Tamil Nadu': '#10b981',
+        'Karnataka': '#c026d3',
+        'Gujarat': '#f59e0b',
+        'Andhra Pradesh': '#06b6d4',
+        'Rajasthan': '#e11d48',
+        'Madhya Pradesh': '#fb923c',
+        'Kerala': '#0ea5e9'
+      };
+
+      const getRandomColor = () => {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 12) + 2];
+        }
+        return color;
+      };
+
+      // Default states: Gujarat, Maharashtra, Karnataka, Andhra Pradesh, Tamil Nadu
+      let activePopStates = ['Gujarat', 'Maharashtra', 'Karnataka', 'Andhra Pradesh', 'Tamil Nadu'];
+
+      const buildPopDatasets = () => {
+        return activePopStates.map(state => {
+          const color = stateColors[state] || getRandomColor();
+          return {
+            label: state,
+            data: DATA_POP_50YR[state],
+            borderColor: color,
+            backgroundColor: color + '15',
+            borderWidth: 2.5,
+            pointBackgroundColor: color,
+            pointBorderColor: '#0f172a',
+            pointBorderWidth: 1.5,
+            pointRadius: 4,
+            pointHoverRadius: 7,
+            tension: 0.25,
+            fill: false
+          };
+        });
+      };
+
+      const updatePopChart = () => {
+        charts['devolutionPop50yr'].data.datasets = buildPopDatasets();
+        charts['devolutionPop50yr'].update();
+        renderPopChips();
+      };
+
+      const renderPopChips = () => {
+        const chipsContainer = document.getElementById('population-chips-container');
+        if (!chipsContainer) return;
+        chipsContainer.innerHTML = '';
+
+        activePopStates.forEach(state => {
+          const color = stateColors[state] || '#cbd5e1';
+          const chip = document.createElement('span');
+          chip.style.cssText = `
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.2rem 0.5rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid ${color}40;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+          `;
+          
+          const dot = document.createElement('span');
+          dot.style.cssText = `
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: ${color};
+            display: inline-block;
+          `;
+          
+          const labelSpan = document.createElement('span');
+          labelSpan.textContent = state;
+
+          const removeBtn = document.createElement('span');
+          removeBtn.innerHTML = '&times;';
+          removeBtn.style.cssText = `
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-left: 0.2rem;
+            display: inline-block;
+            transition: color 0.2s;
+          `;
+          removeBtn.addEventListener('mouseenter', () => removeBtn.style.color = '#f87171');
+          removeBtn.addEventListener('mouseleave', () => removeBtn.style.color = 'var(--text-secondary)');
+          
+          chip.appendChild(dot);
+          chip.appendChild(labelSpan);
+          chip.appendChild(removeBtn);
+
+          chip.addEventListener('click', () => {
+            activePopStates = activePopStates.filter(s => s !== state);
+            updatePopChart();
+          });
+
+          chipsContainer.appendChild(chip);
+        });
+      };
+
+      charts['devolutionPop50yr'] = new Chart(popCtx, {
+        type: 'line',
+        data: {
+          labels: stateLabels,
+          datasets: buildPopDatasets()
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => `Population Share Yield — ${items[0].label.replace('\n', ' ')}`,
+                label: (item) => ` 🔸 ${item.dataset.label}: ${item.raw.toFixed(3)}% of GTR`
+              },
+              backgroundColor: 'rgba(15,23,42,0.97)',
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              padding: 12,
+              cornerRadius: 8,
+              titleFont: { weight: '700', size: 12 },
+              bodyFont: { size: 11 },
+              maxWidth: 400
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#94a3b8', font: { size: 9 } }
+            },
+            y: {
+              min: 0,
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 10 },
+                callback: v => v + '%'
+              },
+              title: {
+                display: true,
+                text: 'Effective Devolution Share (%)',
+                color: '#94a3b8',
+                font: { size: 10 }
+              }
+            }
+          }
+        }
+      });
+
+      const addPopSelect = document.getElementById('population-add-select');
+      if (addPopSelect) {
+        addPopSelect.addEventListener('change', (e) => {
+          const selectedState = e.target.value;
+          if (selectedState && !activePopStates.includes(selectedState)) {
+            activePopStates.push(selectedState);
+            updatePopChart();
+          }
+          e.target.value = ''; // Reset select
+        });
+      }
+
+      renderPopChips();
+    }
+
+    // --- Run initialization (original) ---
   init();
 });
