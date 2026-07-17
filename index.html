@@ -2351,6 +2351,93 @@
             </div>
           </div>
 
+          <!-- Metric Guide Card: Explaining Horizontal Devolution Criteria -->
+          <div class="chart-main-card" style="padding:1.5rem; margin-bottom:1.25rem; border: 1px solid rgba(167,139,250,0.15);">
+            <div class="card-header-bar" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border-color); margin-bottom:1rem;">
+              <h3 style="font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:0.5rem; color:var(--text-primary);">
+                <i class="fa-solid fa-book-open" style="color:#a78bfa;"></i>
+                Reference Guide: Horizontal Devolution Formula Criteria
+              </h3>
+              <span class="badge" style="background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.3);">Formula Explainer</span>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+              
+              <!-- 1. Income Distance -->
+              <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); padding:1rem; border-radius:6px; border-left:3px solid #a78bfa;">
+                <h4 style="font-size:0.88rem; font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:flex; align-items:center; gap:0.4rem;">
+                  <span style="width:10px; height:10px; border-radius:50%; background:#a78bfa; display:inline-block;"></span>
+                  Income Distance (Equity Parameter)
+                </h4>
+                <p style="font-size:0.78rem; color:var(--text-secondary); line-height:1.45; margin:0;">
+                  <strong>Mechanism:</strong> Calculated as the gap between a state's per-capita GSDP and the per-capita GSDP of the highest-income state (historically Goa, Haryana, or Maharashtra). Poorer states receive a mathematically larger share.<br>
+                  <strong>Objective:</strong> Serves as the primary <strong>fiscal equalization</strong> tool, compensating for lower tax capacity to ensure states can deliver comparable public services.
+                </p>
+              </div>
+
+              <!-- 2. Population -->
+              <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); padding:1rem; border-radius:6px; border-left:3px solid #3b82f6;">
+                <h4 style="font-size:0.88rem; font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:flex; align-items:center; gap:0.4rem;">
+                  <span style="width:10px; height:10px; border-radius:50%; background:#3b82f6; display:inline-block;"></span>
+                  Population (Need Parameter)
+                </h4>
+                <p style="font-size:0.78rem; color:var(--text-secondary); line-height:1.45; margin:0;">
+                  <strong>Mechanism:</strong> Uses the absolute size of a state's population. The 11th through 14th FCs used the <strong>1971 Census</strong> (frozen constitutionally to reward family planning). The 15th and 16th FCs transitioned entirely to the <strong>2011 Census</strong>.<br>
+                  <strong>Objective:</strong> Serves as the primary measure of absolute <strong>infrastructure need and administrative scale</strong> demands.
+                </p>
+              </div>
+
+              <!-- 3. Area & Geography -->
+              <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); padding:1rem; border-radius:6px; border-left:3px solid #10b981;">
+                <h4 style="font-size:0.88rem; font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:flex; align-items:center; gap:0.4rem;">
+                  <span style="width:10px; height:10px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+                  Area &amp; Geography (Cost Parameter)
+                </h4>
+                <p style="font-size:0.78rem; color:var(--text-secondary); line-height:1.45; margin:0;">
+                  <strong>Mechanism:</strong> Calculated based on the geographic size of the state in square kilometers.<br>
+                  <strong>Objective:</strong> Recognizes that larger, sparsely populated, or topographically challenging states (e.g. mountain or desert states) face <strong>higher per-capita costs</strong> in building roads, hospitals, and delivering public services.
+                </p>
+              </div>
+
+              <!-- 4. Forest Cover & Ecology -->
+              <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); padding:1rem; border-radius:6px; border-left:3px solid #22c55e;">
+                <h4 style="font-size:0.88rem; font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:flex; align-items:center; gap:0.4rem;">
+                  <span style="width:10px; height:10px; border-radius:50%; background:#22c55e; display:inline-block;"></span>
+                  Forest Cover &amp; Ecology (Compensation Parameter)
+                </h4>
+                <p style="font-size:0.78rem; color:var(--text-secondary); line-height:1.45; margin:0;">
+                  <strong>Mechanism:</strong> Measures the state's share of dense, carbon-sequestering forest canopy cover relative to national averages.<br>
+                  <strong>Objective:</strong> Compensates states for the <strong>revenue forgone</strong> by preserving ecological areas (which prevents industrial logging, farming, or mining) and rewards their contribution to global climate mitigation.
+                </p>
+              </div>
+
+              <!-- 5. Demographic Performance -->
+              <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); padding:1rem; border-radius:6px; border-left:3px solid #ec4899;">
+                <h4 style="font-size:0.88rem; font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:flex; align-items:center; gap:0.4rem;">
+                  <span style="width:10px; height:10px; border-radius:50%; background:#ec4899; display:inline-block;"></span>
+                  Demographic Performance (Incentive Parameter)
+                </h4>
+                <p style="font-size:0.78rem; color:var(--text-secondary); line-height:1.45; margin:0;">
+                  <strong>Mechanism:</strong> Uses the inverse of the Total Fertility Rate (TFR), effectively comparing a state's 1971 population to its 2011 population.<br>
+                  <strong>Objective:</strong> Introduced by the 15th FC to <strong>reward demographic responsibility</strong> and pacify Southern states that aggressively managed population growth but faced revenue penalties when the census base was updated to 2011.
+                </p>
+              </div>
+
+              <!-- 6. Tax Effort & GDP Contribution -->
+              <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); padding:1rem; border-radius:6px; border-left:3px solid #f59e0b;">
+                <h4 style="font-size:0.88rem; font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:flex; align-items:center; gap:0.4rem;">
+                  <span style="width:10px; height:10px; border-radius:50%; background:#f59e0b; display:inline-block;"></span>
+                  Tax Effort &amp; GSDP Contribution (Efficiency Parameter)
+                </h4>
+                <p style="font-size:0.78rem; color:var(--text-secondary); line-height:1.45; margin:0;">
+                  <strong>Mechanism:</strong> Measures tax collection efficiency relative to state GDP, along with direct contribution to the national economy.<br>
+                  <strong>Objective:</strong> Incentivizes <strong>tax administration efficiency and local resource mobilization</strong>, ensuring that states are rewarded for expanding their own tax bases.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
           </div>
 
           </div>
@@ -2372,7 +2459,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.83"></script>
-  <script src="app.js?v=3.83"></script>
+  <script src="data.js?v=3.84"></script>
+  <script src="app.js?v=3.84"></script>
 </body>
 </html>
