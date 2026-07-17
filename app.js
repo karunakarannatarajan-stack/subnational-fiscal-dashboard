@@ -6895,56 +6895,97 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const flowLabels = [];
       const flowDevolution = [];
-      const flowGrants = [];
+      const flowGstCess = [];
+      const flowOtherGrants = [];
       const flowCentreRetained = [];
 
       for (let yr = 1974; yr <= 2030; yr++) {
         const label = `${yr}-${String(yr + 1).slice(-2)}`;
         flowLabels.push(label);
         
+        // Unconditional Tax Devolution
         if (yr < 1979) {
           flowDevolution.push(22.0);
-          flowGrants.push(21.0);
-          flowCentreRetained.push(57.0);
         } else if (yr >= 1979 && yr < 1984) {
           flowDevolution.push(26.0);
-          flowGrants.push(19.0);
-          flowCentreRetained.push(55.0);
         } else if (yr >= 1984 && yr < 1989) {
           flowDevolution.push(27.0);
-          flowGrants.push(18.5);
-          flowCentreRetained.push(54.5);
         } else if (yr >= 1989 && yr < 1995) {
           flowDevolution.push(27.5);
-          flowGrants.push(18.0);
-          flowCentreRetained.push(54.5);
         } else if (yr >= 1995 && yr < 2000) {
           flowDevolution.push(27.8);
-          flowGrants.push(17.5);
-          flowCentreRetained.push(54.7);
         } else if (yr >= 2000 && yr < 2005) {
           flowDevolution.push(26.6);
-          flowGrants.push(18.0);
-          flowCentreRetained.push(55.4);
         } else if (yr >= 2005 && yr < 2010) {
           flowDevolution.push(27.0);
-          flowGrants.push(18.5);
-          flowCentreRetained.push(54.5);
         } else if (yr >= 2010 && yr < 2015) {
           flowDevolution.push(28.0);
-          flowGrants.push(17.8);
-          flowCentreRetained.push(54.2);
         } else if (yr >= 2015 && yr < 2020) {
           flowDevolution.push(35.3);
-          flowGrants.push(9.5);
-          flowCentreRetained.push(55.2);
         } else if (yr >= 2020 && yr < 2026) {
           flowDevolution.push(32.5);
-          flowGrants.push(8.2);
-          flowCentreRetained.push(59.3);
         } else {
           flowDevolution.push(32.5);
-          flowGrants.push(8.0);
+        }
+
+        // GST Compensation Cess (Earmarked & returned to states)
+        if (yr < 2017) {
+          flowGstCess.push(0.0);
+        } else if (yr >= 2017 && yr < 2020) {
+          flowGstCess.push(2.5);
+        } else if (yr >= 2020 && yr < 2026) {
+          flowGstCess.push(4.2);
+        } else {
+          flowGstCess.push(0.0); // 16th FC expected to end compensation cess
+        }
+
+        // Other Central Grants-in-Aid (Tied/Conditional)
+        if (yr < 1979) {
+          flowOtherGrants.push(21.0);
+        } else if (yr >= 1979 && yr < 1984) {
+          flowOtherGrants.push(19.0);
+        } else if (yr >= 1984 && yr < 1989) {
+          flowOtherGrants.push(18.5);
+        } else if (yr >= 1989 && yr < 1995) {
+          flowOtherGrants.push(18.0);
+        } else if (yr >= 1995 && yr < 2000) {
+          flowOtherGrants.push(17.5);
+        } else if (yr >= 2000 && yr < 2005) {
+          flowOtherGrants.push(18.0);
+        } else if (yr >= 2005 && yr < 2010) {
+          flowOtherGrants.push(18.5);
+        } else if (yr >= 2010 && yr < 2015) {
+          flowOtherGrants.push(17.8);
+        } else if (yr >= 2015 && yr < 2020) {
+          flowOtherGrants.push(7.0); // 9.5 - 2.5
+        } else if (yr >= 2020 && yr < 2026) {
+          flowOtherGrants.push(4.0); // 8.2 - 4.2
+        } else {
+          flowOtherGrants.push(8.0);
+        }
+
+        // Centre's Retained portion (excl. GST Cess)
+        if (yr < 1979) {
+          flowCentreRetained.push(57.0);
+        } else if (yr >= 1979 && yr < 1984) {
+          flowCentreRetained.push(55.0);
+        } else if (yr >= 1984 && yr < 1989) {
+          flowCentreRetained.push(54.5);
+        } else if (yr >= 1989 && yr < 1995) {
+          flowCentreRetained.push(54.5);
+        } else if (yr >= 1995 && yr < 2000) {
+          flowCentreRetained.push(54.7);
+        } else if (yr >= 2000 && yr < 2005) {
+          flowCentreRetained.push(55.4);
+        } else if (yr >= 2005 && yr < 2010) {
+          flowCentreRetained.push(54.5);
+        } else if (yr >= 2010 && yr < 2015) {
+          flowCentreRetained.push(54.2);
+        } else if (yr >= 2015 && yr < 2020) {
+          flowCentreRetained.push(55.2);
+        } else if (yr >= 2020 && yr < 2026) {
+          flowCentreRetained.push(59.3);
+        } else {
           flowCentreRetained.push(59.5);
         }
       }
@@ -6965,20 +7006,30 @@ document.addEventListener("DOMContentLoaded", () => {
               pointRadius: 0
             },
             {
-              label: '2. Central Grants-in-Aid',
-              data: flowGrants,
-              borderColor: '#3b82f6',
-              backgroundColor: 'rgba(96,165,250,0.70)',
+              label: '2. GST Compensation Cess (to States)',
+              data: flowGstCess,
+              borderColor: '#a78bfa',
+              backgroundColor: 'rgba(167,139,250,0.70)',
               borderWidth: 1.5,
               fill: '-1',
               stepped: 'before',
               pointRadius: 0
             },
             {
-              label: '3. Retained by Central Government',
+              label: '3. Other Central Grants-in-Aid',
+              data: flowOtherGrants,
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(96,165,250,0.65)',
+              borderWidth: 1.5,
+              fill: '-1',
+              stepped: 'before',
+              pointRadius: 0
+            },
+            {
+              label: '4. Retained by Central Government',
               data: flowCentreRetained,
               borderColor: '#f87171',
-              backgroundColor: 'rgba(248,113,113,0.65)',
+              backgroundColor: 'rgba(248,113,113,0.55)',
               borderWidth: 1.5,
               fill: '-1',
               stepped: 'before',
@@ -6999,19 +7050,20 @@ document.addEventListener("DOMContentLoaded", () => {
                   const val = item.raw.toFixed(1);
                   const labels = [
                     `🟢 Unconditional Tax Devolution: ${val}% of GTR`,
-                    `🔵 Central Grants-in-Aid (Tied): ${val}% of GTR`,
+                    `🟣 GST Compensation Cess (to States): ${val}% of GTR`,
+                    `🔵 Other Central Grants-in-Aid: ${val}% of GTR`,
                     `🔴 Retained by Central Govt: ${val}% of GTR`
                   ];
                   return ' ' + (labels[item.datasetIndex] ?? item.dataset.label + ': ' + val + '%');
                 },
                 afterBody: (items) => {
                   const idx = items[0].dataIndex;
-                  const totalStateFlow = (flowDevolution[idx] + flowGrants[idx]).toFixed(1);
+                  const totalStateFlow = (flowDevolution[idx] + flowGstCess[idx] + flowOtherGrants[idx]).toFixed(1);
                   const totalCentreRetention = flowCentreRetained[idx].toFixed(1);
                   return [
                     '',
                     `⟶ Total Flow to State Budgets: ${totalStateFlow}% of GTR`,
-                    `⟶ Net Central retention: ${totalCentreRetention}% of GTR`
+                    `⟶ Net Central retention (excl. GST Cess): ${totalCentreRetention}% of GTR`
                   ];
                 }
               },
