@@ -1898,7 +1898,7 @@
             <div class="card-header-bar" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border-color); margin-bottom:1rem;">
               <h3 style="font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;">
                 <i class="fa-solid fa-chart-pie" style="color:var(--accent-color);"></i>
-                Central Tax Revenue Distribution: Where Does Every ₹100 Go? (per FC Period)
+                Central Tax Revenue Distribution: Where Does Every ₹100 Go? (1974–2031)
                 <span class="tooltip-container">
                   <i class="fa-solid fa-circle-info info-icon"></i>
                   <span class="tooltip-text">
@@ -1906,8 +1906,9 @@
                     Each bar = 100% of Gross Tax Revenue (GTR) collected by the Central Government in that FC period.<br><br>
                     <strong style="color:#4ade80;">Green</strong> = what all states combined actually receive (Effective Devolution)<br>
                     <strong style="color:#60a5fa;">Blue-grey</strong> = Centre's retained share from the divisible pool (its constitutional entitlement)<br>
-                    <strong style="color:#fb923c;">Orange-red</strong> = Cesses &amp; Surcharges collected by Centre but never shared with states (Article 270)<br><br>
-                    The <strong>dotted line</strong> = Centre's total retention = Blue-grey + Orange. As cesses grow, this line rises even if the statutory devolution rate stays the same.
+                    <strong style="color:#fb923c;">Orange</strong> = General Central Cesses (e.g. road/fuel cesses) retained entirely by the Centre<br>
+                    <strong style="color:#a78bfa;">Purple</strong> = GST Compensation Cess returned entirely to states (Article 270 exception)<br><br>
+                    The <strong>dotted line</strong> = Centre's net retention (excludes GST cess). As general cesses grow, this line rises even if the statutory devolution rate stays the same.
                   </span>
                 </span>
               </h3>
@@ -1918,8 +1919,9 @@
             <div style="display:flex; gap:1.5rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem; padding:0.6rem 0.8rem; background:rgba(255,255,255,0.03); border-radius:6px; font-size:0.78rem; color:var(--text-secondary);">
               <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#4ade80; display:inline-block;"></span> States' Effective Devolution</span>
               <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#60a5fa; display:inline-block;"></span> Centre Retains (from Divisible Pool)</span>
-              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#fb923c; display:inline-block;"></span> Cesses &amp; Surcharges (Centre only, not shared)</span>
-              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:28px; height:2px; border-top:2.5px dashed #f87171; display:inline-block;"></span> Centre's Total Retention (dotted)</span>
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#fb923c; display:inline-block;"></span> General Central Cesses (retained)</span>
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#a78bfa; display:inline-block;"></span> GST Compensation Cess (to States)</span>
+              <span style="display:flex; align-items:center; gap:0.4rem;"><span style="width:28px; height:2px; border-top:2.5px dashed #f87171; display:inline-block;"></span> Centre's Net Retention (dotted)</span>
             </div>
 
             <div style="position:relative; height:460px; width:100%;">
@@ -1929,8 +1931,8 @@
             <!-- Narrative below chart -->
             <div style="margin-top:1rem; padding:1rem; background:rgba(248,113,113,0.05); border-left:3px solid #f87171; border-radius:0 6px 6px 0;">
               <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.6; margin:0;">
-                <strong style="color:var(--text-primary);">The Constitutional Tension (Article 270):</strong>
-                Cesses and surcharges levied for specific purposes are explicitly excluded from the divisible pool and do not accrue to states. The Centre has leveraged this provision aggressively — the orange segment grew from <strong style="color:#fb923c;">~10% in 2000</strong> to <strong style="color:#fb923c;">~21% by 2026</strong> of total central taxes. As a result, even the historic 14th FC jump to 42% statutory share delivered a smaller-than-expected real windfall to states: the <em>dotted retention line</em> only dipped modestly before rebounding as cesses surged.
+                <strong style="color:var(--text-primary);">The Constitutional Tension (Article 270) &amp; Footnote:</strong>
+                Cesses and surcharges are excluded from the divisible pool. To isolate the true structural tension, this chart separates the **GST Compensation Cess** (returned to states, purple) from **General Central Cesses** (retained by the Centre, orange). Note that general cesses alone have expanded from <strong style="color:#fb923c;">~3.5% of GTR in 1974</strong> to over <strong style="color:#fb923c;">16.6% of GTR in the 15th FC</strong>, causing the Centre's net retention (dotted line) to rise steadily over the last 20 years despite statutory devolution increases.
               </p>
             </div>
             </div>
@@ -2275,7 +2277,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.79"></script>
-  <script src="app.js?v=3.79"></script>
+  <script src="data.js?v=3.80"></script>
+  <script src="app.js?v=3.80"></script>
 </body>
 </html>

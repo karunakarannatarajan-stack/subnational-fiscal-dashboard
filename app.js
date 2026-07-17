@@ -5844,15 +5844,24 @@ document.addEventListener("DOMContentLoaded", () => {
     if (cessCtx) {
       if (charts['devolutionCess']) charts['devolutionCess'].destroy();
 
-      // Compute three segments for each FC period (sum = 100% of GTR)
-      // ① stateDevolution  = effective_devolution_of_gtr_pct
-      // ② centrePool       = divisible_pool_of_gtr_pct × (1 - statutory_share_pct/100)
-      // ③ cesses           = 100 - divisible_pool_of_gtr_pct
-      // dotted line        = centrePool + cesses = 100 - stateDevolution
       const seg_state    = CESS_DATA.map(d => parseFloat(d.effective_devolution_of_gtr_pct.toFixed(1)));
       const seg_cPool    = CESS_DATA.map(d => parseFloat(((d.divisible_pool_of_gtr_pct / 100) * (1 - d.statutory_share_pct / 100) * 100).toFixed(1)));
-      const seg_cess     = CESS_DATA.map(d => parseFloat((100 - d.divisible_pool_of_gtr_pct).toFixed(1)));
-      const dotted_centre = CESS_DATA.map(d => parseFloat((100 - d.effective_devolution_of_gtr_pct).toFixed(1)));
+      
+      const seg_cess_gst = CESS_DATA.map(d => {
+        if (d.finance_commission === '6th' || d.finance_commission === '7th' || d.finance_commission === '8th' || d.finance_commission === '9th' || d.finance_commission === '10th' || d.finance_commission === '11th' || d.finance_commission === '12th' || d.finance_commission === '13th') return 0.0;
+        if (d.finance_commission === '14th') return 2.5;
+        if (d.finance_commission === '15th') return 4.2;
+        return 0.0; // 16th FC expected to end compensation cess
+      });
+      const seg_cess_gen = CESS_DATA.map(d => {
+        const total_cess = 100 - d.divisible_pool_of_gtr_pct;
+        if (d.finance_commission === '14th') return parseFloat((total_cess - 2.5).toFixed(1));
+        if (d.finance_commission === '15th') return parseFloat((total_cess - 4.2).toFixed(1));
+        return parseFloat(total_cess.toFixed(1));
+      });
+      
+      // Net retention excludes GST Compensation Cess as it is returned to states
+      const dotted_centre = CESS_DATA.map((d, idx) => parseFloat((100 - d.effective_devolution_of_gtr_pct - seg_cess_gst[idx]).toFixed(1)));
 
       const cessLabels = CESS_DATA.map(d => `${d.finance_commission} FC\n${d.operational_years}`);
 
@@ -5862,44 +5871,43 @@ document.addEventListener("DOMContentLoaded", () => {
           labels: cessLabels,
           datasets: [
             {
-              // ① Green — States' effective devolution
               label: 'States\' Effective Devolution (% of GTR)',
               data: seg_state,
               backgroundColor: 'rgba(74,222,128,0.80)',
               borderColor: 'rgba(74,222,128,1)',
               borderWidth: 1,
-              borderRadius: { topLeft: 0, topRight: 0, bottomLeft: 5, bottomRight: 5 },
-              borderSkipped: 'bottom',
               stack: 'gtr',
               order: 3
             },
             {
-              // ② Blue — Centre retains from divisible pool
               label: 'Centre Retains from Divisible Pool (% of GTR)',
               data: seg_cPool,
               backgroundColor: 'rgba(96,165,250,0.70)',
               borderColor: 'rgba(96,165,250,1)',
               borderWidth: 1,
-              borderRadius: 0,
-              borderSkipped: true,
               stack: 'gtr',
               order: 3
             },
             {
-              // ③ Orange — Cesses & surcharges (top segment, growing over time)
-              label: 'Cesses & Surcharges — Centre only, not shared (% of GTR)',
-              data: seg_cess,
+              label: 'General Central Cesses (retained by Centre) (% of GTR)',
+              data: seg_cess_gen,
               backgroundColor: 'rgba(251,146,60,0.80)',
               borderColor: 'rgba(251,146,60,1)',
               borderWidth: 1,
-              borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 0, bottomRight: 0 },
-              borderSkipped: 'bottom',
               stack: 'gtr',
               order: 3
             },
             {
-              // Dotted line — Centre's total retention
-              label: 'Centre\'s Total Retention (dotted line, % of GTR)',
+              label: 'GST Compensation Cess (returned to states) (% of GTR)',
+              data: seg_cess_gst,
+              backgroundColor: 'rgba(167,139,250,0.80)',
+              borderColor: 'rgba(167,139,250,1)',
+              borderWidth: 1,
+              stack: 'gtr',
+              order: 3
+            },
+            {
+              label: 'Centre\'s Net Retention (dotted line, % of GTR)',
               type: 'line',
               data: dotted_centre,
               borderColor: '#f87171',
@@ -5927,11 +5935,11 @@ document.addEventListener("DOMContentLoaded", () => {
               position: 'top',
               labels: {
                 color: '#94a3b8',
-                font: { size: 11 },
+                font: { size: 10 },
                 usePointStyle: true,
-                pointStyleWidth: 14,
-                padding: 20,
-                filter: (item) => item.datasetIndex < 4  // show all 4 legend items
+                pointStyleWidth: 12,
+                padding: 15,
+                filter: (item) => item.datasetIndex < 5
               }
             },
             tooltip: {
@@ -5941,19 +5949,18 @@ document.addEventListener("DOMContentLoaded", () => {
                   return `${d.finance_commission} Finance Commission (${d.operational_years})  —  ${d.chairman}`;
                 },
                 label: (item) => {
-                  const d = CESS_DATA[item.dataIndex];
+                  const idx = item.dataIndex;
                   const labels = {
-                    0: `🟢 States receive: ${seg_state[item.dataIndex]}% of GTR`,
-                    1: `🔵 Centre pool retained: ${seg_cPool[item.dataIndex]}% of GTR`,
-                    2: `🟠 Cesses & surcharges: ${seg_cess[item.dataIndex]}% of GTR`,
-                    3: `⟶ Centre total retention: ${dotted_centre[item.dataIndex]}% of GTR`
+                    0: `🟢 States receive (Effective): ${seg_state[idx]}% of GTR`,
+                    1: `🔵 Centre pool retained: ${seg_cPool[idx]}% of GTR`,
+                    2: `🟠 General central cesses: ${seg_cess_gen[idx]}% of GTR`,
+                    3: `🟣 GST Compensation Cess: ${seg_cess_gst[idx]}% of GTR (Returned to States)`,
+                    4: `⟶ Centre net retention: ${dotted_centre[idx]}% of GTR (Excl. GST Cess)`
                   };
                   return labels[item.datasetIndex] ?? item.formattedValue + '%';
                 },
                 afterBody: (items) => {
                   const d = CESS_DATA[items[0].dataIndex];
-                  const stateShare = seg_state[items[0].dataIndex];
-                  const cessShare = seg_cess[items[0].dataIndex];
                   return [
                     '',
                     `📐 Divisible Pool: ${d.divisible_pool_of_gtr_pct}% of GTR`,
@@ -5977,7 +5984,7 @@ document.addEventListener("DOMContentLoaded", () => {
             x: {
               stacked: true,
               grid: { display: false },
-              ticks: { color: '#94a3b8', font: { size: 10 } }
+              ticks: { color: '#94a3b8', font: { size: 9 } }
             },
             y: {
               stacked: true,
@@ -5986,7 +5993,7 @@ document.addEventListener("DOMContentLoaded", () => {
               grid: { color: 'rgba(255,255,255,0.06)' },
               ticks: {
                 color: '#94a3b8',
-                font: { size: 11 },
+                font: { size: 10 },
                 stepSize: 10,
                 callback: v => v + '%'
               },
@@ -5994,7 +6001,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 display: true,
                 text: '% of Gross Tax Revenue (GTR)',
                 color: '#94a3b8',
-                font: { size: 11 }
+                font: { size: 10 }
               }
             }
           }
