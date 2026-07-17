@@ -2254,6 +2254,69 @@
             
             <div style="margin-top:1rem; padding:0.8rem; background:rgba(255,255,255,0.02); border-radius:6px; font-size:0.78rem; color:var(--text-secondary); line-height:1.45;">
               <strong>The Grant-Swap &amp; Cess Clawback:</strong> Pre-2015, total flows to states (devolution + grants) stood at <strong>45.8% of GTR</strong>. While devolution (green) jumped to 35.3% in 2015-16, central grants (blue) were slashed to 9.5% to balance it. In recent years, total flows to states have declined to an all-time low of <strong>40.5%</strong>.
+          </div>
+
+          <!-- Metric 3: Horizontal Devolution Analytics Card -->
+          <div class="chart-main-card" style="padding:1.5rem; margin-bottom:1.25rem; border: 1px solid rgba(167,139,250,0.15);">
+            <div class="card-header-bar" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border-color); margin-bottom:1rem;">
+              <h3 style="font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:0.5rem; color:var(--text-primary);">
+                <i class="fa-solid fa-table-cells-large" style="color:#a78bfa;"></i>
+                Horizontal Devolution Analytics: Criteria Weights &amp; State-Wise Shares (11th to 16th FC)
+                <span class="tooltip-container">
+                  <i class="fa-solid fa-circle-info info-icon"></i>
+                  <span class="tooltip-text">
+                    <strong>Horizontal Devolution:</strong><br>
+                    Defines how the devolved tax pool is distributed among individual states. Uses a formula weighting equity (Income Distance) and efficiency (Tax Effort, Demographic performance) metrics. Sum of formula weights and state shares equals exactly 100%.
+                  </span>
+                </span>
+              </h3>
+              <span class="badge" style="background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.3);">Horizontal Sharing</span>
+            </div>
+
+            <!-- Layout: Grid for Formula Weights chart and State Shares table -->
+            <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:1.5rem; margin-bottom:1rem;">
+              <!-- Left Column: Formula weights chart -->
+              <div style="background:rgba(255,255,255,0.01); padding:1rem; border-radius:8px; border:1px solid var(--border-color);">
+                <h4 style="font-size:0.88rem; font-weight:600; color:var(--text-primary); margin-bottom:0.8rem; display:flex; align-items:center; gap:0.4rem;">
+                  <i class="fa-solid fa-chart-bar" style="color:#a78bfa;"></i>
+                  Formula Criteria Weight Evolution (%)
+                </h4>
+                <div style="position:relative; height:340px; width:100%;">
+                  <canvas id="chart-devolution-horizontal-weights"></canvas>
+                </div>
+              </div>
+
+              <!-- Right Column: State shares table/grid -->
+              <div style="background:rgba(255,255,255,0.01); padding:1rem; border-radius:8px; border:1px solid var(--border-color); display:flex; flex-direction:column;">
+                <h4 style="font-size:0.88rem; font-weight:600; color:var(--text-primary); margin-bottom:0.8rem; display:flex; align-items:center; justify-content:space-between; gap:0.4rem;">
+                  <span><i class="fa-solid fa-list-ol" style="color:#a78bfa;"></i> State-Wise Share Grid (%)</span>
+                  <select id="state-share-fc-select" style="background:#1e293b; border:1px solid var(--border-color); color:var(--text-primary); font-size:0.75rem; padding:0.2rem 0.5rem; border-radius:4px; outline:none;">
+                    <option value="fc_16th">16th FC (2026-31)</option>
+                    <option value="fc_15th">15th FC (2020-26)</option>
+                    <option value="fc_14th">14th FC (2015-20)</option>
+                    <option value="fc_13th">13th FC (2010-15)</option>
+                    <option value="fc_12th">12th FC (2005-10)</option>
+                    <option value="fc_11th">11th FC (2000-05)</option>
+                  </select>
+                </h4>
+                <div style="flex:1; overflow-y:auto; max-height:310px; padding-right:0.2rem;" class="custom-scrollbar">
+                  <table style="width:100%; border-collapse:collapse; font-size:0.78rem; text-align:left;">
+                    <thead>
+                      <tr style="border-bottom:1px solid var(--border-color); color:var(--text-secondary);">
+                        <th style="padding:0.4rem 0.5rem; font-weight:600;">State Name</th>
+                        <th style="padding:0.4rem 0.5rem; text-align:right; font-weight:600;">Net Share (%)</th>
+                      </tr>
+                    </thead>
+                    <tbody id="state-share-table-body">
+                      <!-- Dynamically filled by app.js -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            
+            <div style="margin-top:1rem; padding:0.8rem; background:rgba(255,255,255,0.02); border-radius:6px; font-size:0.78rem; color:var(--text-secondary); line-height:1.45;">
+              <strong>Equity vs. Efficiency Tension:</strong> The formula evolution highlights how the weight for **Income Distance** (poorer states catching up) has been maintained between 45% and 50%. The population weight has shifted entirely to the **2011 Census** under the 15th and 16th FC, prompting controversy from states that achieved lower demographic fertility rates, offset partially by the **Demographic Performance** criteria.
             </div>
           </div>
 
@@ -2278,7 +2341,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.81"></script>
-  <script src="app.js?v=3.81"></script>
+  <script src="data.js?v=3.82"></script>
+  <script src="app.js?v=3.82"></script>
 </body>
 </html>

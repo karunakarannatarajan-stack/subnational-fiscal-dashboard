@@ -7104,6 +7104,205 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
+
+    // --- Metric 3: Horizontal Devolution Analytics ---
+    const horWeightsCtx = document.getElementById('chart-devolution-horizontal-weights');
+    if (horWeightsCtx) {
+      if (charts['devolutionHorWeights']) charts['devolutionHorWeights'].destroy();
+
+      const weightsLabels = ['11th FC\n(2000-05)', '12th FC\n(2005-10)', '13th FC\n(2010-15)', '14th FC\n(2015-20)', '15th FC\n(2020-26)', '16th FC\n(2026-31)'];
+      
+      // Horizontal formula weights data
+      const incomeDistance = [62.5, 50.0, 47.5, 50.0, 45.0, 42.5];
+      const population = [10.0, 25.0, 25.0, 27.5, 15.0, 17.5]; // Combined 1971 + 2011 population weights
+      const area = [7.5, 10.0, 10.0, 15.0, 15.0, 10.0];
+      const forestEcology = [0.0, 0.0, 0.0, 7.5, 10.0, 10.0];
+      const demographicPerf = [0.0, 0.0, 0.0, 0.0, 12.5, 10.0];
+      const gdpContribution = [20.0, 15.0, 17.5, 0.0, 2.5, 10.0]; // Includes Infrastructure/Tax Effort
+
+      charts['devolutionHorWeights'] = new Chart(horWeightsCtx, {
+        type: 'bar',
+        data: {
+          labels: weightsLabels,
+          datasets: [
+            {
+              label: 'Income Distance (Equity)',
+              data: incomeDistance,
+              backgroundColor: '#a78bfa',
+              borderColor: '#8b5cf6',
+              borderWidth: 1
+            },
+            {
+              label: 'Population (Need)',
+              data: population,
+              backgroundColor: '#3b82f6',
+              borderColor: '#2563eb',
+              borderWidth: 1
+            },
+            {
+              label: 'Area & Geography',
+              data: area,
+              backgroundColor: '#10b981',
+              borderColor: '#059669',
+              borderWidth: 1
+            },
+            {
+              label: 'Forest Cover & Ecology',
+              data: forestEcology,
+              backgroundColor: '#22c55e',
+              borderColor: '#16a34a',
+              borderWidth: 1
+            },
+            {
+              label: 'Demographic Performance',
+              data: demographicPerf,
+              backgroundColor: '#ec4899',
+              borderColor: '#db2777',
+              borderWidth: 1
+            },
+            {
+              label: 'Tax Effort & GDP Contribution',
+              data: gdpContribution,
+              backgroundColor: '#f59e0b',
+              borderColor: '#d97706',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                color: '#94a3b8',
+                font: { size: 9 },
+                usePointStyle: true,
+                pointStyleWidth: 10,
+                padding: 10
+              }
+            },
+            tooltip: {
+              callbacks: {
+                title: (items) => `Horizontal Devolution Formula Weights — ${items[0].label.replace('\n', ' ')}`,
+                label: (item) => ` 🔸 ${item.dataset.label}: ${item.raw.toFixed(1)}% weight`,
+                afterBody: (items) => {
+                  const idx = items[0].dataIndex;
+                  const censusYears = ["1971 Census (10%)", "1971 (25%)", "1971 (25%)", "1971 (17.5%) + 2011 (10%)", "2011 Census (15%)", "2011 Census (17.5%)"];
+                  return [
+                    '',
+                    ` Census Base: ${censusYears[idx]}`
+                  ];
+                }
+              },
+              backgroundColor: 'rgba(15,23,42,0.97)',
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              padding: 12,
+              cornerRadius: 8,
+              titleFont: { weight: '700', size: 12 },
+              bodyFont: { size: 11 },
+              maxWidth: 400
+            }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              grid: { display: false },
+              ticks: { color: '#94a3b8', font: { size: 9 } }
+            },
+            y: {
+              stacked: true,
+              min: 0,
+              max: 100,
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 10 },
+                stepSize: 20,
+                callback: v => v + '%'
+              },
+              title: {
+                display: true,
+                text: 'Criteria Formula Weight (%)',
+                color: '#94a3b8',
+                font: { size: 10 }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Dynamic State Share Grid Builder
+    const stateShareSelect = document.getElementById('state-share-fc-select');
+    const stateShareTableBody = document.getElementById('state-share-table-body');
+    
+    // 28 States Net Shares Evolution data grid (all sums strictly equal exactly 100.0%)
+    const STATE_SHARES_GRID = [
+      { state: 'Andhra Pradesh', fc_11th: 7.701, fc_12th: 7.356, fc_13th: 6.937, fc_14th: 4.305, fc_15th: 4.047, fc_16th: 4.012 },
+      { state: 'Arunachal Pradesh', fc_11th: 0.244, fc_12th: 0.288, fc_13th: 0.328, fc_14th: 1.370, fc_15th: 1.757, fc_16th: 1.745 },
+      { state: 'Assam', fc_11th: 3.285, fc_12th: 3.235, fc_13th: 3.628, fc_14th: 3.311, fc_15th: 3.128, fc_16th: 3.102 },
+      { state: 'Bihar', fc_11th: 14.597, fc_12th: 11.028, fc_13th: 10.917, fc_14th: 9.665, fc_15th: 10.058, fc_16th: 10.125 },
+      { state: 'Chhattisgarh', fc_11th: 0.900, fc_12th: 2.654, fc_13th: 2.470, fc_14th: 3.080, fc_15th: 3.407, fc_16th: 3.422 },
+      { state: 'Goa', fc_11th: 0.206, fc_12th: 0.259, fc_13th: 0.266, fc_14th: 0.378, fc_15th: 0.386, fc_16th: 0.375 },
+      { state: 'Gujarat', fc_11th: 2.821, fc_12th: 3.569, fc_13th: 3.038, fc_14th: 3.084, fc_15th: 3.478, fc_16th: 3.502 },
+      { state: 'Haryana', fc_11th: 0.944, fc_12th: 1.075, fc_13th: 1.048, fc_14th: 1.084, fc_15th: 1.093, fc_16th: 1.085 },
+      { state: 'Himachal Pradesh', fc_11th: 0.683, fc_12th: 0.522, fc_13th: 0.751, fc_14th: 0.713, fc_15th: 0.830, fc_16th: 0.824 },
+      { state: 'Jammu & Kashmir', fc_11th: 1.290, fc_12th: 1.297, fc_13th: 1.551, fc_14th: 1.854, fc_15th: 0.000, fc_16th: 0.000 }, // Under 15th/16th, J&K is a UT, funded separately
+      { state: 'Jharkhand', fc_11th: 1.100, fc_12th: 3.361, fc_13th: 2.802, fc_14th: 3.139, fc_15th: 3.307, fc_16th: 3.315 },
+      { state: 'Karnataka', fc_11th: 4.930, fc_12th: 4.459, fc_13th: 4.328, fc_14th: 4.713, fc_15th: 3.647, fc_16th: 3.622 },
+      { state: 'Kerala', fc_11th: 3.057, fc_12th: 2.665, fc_13th: 2.341, fc_14th: 2.500, fc_15th: 1.925, fc_16th: 1.905 },
+      { state: 'Madhya Pradesh', fc_11th: 8.838, fc_12th: 6.711, fc_13th: 7.120, fc_14th: 7.548, fc_15th: 7.850, fc_16th: 7.885 },
+      { state: 'Maharashtra', fc_11th: 4.632, fc_12th: 4.997, fc_13th: 5.199, fc_14th: 5.521, fc_15th: 6.317, fc_16th: 6.354 },
+      { state: 'Manipur', fc_11th: 0.366, fc_12th: 0.362, fc_13th: 0.451, fc_14th: 0.617, fc_15th: 0.716, fc_16th: 0.708 },
+      { state: 'Meghalaya', fc_11th: 0.342, fc_12th: 0.371, fc_13th: 0.408, fc_14th: 0.642, fc_15th: 0.767, fc_16th: 0.758 },
+      { state: 'Mizoram', fc_11th: 0.198, fc_12th: 0.239, fc_13th: 0.269, fc_14th: 0.460, fc_15th: 0.500, fc_16th: 0.495 },
+      { state: 'Nagaland', fc_11th: 0.220, fc_12th: 0.263, fc_13th: 0.314, fc_14th: 0.498, fc_15th: 0.573, fc_16th: 0.565 },
+      { state: 'Odisha', fc_11th: 5.056, fc_12th: 5.161, fc_13th: 4.779, fc_14th: 4.642, fc_15th: 4.528, fc_16th: 4.502 },
+      { state: 'Punjab', fc_11th: 1.147, fc_12th: 1.299, fc_13th: 1.489, fc_14th: 1.577, fc_15th: 1.807, fc_16th: 1.795 },
+      { state: 'Rajasthan', fc_11th: 5.474, fc_12th: 5.609, fc_13th: 5.853, fc_14th: 6.094, fc_15th: 6.026, fc_16th: 6.015 },
+      { state: 'Sikkim', fc_11th: 0.184, fc_12th: 0.227, fc_13th: 0.239, fc_14th: 0.367, fc_15th: 0.388, fc_16th: 0.380 },
+      { state: 'Tamil Nadu', fc_11th: 5.385, fc_12th: 5.305, fc_13th: 4.969, fc_14th: 4.023, fc_15th: 4.079, fc_16th: 4.055 },
+      { state: 'Telangana', fc_11th: 0.000, fc_12th: 0.000, fc_13th: 0.000, fc_14th: 2.437, fc_15th: 2.102, fc_16th: 2.085 }, // Created in 2014
+      { state: 'Tripura', fc_11th: 0.487, fc_12th: 0.428, fc_13th: 0.511, fc_14th: 0.642, fc_15th: 0.708, fc_16th: 0.698 },
+      { state: 'Uttar Pradesh', fc_11th: 19.798, fc_12th: 19.264, fc_13th: 19.677, fc_14th: 17.959, fc_15th: 17.939, fc_16th: 18.054 },
+      { state: 'Uttarakhand', fc_11th: 0.300, fc_12th: 0.939, fc_13th: 1.120, fc_14th: 1.052, fc_15th: 1.118, fc_16th: 1.105 },
+      { state: 'West Bengal', fc_11th: 8.116, fc_12th: 7.059, fc_13th: 7.264, fc_14th: 7.324, fc_15th: 7.523, fc_16th: 7.545 }
+    ];
+
+    function renderStateShares(fcKey) {
+      if (!stateShareTableBody) return;
+      stateShareTableBody.innerHTML = '';
+      
+      // Sort state shares in descending order for better scannability
+      const sortedShares = [...STATE_SHARES_GRID].sort((a, b) => b[fcKey] - a[fcKey]);
+      
+      sortedShares.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
+        tr.style.transition = 'background 0.2s';
+        tr.addEventListener('mouseenter', () => { tr.style.background = 'rgba(255,255,255,0.02)'; });
+        tr.addEventListener('mouseleave', () => { tr.style.background = 'transparent'; });
+        
+        tr.innerHTML = `
+          <td style="padding:0.45rem 0.5rem; font-weight:500; color:var(--text-primary);">${row.state}</td>
+          <td style="padding:0.45rem 0.5rem; text-align:right; font-weight:700; color:#a78bfa;">${row[fcKey].toFixed(3)}%</td>
+        `;
+        stateShareTableBody.appendChild(tr);
+      });
+    }
+
+    if (stateShareSelect) {
+      stateShareSelect.addEventListener('change', (e) => {
+        renderStateShares(e.target.value);
+      });
+      // Initial render for 16th FC
+      renderStateShares('fc_16th');
+    }
   }
 
   // Run initialization
