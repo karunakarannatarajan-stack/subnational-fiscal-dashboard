@@ -7453,6 +7453,224 @@ document.addEventListener("DOMContentLoaded", () => {
 
       renderChips();
     }
+
+    // --- Metric 3C: Income Distance Devolution Trajectory Chart (50 Years) ---
+    const incDistCtx = document.getElementById('chart-devolution-income-distance-50yr');
+    if (incDistCtx) {
+      if (charts['devolutionIncDist50yr']) charts['devolutionIncDist50yr'].destroy();
+
+      const stateLabels = ['6th FC\n(1974-79)', '7th FC\n(1979-84)', '8th FC\n(1984-89)', '9th FC\n(1989-95)', '10th FC\n(1995-00)', '11th FC\n(2000-05)', '12th FC\n(2005-10)', '13th FC\n(2010-15)', '14th FC\n(2015-20)', '15th FC\n(2020-26)', '16th FC\n(2026-31)'];
+
+      // Income Distance Yield Database (Sum of all states = Income Distance weight of that commission)
+      const DATA_INC_DIST_50YR = {
+        'Andhra Pradesh': [0.45, 0.85, 1.25, 1.38, 1.55, 4.850, 3.800, 3.250, 1.850, 1.550, 1.400],
+        'Arunachal Pradesh': [0.0, 0.0, 0.02, 0.03, 0.05, 0.152, 0.162, 0.170, 0.680, 0.820, 0.785],
+        'Assam': [0.18, 0.28, 0.42, 0.48, 0.52, 1.850, 1.580, 1.620, 1.550, 1.420, 1.320],
+        'Bihar': [1.45, 2.38, 3.52, 3.98, 4.35, 12.450, 9.150, 8.850, 7.200, 7.150, 6.800],
+        'Chhattisgarh': [0.0, 0.0, 0.0, 0.0, 0.0, 0.350, 1.250, 1.150, 1.450, 1.580, 1.520],
+        'Goa': [0.0, 0.0, 0.01, 0.02, 0.03, 0.082, 0.092, 0.080, 0.110, 0.090, 0.085],
+        'Gujarat': [0.15, 0.28, 0.40, 0.42, 0.48, 1.250, 0.950, 0.850, 0.720, 0.680, 0.700],
+        'Haryana': [0.08, 0.12, 0.15, 0.16, 0.18, 0.450, 0.380, 0.350, 0.320, 0.280, 0.250],
+        'Himachal Pradesh': [0.04, 0.06, 0.08, 0.09, 0.10, 0.280, 0.220, 0.290, 0.280, 0.320, 0.300],
+        'Jammu & Kashmir': [0.08, 0.11, 0.15, 0.18, 0.20, 0.520, 0.480, 0.550, 0.620, 0.0, 0.0],
+        'Jharkhand': [0.0, 0.0, 0.0, 0.0, 0.0, 0.420, 1.550, 1.320, 1.480, 1.520, 1.450],
+        'Karnataka': [0.28, 0.52, 0.75, 0.82, 0.90, 2.850, 2.100, 1.850, 1.150, 0.750, 0.650],
+        'Kerala': [0.18, 0.32, 0.48, 0.52, 0.58, 1.850, 1.280, 1.150, 0.950, 0.620, 0.550],
+        'Madhya Pradesh': [0.55, 0.92, 1.35, 1.55, 1.72, 5.250, 3.820, 3.950, 3.850, 3.920, 3.850],
+        'Maharashtra': [0.25, 0.42, 0.58, 0.60, 0.65, 1.850, 1.450, 1.250, 1.100, 1.150, 1.200],
+        'Manipur': [0.02, 0.03, 0.04, 0.05, 0.06, 0.180, 0.160, 0.190, 0.280, 0.320, 0.300],
+        'Meghalaya': [0.02, 0.03, 0.04, 0.05, 0.06, 0.180, 0.180, 0.190, 0.290, 0.340, 0.325],
+        'Mizoram': [0.0, 0.0, 0.01, 0.02, 0.03, 0.080, 0.090, 0.100, 0.190, 0.220, 0.200],
+        'Nagaland': [0.01, 0.02, 0.03, 0.04, 0.05, 0.110, 0.120, 0.130, 0.210, 0.250, 0.235],
+        'Odisha': [0.32, 0.58, 0.85, 0.98, 1.10, 3.420, 2.950, 2.650, 2.350, 2.220, 2.150],
+        'Punjab': [0.06, 0.10, 0.12, 0.14, 0.15, 0.380, 0.320, 0.350, 0.310, 0.340, 0.320],
+        'Rajasthan': [0.35, 0.62, 0.95, 1.12, 1.25, 3.850, 3.120, 3.180, 3.020, 2.920, 2.850],
+        'Sikkim': [0.0, 0.0, 0.01, 0.02, 0.03, 0.080, 0.090, 0.095, 0.150, 0.170, 0.160],
+        'Tamil Nadu': [0.35, 0.68, 0.98, 1.10, 1.15, 3.450, 2.550, 2.150, 1.200, 0.920, 0.800],
+        'Telangana': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.050, 0.880, 0.820],
+        'Tripura': [0.03, 0.04, 0.05, 0.06, 0.08, 0.220, 0.190, 0.210, 0.290, 0.320, 0.300],
+        'Uttar Pradesh': [1.85, 2.95, 4.45, 5.12, 5.54, 15.850, 12.100, 11.850, 11.200, 11.350, 11.500],
+        'Uttarakhand': [0.0, 0.0, 0.0, 0.0, 0.0, 0.120, 0.420, 0.480, 0.420, 0.450, 0.420],
+        'West Bengal': [0.65, 1.15, 1.72, 1.95, 2.15, 6.250, 4.850, 4.350, 3.550, 3.350, 3.150]
+      };
+
+      const stateColors = {
+        'Uttar Pradesh': '#8b5cf6',
+        'Bihar': '#ec4899',
+        'West Bengal': '#14b8a6',
+        'Maharashtra': '#3b82f6',
+        'Tamil Nadu': '#10b981',
+        'Karnataka': '#c026d3',
+        'Gujarat': '#f59e0b',
+        'Andhra Pradesh': '#06b6d4',
+        'Rajasthan': '#e11d48',
+        'Madhya Pradesh': '#fb923c',
+        'Kerala': '#0ea5e9'
+      };
+
+      const getRandomColor = () => {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 12) + 2];
+        }
+        return color;
+      };
+
+      // Default states: Gujarat, Maharashtra, Karnataka, Andhra Pradesh, Tamil Nadu
+      let activeIncDistStates = ['Gujarat', 'Maharashtra', 'Karnataka', 'Andhra Pradesh', 'Tamil Nadu'];
+
+      const buildIncDistDatasets = () => {
+        return activeIncDistStates.map(state => {
+          const color = stateColors[state] || getRandomColor();
+          return {
+            label: state,
+            data: DATA_INC_DIST_50YR[state],
+            borderColor: color,
+            backgroundColor: color + '15',
+            borderWidth: 2.5,
+            pointBackgroundColor: color,
+            pointBorderColor: '#0f172a',
+            pointBorderWidth: 1.5,
+            pointRadius: 4,
+            pointHoverRadius: 7,
+            tension: 0.25,
+            fill: false
+          };
+        });
+      };
+
+      const updateIncDistChart = () => {
+        charts['devolutionIncDist50yr'].data.datasets = buildIncDistDatasets();
+        charts['devolutionIncDist50yr'].update();
+        renderIncDistChips();
+      };
+
+      const renderIncDistChips = () => {
+        const chipsContainer = document.getElementById('income-distance-chips-container');
+        if (!chipsContainer) return;
+        chipsContainer.innerHTML = '';
+
+        activeIncDistStates.forEach(state => {
+          const color = stateColors[state] || '#cbd5e1';
+          const chip = document.createElement('span');
+          chip.style.cssText = `
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.2rem 0.5rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid ${color}40;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+          `;
+          
+          const dot = document.createElement('span');
+          dot.style.cssText = `
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: ${color};
+            display: inline-block;
+          `;
+          
+          const labelSpan = document.createElement('span');
+          labelSpan.textContent = state;
+
+          const removeBtn = document.createElement('span');
+          removeBtn.innerHTML = '&times;';
+          removeBtn.style.cssText = `
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-left: 0.2rem;
+            display: inline-block;
+            transition: color 0.2s;
+          `;
+          removeBtn.addEventListener('mouseenter', () => removeBtn.style.color = '#f87171');
+          removeBtn.addEventListener('mouseleave', () => removeBtn.style.color = 'var(--text-secondary)');
+          
+          chip.appendChild(dot);
+          chip.appendChild(labelSpan);
+          chip.appendChild(removeBtn);
+
+          chip.addEventListener('click', () => {
+            activeIncDistStates = activeIncDistStates.filter(s => s !== state);
+            updateIncDistChart();
+          });
+
+          chipsContainer.appendChild(chip);
+        });
+      };
+
+      charts['devolutionIncDist50yr'] = new Chart(incDistCtx, {
+        type: 'line',
+        data: {
+          labels: stateLabels,
+          datasets: buildIncDistDatasets()
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => `Income Distance Share Yield — ${items[0].label.replace('\n', ' ')}`,
+                label: (item) => ` 🔸 ${item.dataset.label}: ${item.raw.toFixed(3)}% of GTR`
+              },
+              backgroundColor: 'rgba(15,23,42,0.97)',
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              padding: 12,
+              cornerRadius: 8,
+              titleFont: { weight: '700', size: 12 },
+              bodyFont: { size: 11 },
+              maxWidth: 400
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#94a3b8', font: { size: 9 } }
+            },
+            y: {
+              min: 0,
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 10 },
+                callback: v => v + '%'
+              },
+              title: {
+                display: true,
+                text: 'Effective Devolution Share (%)',
+                color: '#94a3b8',
+                font: { size: 10 }
+              }
+            }
+          }
+        }
+      });
+
+      const addIncDistSelect = document.getElementById('income-distance-add-select');
+      if (addIncDistSelect) {
+        addIncDistSelect.addEventListener('change', (e) => {
+          const selectedState = e.target.value;
+          if (selectedState && !activeIncDistStates.includes(selectedState)) {
+            activeIncDistStates.push(selectedState);
+            updateIncDistChart();
+          }
+          e.target.value = ''; // Reset select
+        });
+      }
+
+      renderIncDistChips();
+    }
   }
 
   // Run initialization

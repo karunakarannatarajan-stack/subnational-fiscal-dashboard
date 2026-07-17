@@ -2438,6 +2438,75 @@
             </div>
           </div>
 
+          <!-- Metric 3C: Income Distance Devolution Trajectory Card -->
+          <div class="chart-main-card" style="padding:1.5rem; margin-bottom:1.25rem; border: 1px solid rgba(167,139,250,0.15);">
+            <div class="card-header-bar" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border-color); margin-bottom:1rem;">
+              <h3 style="font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:0.5rem; color:var(--text-primary);">
+                <i class="fa-solid fa-scale-balanced" style="color:#a78bfa;"></i>
+                Income Distance (Equity Parameter) Yield: 50-Year Trajectory (6th to 16th FC)
+                <span class="tooltip-container">
+                  <i class="fa-solid fa-circle-info info-icon"></i>
+                  <span class="tooltip-text">
+                    <strong>Income Distance Yield (50 Years):</strong><br>
+                    Plots the actual devolution percentage points received by each state purely from the Income Distance (Equity) criteria.<br>
+                    Sum of all states' yields in any given cycle equals the total Income Distance weight (e.g. 42.5% in 16th FC).
+                  </span>
+                </span>
+              </h3>
+              <span class="badge" style="background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.3);">Fiscal Equalization</span>
+            </div>
+
+            <!-- Interactive selector and chips -->
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+              <div style="display:flex; align-items:center; gap:0.6rem;">
+                <label for="income-distance-add-select" style="font-size:0.78rem; color:var(--text-secondary);">Add State to Plot:</label>
+                <select id="income-distance-add-select" style="background:#1e293b; border:1px solid var(--border-color); color:var(--text-primary); font-size:0.75rem; padding:0.25rem 0.6rem; border-radius:4px; outline:none; cursor:pointer;">
+                  <option value="" disabled selected>-- Choose State --</option>
+                  <option value="Andhra Pradesh">Andhra Pradesh</option>
+                  <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                  <option value="Assam">Assam</option>
+                  <option value="Bihar">Bihar</option>
+                  <option value="Chhattisgarh">Chhattisgarh</option>
+                  <option value="Goa">Goa</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Haryana">Haryana</option>
+                  <option value="Himachal Pradesh">Himachal Pradesh</option>
+                  <option value="Jammu & Kashmir">Jammu & Kashmir</option>
+                  <option value="Jharkhand">Jharkhand</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Kerala">Kerala</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Manipur">Manipur</option>
+                  <option value="Meghalaya">Meghalaya</option>
+                  <option value="Mizoram">Mizoram</option>
+                  <option value="Nagaland">Nagaland</option>
+                  <option value="Odisha">Odisha</option>
+                  <option value="Punjab">Punjab</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Sikkim">Sikkim</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Telangana">Telangana</option>
+                  <option value="Tripura">Tripura</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="Uttarakhand">Uttarakhand</option>
+                  <option value="West Bengal">West Bengal</option>
+                </select>
+              </div>
+              <div id="income-distance-chips-container" style="display:flex; flex-wrap:wrap; gap:0.4rem; justify-content:flex-end;">
+                <!-- Filled dynamically by chips representing active states -->
+              </div>
+            </div>
+
+            <div style="position:relative; height:340px; width:100%;">
+              <canvas id="chart-devolution-income-distance-50yr"></canvas>
+            </div>
+            
+            <div style="margin-top:1rem; padding:0.8rem; background:rgba(255,255,255,0.02); border-radius:6px; font-size:0.78rem; color:var(--text-secondary); line-height:1.45;">
+              <strong>The Equalization Gap:</strong> Because the Income Distance formula assigns weights based on how far a state's per-capita GSDP is from the highest state, high-income states like **Gujarat, Maharashtra, Karnataka, and Tamil Nadu** receive very small yields (typically &lt;1.5% GTR). Poor, populous states (such as Uttar Pradesh or Bihar) receive the lion's share, showing the strong redistributive/equalization nature of India's tax-sharing system.
+            </div>
+          </div>
+
           </div>
 
           </div>
@@ -2459,7 +2528,7 @@
   </div>
 
   <!-- Script Files -->
-  <script src="data.js?v=3.84"></script>
-  <script src="app.js?v=3.84"></script>
+  <script src="data.js?v=3.85"></script>
+  <script src="app.js?v=3.85"></script>
 </body>
 </html>
